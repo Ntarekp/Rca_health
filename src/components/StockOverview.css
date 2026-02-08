@@ -1,0 +1,134 @@
+/* Stock Overview - Pixel-perfect implementation from Figma */
+
+.stock-overview {
+  width: 927px;
+  height: 377px;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-10);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.stock-overview-header {
+  width: 100%;
+  height: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 0 10px;
+}
+
+.stock-overview-title {
+  font-family: var(--font-secondary);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-12);
+  line-height: var(--line-height-18);
+  color: var(--color-text-tertiary);
+  margin: 0;
+  padding: 0;
+}
+
+.view-more-link {
+  font-family: var(--font-secondary);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-12);
+  line-height: var(--line-height-18);
+  color: var(--color-info);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s;
+}
+
+.view-more-link:hover {
+  opacity: 0.7;
+  text-decoration: underline;
+}
+
+.stock-overview-table {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.table-header {
+  width: 100%;
+  height: 38px;
+  display: grid;
+  grid-template-columns: 72px 101px 117px 129px 132px 54px 145px;
+  gap: 0;
+  padding: 0 10px;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table-row {
+  width: 100%;
+  height: 38px;
+  display: grid;
+  grid-template-columns: 72px 101px 117px 129px 132px 54px 145px;
+  gap: 0;
+  padding: 0 10px;
+  align-items: center;
+  border-bottom: 1px solid transparent;
+}
+
+.table-row.even {
+  background-color: var(--color-info-bg);
+  border-radius: var(--radius-5);
+}
+
+.table-cell {
+  font-family: var(--font-secondary);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-12);
+  line-height: var(--line-height-18);
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+}
+
+.table-header .table-cell {
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+}
+
+.status-badge {
+  padding: 2px 8px;
+  border-radius: var(--radius-20);
+  font-family: var(--font-secondary);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-8);
+  line-height: var(--line-height-12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 66px;
+  height: 16px;
+}
+
+.status-badge.status-sufficient {
+  background-color: var(--color-info);
+  color: var(--color-text-light);
+}
+
+.status-badge.status-sufficient-green {
+  background-color: var(--color-info);
+  color: var(--color-success-light);
+}
+
+.status-badge.status-low {
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.status-badge.status-out {
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+}
+

@@ -1,0 +1,124 @@
+/* Pixel-perfect design tokens extracted from Figma */
+
+:root {
+  /* Colors - Exact hex values from Figma */
+  --color-bg-primary: #f7f8fd;
+  --color-bg-secondary: #f1f2f7;
+  --color-bg-card: #ffffff;
+  --color-bg-sidebar: #f1f2f7;
+  
+  --color-primary: #1a264a;
+  --color-primary-light: rgba(26, 38, 74, 0.55);
+  --color-primary-dark: #2d395b;
+  
+  --color-text-primary: #000000;
+  --color-text-secondary: #797a7c;
+  --color-text-tertiary: #a9aaad;
+  --color-text-light: #f7f8fd;
+  --color-text-on-primary: #e5e7ec;
+  
+  --color-border: #e5e7eb;
+  --color-border-light: rgba(229, 231, 235, 0.5);
+  
+  /* Status Colors */
+  --color-success: #14ae5c;
+  --color-success-bg: #dff4e9;
+  --color-success-light: #16a34a;
+  --color-success-text: #d1fae5;
+  
+  --color-warning: #f59e0b;
+  --color-warning-bg: #fef3c7;
+  --color-warning-light: #fde5bf;
+  
+  --color-error: #dc2626;
+  --color-error-bg: #fee2e2;
+  
+  --color-info: #838ca1;
+  --color-info-bg: rgba(219, 234, 254, 0.34);
+  
+  /* Chart Colors */
+  --color-chart-primary: #838ca1;
+  --color-chart-secondary: #2d395b;
+  --color-chart-accent-1: #9d2c34;
+  --color-chart-accent-2: #133dbd;
+  --color-chart-accent-3: #924b66;
+  
+  /* Typography - Font Families */
+  --font-primary: 'Bricolage Grotesque', sans-serif;
+  --font-secondary: 'Poppins', sans-serif;
+  
+  /* Typography - Font Sizes (exact from Figma) */
+  --font-size-8: 8px;
+  --font-size-12: 12px;
+  --font-size-14: 14px;
+  --font-size-18: 18px;
+  --font-size-20: 20px;
+  --font-size-24: 24px;
+  --font-size-36: 36px;
+  
+  /* Typography - Font Weights */
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  
+  /* Typography - Line Heights (exact from Figma) */
+  --line-height-12: 12px;
+  --line-height-14: 14.4px;
+  --line-height-18: 18px;
+  --line-height-21: 21px;
+  --line-height-24: 24px;
+  --line-height-27: 27px;
+  --line-height-28: 28.8px;
+  --line-height-43: 43.2px;
+  
+  /* Letter Spacing */
+  --letter-spacing-tight: -0.4px;
+  --letter-spacing-tighter: -0.8px;
+  --letter-spacing-normal: 0px;
+  
+  /* Spacing - Exact pixel values from Figma */
+  --spacing-2: 2px;
+  --spacing-5: 5px;
+  --spacing-8: 8px;
+  --spacing-10: 10px;
+  --spacing-12: 12px;
+  --spacing-14: 14px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-25: 25px;
+  --spacing-30: 30px;
+  --spacing-34: 34px;
+  --spacing-38: 38px;
+  --spacing-41: 41px;
+  --spacing-47: 47px;
+  --spacing-56: 56px;
+  --spacing-70: 70px;
+  --spacing-148: 148px;
+  --spacing-217: 217px;
+  --spacing-275: 275px;
+  --spacing-377: 377px;
+  --spacing-408: 408px;
+  --spacing-453: 453px;
+  --spacing-508: 508px;
+  --spacing-897: 897px;
+  --spacing-927: 927px;
+  --spacing-1440: 1440px;
+  
+  /* Border Radius - Exact from Figma */
+  --radius-2: 2px;
+  --radius-5: 5px;
+  --radius-7: 7px;
+  --radius-8: 8px;
+  --radius-10: 10px;
+  --radius-20: 20px;
+  
+  /* Shadows - To be defined based on Figma */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
+  /* Layout */
+  --header-height: 56px;
+  --sidebar-width: 217px;
+}
+

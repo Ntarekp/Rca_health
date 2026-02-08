@@ -1,0 +1,76 @@
+@import './variables.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-secondary);
+  font-size: var(--font-size-12);
+  line-height: var(--line-height-18);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Typography Utilities */
+.text-primary {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.text-secondary {
+  font-family: var(--font-secondary);
+}
+
+.text-light {
+  font-weight: var(--font-weight-light);
+}
+
+.text-regular {
+  font-weight: var(--font-weight-regular);
+}
+
+.text-medium {
+  font-weight: var(--font-weight-medium);
+}
+
+.text-semibold {
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Remove default button styles */
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Remove default input styles */
+input {
+  border: none;
+  outline: none;
+  font-family: inherit;
+}
+
+input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+/* Remove default styles from links */
+a {
+  text-decoration: none;
+  color: inherit;
+}
