@@ -1,11 +1,13 @@
 
 import { Plus, Users, Calendar, AlertTriangle, Activity, UserPlus, FileText } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import StatsCard from '../features/dashboard/StatsCard';
 import ChartsSection from '../features/dashboard/ChartsSection';
 import AppointmentsTable from '../features/dashboard/AppointmentsTable';
 import RecentConsultations from '../features/dashboard/RecentConsultations';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   return (
     <div className="space-y-8 pb-10">
       {/* Page Header */}
@@ -17,11 +19,17 @@ const Dashboard = () => {
         </div>
 
         <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] text-white rounded-[var(--radius-5)] hover:bg-[var(--color-primary-dark)] transition-colors">
+          <button
+            onClick={() => navigate('/consultations/new')}
+            className="flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] text-white rounded-[var(--radius-5)] hover:bg-[var(--color-primary-dark)] transition-colors"
+          >
             <Plus size={16} />
             <span className="text-[14px] font-medium">New Consultation</span>
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-white text-[var(--color-primary)] rounded-[var(--radius-5)] border border-[var(--color-border)] hover:bg-gray-50 transition-colors">
+          <button
+            onClick={() => window.location.href = '/students/new'}
+            className="flex items-center gap-2 px-4 py-2 bg-white text-[var(--color-primary)] rounded-[var(--radius-5)] border border-[var(--color-border)] hover:bg-gray-50 transition-colors"
+          >
             <UserPlus size={16} />
             <span className="text-[14px] font-medium">Register Student</span>
           </button>

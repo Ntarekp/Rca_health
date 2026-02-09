@@ -1,0 +1,51 @@
+.lab-request-page {
+    padding: 0;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.lab-test-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.lab-test-option {
+    background-color: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-5);
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.lab-test-option:hover {
+    border-color: var(--color-primary);
+    background-color: var(--color-bg-primary-hover);
+}
+
+.lab-test-option.selected {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-light);
+}
+
+.lab-test-checkbox {
+    margin-top: 4px;
+}
+
+.lab-test-info h4 {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    margin: 0 0 4px 0;
+}
+
+.lab-test-info p {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    margin: 0;
+}

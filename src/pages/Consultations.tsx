@@ -1,6 +1,11 @@
+import { useNavigate } from 'react-router-dom'
+import { LayoutGrid, List } from 'lucide-react'
 import './Consultations.css'
+import { useState } from 'react'
 
 const Consultations: React.FC = () => {
+  const navigate = useNavigate()
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
   const consultations = [
     {
       id: '101',
@@ -72,7 +77,27 @@ const Consultations: React.FC = () => {
           <p className="page-subtitle">View and manage all student consultations</p>
         </div>
         <div className="page-actions">
-          <button className="action-button primary">
+          <div className="flex bg-gray-100 rounded-lg p-1 h-[38px] items-center">
+            <button
+              className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-[var(--color-primary)]' : 'text-gray-400 hover:text-gray-600'}`}
+              onClick={() => setViewMode('grid')}
+              title="Grid View"
+            >
+              <LayoutGrid size={18} />
+            </button>
+            <button
+              className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-[var(--color-primary)]' : 'text-gray-400 hover:text-gray-600'}`}
+              onClick={() => setViewMode('list')}
+              title="List View"
+            >
+              <List size={18} />
+            </button>
+          </div>
+
+          <button
+            className="action-button primary"
+            onClick={() => navigate('/consultations/new')}
+          >
             <svg width="21" height="21" viewBox="0 0 21 21" fill="none">
               <path d="M10.5 3.5V17.5M3.5 10.5H17.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             </svg>
@@ -81,69 +106,119 @@ const Consultations: React.FC = () => {
         </div>
       </div>
 
-      <div className="transactions-table-container">
-        <div className="table-wrapper">
-          <table className="transactions-table">
-            <thead>
-              <tr>
-                <th>Date & Time</th>
-                <th>Student</th>
-                <th>Complaint</th>
-                <th>Diagnosis</th>
-                <th>Disposition</th>
-                <th>Handled By</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {consultations.map((consultation) => (
-                <tr key={consultation.id}>
-                  <td>
-                    <div className="date-time-cell">
-                      <span className="date">{consultation.date}</span>
-                      <span className="time">{consultation.time}</span>
-                    </div>
-                  </td>
-                  <td className="font-medium text-[var(--color-primary)]">{consultation.student}</td>
-                  <td>{consultation.complaint}</td>
-                  <td>{consultation.diagnosis}</td>
-                  <td>
-                    <span className={`type-badge ${consultation.disposition === 'Returned to Class' ? 'stock-in' :
-                      consultation.disposition === 'Sent Home' ? 'stock-out' : 'stock-out'
-                      }`}>
-                      {consultation.disposition}
-                    </span>
-                  </td>
-                  <td>{consultation.handledBy}</td>
-                  <td>
-                    <span className={`status-badge ${consultation.status}`}>
-                      {consultation.status === 'pending-lab' ? 'In Lab' : consultation.status}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="action-buttons">
-                      <button className="icon-button" title="View">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                          <path d="M8 3C4.667 3 2 5.667 2 9C2 12.333 4.667 15 8 15C11.333 15 14 12.333 14 9C14 5.667 11.333 3 8 3ZM8 13C6.343 13 5 11.657 5 10C5 8.343 6.343 7 8 7C9.657 7 11 8.343 11 10C11 11.657 9.657 13 8 13Z" fill="currentColor" />
-                        </svg>
-                      </button>
-                      <button className="icon-button" title="Edit">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                          <path d="M11.333 2.667C11.508 2.492 11.716 2.404 11.956 2.404C12.196 2.404 12.404 2.492 12.579 2.667C12.754 2.842 12.842 3.05 12.842 3.29C12.842 3.53 12.754 3.738 12.579 3.913L5.246 11.246L2 12L2.754 8.754L11.333 2.667Z" fill="currentColor" />
-                        </svg>
-                      </button>
-                    </div>
-                  </td>
+      {viewMode === 'list' ? (
+        <div className="transactions-table-container">
+          <div className="table-wrapper">
+            <table className="transactions-table">
+              <thead>
+                <tr>
+                  <th>Date & Time</th>
+                  <th>Student</th>
+                  <th>Complaint</th>
+                  <th>Diagnosis</th>
+                  <th>Disposition</th>
+                  <th>Handled By</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {consultations.map((consultation) => (
+                  <tr key={consultation.id}>
+                    <td>
+                      <div className="date-time-cell">
+                        <span className="date">{consultation.date}</span>
+                        <span className="time">{consultation.time}</span>
+                      </div>
+                    </td>
+                    <td className="font-medium text-[var(--color-primary)]">{consultation.student}</td>
+                    <td>{consultation.complaint}</td>
+                    <td>{consultation.diagnosis}</td>
+                    <td>
+                      <span className={`type-badge ${consultation.disposition === 'Returned to Class' ? 'stock-in' :
+                        consultation.disposition === 'Sent Home' ? 'stock-out' : 'stock-out'
+                        }`}>
+                        {consultation.disposition}
+                      </span>
+                    </td>
+                    <td>{consultation.handledBy}</td>
+                    <td>
+                      <span className={`status-badge ${consultation.status}`}>
+                        {consultation.status === 'pending-lab' ? 'In Lab' : consultation.status}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="action-buttons">
+                        <button
+                          className="icon-button"
+                          title="View"
+                          onClick={() => navigate(`/consultations/${consultation.id}`)}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 3C4.667 3 2 5.667 2 9C2 12.333 4.667 15 8 15C11.333 15 14 12.333 14 9C14 5.667 11.333 3 8 3ZM8 13C6.343 13 5 11.657 5 10C5 8.343 6.343 7 8 7C9.657 7 11 8.343 11 10C11 11.657 9.657 13 8 13Z" fill="currentColor" />
+                          </svg>
+                        </button>
+                        <button className="icon-button" title="Edit">
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M11.333 2.667C11.508 2.492 11.716 2.404 11.956 2.404C12.196 2.404 12.404 2.492 12.579 2.667C12.754 2.842 12.842 3.05 12.842 3.29C12.842 3.53 12.754 3.738 12.579 3.913L5.246 11.246L2 12L2.754 8.754L11.333 2.667Z" fill="currentColor" />
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="stock-grid">
+          {consultations.map((consultation) => (
+            <div key={consultation.id} className="stock-card">
+              <div className="stock-card-header">
+                <div className="stock-card-title">
+                  <h3>{consultation.student}</h3>
+                  <span className="stock-category">{consultation.date} {consultation.time}</span>
+                </div>
+                <span className={`status-badge ${consultation.status === 'completed' ? 'status-sufficient-green' : 'status-low'}`}>
+                  {consultation.status === 'pending-lab' ? 'In Lab' : consultation.status}
+                </span>
+              </div>
+              <div className="stock-card-body">
+                <div className="stock-info-item">
+                  <span className="label">Complaint:</span>
+                  <span className="value">{consultation.complaint}</span>
+                </div>
+                <div className="stock-info-item">
+                  <span className="label">Diagnosis:</span>
+                  <span className="value">{consultation.diagnosis}</span>
+                </div>
+                <div className="stock-info-item">
+                  <span className="label">Disposition:</span>
+                  <span className={`type-badge ${consultation.disposition === 'Returned to Class' ? 'stock-in' : 'stock-out'}`}>
+                    {consultation.disposition}
+                  </span>
+                </div>
+                <div className="stock-info-item">
+                  <span className="label">Handled By:</span>
+                  <span className="value">{consultation.handledBy}</span>
+                </div>
+              </div>
+              <div className="stock-card-footer">
+                <button
+                  className="card-button"
+                  onClick={() => navigate(`/consultations/${consultation.id}`)}
+                >
+                  View Details
+                </button>
+                <button className="card-button secondary">Edit</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
 
 export default Consultations
-

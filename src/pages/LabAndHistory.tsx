@@ -1,8 +1,12 @@
+import { useNavigate } from 'react-router-dom'
+import { LayoutGrid, List } from 'lucide-react'
 import './LabAndHistory.css'
 import { useState } from 'react'
 
 const LabAndHistory: React.FC = () => {
+  const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   const records = [
     {
@@ -87,7 +91,28 @@ const LabAndHistory: React.FC = () => {
               className="search-input"
             />
           </div>
-          <button className="action-button primary">
+
+          <div className="flex bg-gray-100 rounded-lg p-1 h-[38px] items-center">
+            <button
+              className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-[var(--color-primary)]' : 'text-gray-400 hover:text-gray-600'}`}
+              onClick={() => setViewMode('grid')}
+              title="Grid View"
+            >
+              <LayoutGrid size={18} />
+            </button>
+            <button
+              className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-[var(--color-primary)]' : 'text-gray-400 hover:text-gray-600'}`}
+              onClick={() => setViewMode('list')}
+              title="List View"
+            >
+              <List size={18} />
+            </button>
+          </div>
+
+          <button
+            className="action-button primary"
+            onClick={() => navigate('/lab/new')}
+          >
             <svg width="21" height="21" viewBox="0 0 21 21" fill="none">
               <path d="M10.5 3.5V17.5M3.5 10.5H17.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             </svg>
@@ -96,53 +121,102 @@ const LabAndHistory: React.FC = () => {
         </div>
       </div>
 
-      <div className="suppliers-grid">
-        {filteredRecords.map((record) => (
-          <div key={record.id} className="supplier-card">
-            <div className="supplier-card-header">
-              <div className="supplier-info">
-                <h3>{record.student}</h3>
-                <span className={`status-badge ${getStatusClass(record.status)}`}>
-                  {record.status}
-                </span>
-              </div>
-            </div>
-            <div className="supplier-card-body">
-              <div className="supplier-detail">
-                <span className="detail-label">Type:</span>
-                <span className="detail-value">{record.type}</span>
-              </div>
-              <div className="supplier-detail">
-                <span className="detail-label">Result/Condition:</span>
-                <span className="detail-value">{record.result}</span>
-              </div>
-              <div className="supplier-detail">
-                <span className="detail-label">Doctor/Tech:</span>
-                <span className="detail-value">{record.doctor}</span>
-              </div>
-              <div className="supplier-detail">
-                <span className="detail-label">Tags:</span>
-                <div className="items-tags">
-                  {record.tags.map((tag, index) => (
-                    <span key={index} className="item-tag">{tag}</span>
-                  ))}
+      {viewMode === 'grid' ? (
+        <div className="suppliers-grid">
+          {filteredRecords.map((record) => (
+            <div key={record.id} className="supplier-card">
+              <div className="supplier-card-header">
+                <div className="supplier-info">
+                  <h3>{record.student}</h3>
+                  <span className={`status-badge ${getStatusClass(record.status)}`}>
+                    {record.status}
+                  </span>
                 </div>
               </div>
-              <div className="supplier-detail">
-                <span className="detail-label">Date:</span>
-                <span className="detail-value">{record.date}</span>
+              <div className="supplier-card-body">
+                <div className="supplier-detail">
+                  <span className="detail-label">Type:</span>
+                  <span className="detail-value">{record.type}</span>
+                </div>
+                <div className="supplier-detail">
+                  <span className="detail-label">Result/Condition:</span>
+                  <span className="detail-value">{record.result}</span>
+                </div>
+                <div className="supplier-detail">
+                  <span className="detail-label">Doctor/Tech:</span>
+                  <span className="detail-value">{record.doctor}</span>
+                </div>
+                <div className="supplier-detail">
+                  <span className="detail-label">Tags:</span>
+                  <div className="items-tags">
+                    {record.tags.map((tag, index) => (
+                      <span key={index} className="item-tag">{tag}</span>
+                    ))}
+                  </div>
+                </div>
+                <div className="supplier-detail">
+                  <span className="detail-label">Date:</span>
+                  <span className="detail-value">{record.date}</span>
+                </div>
+              </div>
+              <div className="supplier-card-footer">
+                <button
+                  className="card-button"
+                  onClick={() => navigate(`/lab/${record.id}`)}
+                >
+                  View Report
+                </button>
+                <button className="card-button secondary">Edit</button>
               </div>
             </div>
-            <div className="supplier-card-footer">
-              <button className="card-button">View Report</button>
-              <button className="card-button secondary">Edit</button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="table-container">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Type</th>
+                <th>Result/Condition</th>
+                <th>Doctor/Tech</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredRecords.map((record) => (
+                <tr key={record.id}>
+                  <td className="font-medium">{record.student}</td>
+                  <td>{record.type}</td>
+                  <td>{record.result}</td>
+                  <td>{record.doctor}</td>
+                  <td>{record.date}</td>
+                  <td>
+                    <span className={`status-badge ${getStatusClass(record.status)}`}>
+                      {record.status}
+                    </span>
+                  </td>
+                  <td>
+                    <button
+                      className="text-[var(--color-primary)] hover:underline text-sm font-medium mr-3"
+                      onClick={() => navigate(`/lab/${record.id}`)}
+                    >
+                      View
+                    </button>
+                    <button className="text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] text-sm">
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }
 
 export default LabAndHistory
-
