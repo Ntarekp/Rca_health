@@ -53,7 +53,8 @@ const ReportsPage = () => {
                             <option value="daily">Daily Report</option>
                             <option value="weekly">Weekly Report</option>
                             <option value="monthly">Monthly Report</option>
-                            <option value="yearly">Yearly Report</option>
+                            <option value="quarterly">3 Month Report</option>
+                            <option value="yearly">Annual Report</option>
                         </select>
                     </div>
                     <div className="flex items-center gap-2 bg-white border border-border rounded-8 p-1 shadow-sm">

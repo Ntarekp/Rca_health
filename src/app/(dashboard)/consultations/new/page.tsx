@@ -11,6 +11,8 @@ const NewConsultationPage = () => {
         temp: '',
         bp: '',
         pulse: '',
+        spo2: '',
+        painScore: '',
         weight: '',
         complaint: '',
         symptoms: [] as string[],
@@ -126,6 +128,36 @@ const NewConsultationPage = () => {
                                 </div>
                             </div>
                             <div className="flex flex-col gap-1.5">
+                                <label className="text-13px font-medium text-text-secondary">SPO2</label>
+                                <div className="relative">
+                                    <input
+                                        type="number"
+                                        name="spo2"
+                                        value={formData.spo2}
+                                        onChange={handleChange}
+                                        placeholder="98"
+                                        className="w-full pl-4 pr-10 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                    />
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-12px text-text-tertiary">%</span>
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-13px font-medium text-text-secondary">Pain Score</label>
+                                <div className="relative">
+                                    <input
+                                        type="number"
+                                        name="painScore"
+                                        value={formData.painScore}
+                                        onChange={handleChange}
+                                        placeholder="0"
+                                        min="0"
+                                        max="10"
+                                        className="w-full pl-4 pr-14 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                    />
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-10px text-text-tertiary">/10</span>
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
                                 <label className="text-13px font-medium text-text-secondary">Weight</label>
                                 <div className="relative">
                                     <input
@@ -171,8 +203,8 @@ const NewConsultationPage = () => {
                                             type="button"
                                             onClick={() => toggleSymptom(symptom)}
                                             className={`px-3 py-1.5 rounded-5 text-12px font-medium border transition-all ${formData.symptoms.includes(symptom)
-                                                    ? 'bg-primary text-white border-primary shadow-sm'
-                                                    : 'bg-bg-secondary text-text-secondary border-border hover:border-primary/30'
+                                                ? 'bg-primary text-white border-primary shadow-sm'
+                                                : 'bg-bg-secondary text-text-secondary border-border hover:border-primary/30'
                                                 }`}
                                         >
                                             {symptom}

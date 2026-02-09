@@ -58,6 +58,7 @@ const StudentProfilePage = () => {
                         <div className="flex flex-wrap gap-4 mt-2 text-14px text-text-secondary">
                             <span className="flex items-center gap-1.5"><User size={16} /> {student.code}</span>
                             <span className="flex items-center gap-1.5"><Calendar size={16} /> {student.age} Years</span>
+                            <span className="flex items-center gap-1.5 capitalize"><User size={16} /> {student.gender}</span>
                             <span className="bg-bg-secondary px-3 py-0.5 rounded-full text-12px">{student.class}</span>
                         </div>
                     </div>
