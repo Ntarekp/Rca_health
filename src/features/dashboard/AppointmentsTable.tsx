@@ -1,3 +1,4 @@
+"use client";
 
 import { MoreHorizontal, Eye, Clock } from 'lucide-react';
 
@@ -12,47 +13,47 @@ const appointmentsData = [
 
 const getStatusStyle = (status: string) => {
     switch (status) {
-        case 'Completed': return 'bg-[#e6f4ea] text-[var(--color-success)]';
-        case 'In Progress': return 'bg-[#fff7e6] text-[var(--color-warning)]';
-        case 'Scheduled': return 'bg-[#e8f0fe] text-[var(--color-primary)]';
-        case 'Cancelled': return 'bg-[#fce8e6] text-[var(--color-error)]';
+        case 'Completed': return 'bg-[#e6f4ea] text-success';
+        case 'In Progress': return 'bg-[#fff7e6] text-warning';
+        case 'Scheduled': return 'bg-[#e8f0fe] text-primary';
+        case 'Cancelled': return 'bg-[#fce8e6] text-error';
         default: return 'bg-gray-100 text-gray-600';
     }
 };
 
 const AppointmentsTable = () => {
     return (
-        <div className="bg-[var(--color-bg-card)] rounded-[var(--radius-10)] shadow-sm overflow-hidden h-full">
-            <div className="p-6 border-b border-[var(--color-border-light)] flex justify-between items-center">
-                <h3 className="text-[14px] font-semibold text-[var(--color-text-secondary)]">Today's Appointments</h3>
-                <button className="text-[12px] text-[var(--color-primary)] font-medium hover:underline">View All</button>
+        <div className="bg-bg-card rounded-10 shadow-sm overflow-hidden h-full">
+            <div className="p-6 border-b border-border-light flex justify-between items-center">
+                <h3 className="text-14px font-semibold text-text-secondary">Today's Appointments</h3>
+                <button className="text-12px text-primary font-medium hover:underline">View All</button>
             </div>
 
             <div className="overflow-x-auto">
                 <table className="w-full">
                     <thead className="bg-[#f8f9fc]">
                         <tr>
-                            <th className="px-6 py-4 text-left text-[12px] font-medium text-[var(--color-text-secondary)]">Student Name</th>
-                            <th className="px-6 py-4 text-left text-[12px] font-medium text-[var(--color-text-secondary)]">Class</th>
-                            <th className="px-6 py-4 text-left text-[12px] font-medium text-[var(--color-text-secondary)]">Time</th>
-                            <th className="px-6 py-4 text-left text-[12px] font-medium text-[var(--color-text-secondary)]">Reason</th>
-                            <th className="px-6 py-4 text-left text-[12px] font-medium text-[var(--color-text-secondary)]">Attended By</th>
-                            <th className="px-6 py-4 text-left text-[12px] font-medium text-[var(--color-text-secondary)]">Status</th>
-                            <th className="px-6 py-4 text-left text-[12px] font-medium text-[var(--color-text-secondary)]">Actions</th>
+                            <th className="px-6 py-4 text-left text-12px font-medium text-text-secondary">Student Name</th>
+                            <th className="px-6 py-4 text-left text-12px font-medium text-text-secondary">Class</th>
+                            <th className="px-6 py-4 text-left text-12px font-medium text-text-secondary">Time</th>
+                            <th className="px-6 py-4 text-left text-12px font-medium text-text-secondary">Reason</th>
+                            <th className="px-6 py-4 text-left text-12px font-medium text-text-secondary">Attended By</th>
+                            <th className="px-6 py-4 text-left text-12px font-medium text-text-secondary">Status</th>
+                            <th className="px-6 py-4 text-left text-12px font-medium text-text-secondary">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-[var(--color-border-light)]">
+                    <tbody className="divide-y divide-border-light">
                         {appointmentsData.map((item) => (
                             <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                                <td className="px-6 py-4 text-[13px] font-medium text-[var(--color-text-primary)]">{item.student}</td>
-                                <td className="px-6 py-4 text-[13px] text-[var(--color-text-secondary)]">{item.class}</td>
-                                <td className="px-6 py-4 text-[13px] text-[var(--color-text-secondary)] flex items-center gap-2">
+                                <td className="px-6 py-4 text-13px font-medium text-text-primary">{item.student}</td>
+                                <td className="px-6 py-4 text-13px text-text-secondary">{item.class}</td>
+                                <td className="px-6 py-4 text-13px text-text-secondary flex items-center gap-2">
                                     <Clock size={14} className="text-gray-400" /> {item.time}
                                 </td>
-                                <td className="px-6 py-4 text-[13px] text-[var(--color-text-secondary)]">{item.reason}</td>
-                                <td className="px-6 py-4 text-[13px] text-[var(--color-text-secondary)]">{item.doctor}</td>
+                                <td className="px-6 py-4 text-13px text-text-secondary">{item.reason}</td>
+                                <td className="px-6 py-4 text-13px text-text-secondary">{item.doctor}</td>
                                 <td className="px-6 py-4">
-                                    <span className={`px-3 py-1 rounded-full text-[10px] font-medium ${getStatusStyle(item.status)}`}>
+                                    <span className={`px-3 py-1 rounded-full text-10px font-medium ${getStatusStyle(item.status)}`}>
                                         {item.status}
                                     </span>
                                 </td>

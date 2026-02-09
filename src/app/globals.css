@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --font-primary: 'Bricolage Grotesque', sans-serif;
+    --font-secondary: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: theme('colors.bg.primary');
+    color: theme('colors.text.primary');
+    font-family: var(--font-secondary);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-primary);
+}
