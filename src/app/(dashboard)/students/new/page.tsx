@@ -64,7 +64,8 @@ const StudentRegistrationPage = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const selectedClassObj = classes.find(c => c.id.toString() === formData.classId);
+            // Send simplified schoolClass object with just ID
+            const schoolClassPayload = formData.classId ? { id: parseInt(formData.classId) } : null;
 
             const payload = {
                 firstName: formData.firstName,
@@ -72,7 +73,7 @@ const StudentRegistrationPage = () => {
                 dateOfBirth: formData.dateOfBirth,
                 gender: formData.gender,
                 schoolId: formData.studentId,
-                schoolClass: selectedClassObj,
+                schoolClass: schoolClassPayload,
                 insuranceProvider: formData.insuranceProvider,
                 insuranceNumber: formData.insuranceNumber,
                 parentName: formData.parentName,
@@ -82,6 +83,8 @@ const StudentRegistrationPage = () => {
                     chronicConditions: formData.medicalConditions ? formData.medicalConditions.split(',').map(s => s.trim()) : []
                 }
             };
+
+            console.log('Sending payload:', payload);
 
             const response = await fetch('http://127.0.0.1:8081/health/api/students', {
                 method: 'POST',
@@ -94,7 +97,8 @@ const StudentRegistrationPage = () => {
             if (response.ok) {
                 router.push('/students');
             } else {
-                console.error('Failed to create student');
+                const errorText = await response.text();
+                console.error('Failed to create student:', response.status, errorText);
             }
         } catch (error) {
             console.error('Error creating student:', error);

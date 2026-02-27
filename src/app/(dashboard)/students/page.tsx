@@ -194,8 +194,14 @@ const StudentsPage = () => {
         
         const matchesYear = selectedYearId ? student.academicYearId === selectedYearId : true;
         const matchesClass = selectedClass ? student.classId === selectedClass : true;
+        
+        // console.log(`Filter: Year=${selectedYearId}, Class=${selectedClass} | Student: Year=${student.academicYearId}, Class=${student.classId} -> Match=${matchesYear && matchesClass}`);
+        
         return matchesSearch && matchesYear && matchesClass;
     });
+
+    console.log('Filtered Students Count:', filteredStudents.length);
+    console.log('Selected Year ID:', selectedYearId);
 
     return (
         <div className="space-y-6 pb-10">

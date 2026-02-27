@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, User, Activity, FileText, ClipboardList, X } from 'lucide-react';
 
 const NewConsultationPage = () => {
     const router = useRouter();
+    const [students, setStudents] = useState<any[]>([]);
     const [formData, setFormData] = useState({
         studentId: '',
         temp: '',
@@ -25,6 +26,21 @@ const NewConsultationPage = () => {
 
     const commonSymptoms = ['Headache', 'Fever', 'Stomach Pain', 'Cough', 'Dizziness', 'Nausea', 'Fatigue'];
 
+    useEffect(() => {
+        const fetchStudents = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8081/health/api/students');
+                if (response.ok) {
+                    const data = await response.json();
+                    setStudents(data);
+                }
+            } catch (error) {
+                console.error('Error fetching students:', error);
+            }
+        };
+        fetchStudents();
+    }, []);
+
     const toggleSymptom = (symptom: string) => {
         setFormData(prev => ({
             ...prev,
@@ -39,10 +55,43 @@ const NewConsultationPage = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Submitting consultation:', formData);
-        router.push('/consultations');
+        
+        const vitals = {
+            temp: formData.temp,
+            bp: formData.bp,
+            pulse: formData.pulse,
+            spo2: formData.spo2,
+            painScore: formData.painScore,
+            weight: formData.weight
+        };
+
+        const payload = {
+            studentId: parseInt(formData.studentId),
+            visitDateTime: new Date().toISOString(),
+            chiefComplaint: formData.complaint + (formData.symptoms.length > 0 ? " (" + formData.symptoms.join(", ") + ")" : ""),
+            vitals: JSON.stringify(vitals),
+            diagnosis: formData.diagnosis,
+            treatmentNotes: `Treatment: ${formData.treatment}\nPrescription: ${formData.prescription}\nNotes: ${formData.notes}\nDisposition: ${formData.disposition}`,
+            facilityUsed: 'School Infirmary'
+        };
+
+        try {
+            const response = await fetch('http://127.0.0.1:8081/health/api/visits', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                router.push('/consultations');
+            } else {
+                console.error('Failed to create consultation');
+            }
+        } catch (error) {
+            console.error('Error creating consultation:', error);
+        }
     };
 
     return (
@@ -70,9 +119,11 @@ const NewConsultationPage = () => {
                                 className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 bg-white"
                             >
                                 <option value="">Search or select student...</option>
-                                <option value="1">Keza Sarah (S4 MPC)</option>
-                                <option value="2">Manzi David (S5 PCB)</option>
-                                <option value="3">Mutesi Joy (S6 MEC)</option>
+                                {students.map(student => (
+                                    <option key={student.studentId} value={student.studentId}>
+                                        {student.firstName} {student.lastName} ({student.schoolClass ? student.schoolClass.name : 'No Class'})
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     </div>
