@@ -12,11 +12,14 @@ import {
     FlaskConical,
     Settings,
     Package,
-    ChevronRight
+    ChevronRight,
+    Calendar
 } from 'lucide-react';
+import { useAcademicYear } from '@/context/AcademicYearContext';
 
 const Sidebar = () => {
     const pathname = usePathname();
+    const { academicYears, selectedYearId, setSelectedYearId } = useAcademicYear();
 
     const menuItems = [
         { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
@@ -32,7 +35,7 @@ const Sidebar = () => {
         <aside className="fixed left-0 top-0 h-screen w-sidebar bg-bg-sidebar border-r border-border z-50 flex flex-col">
             {/* Branding Section */}
             <div className="p-6 border-b border-border/50 bg-bg-sidebar">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 mb-6">
                     <img
                         src="/assets/logo.png"
                         alt="RCA Logo"
@@ -41,6 +44,26 @@ const Sidebar = () => {
                     <div className="flex flex-col -space-y-0.5">
                         <span className="text-12px font-bold text-text-primary tracking-tight leading-tight">Rwanda Coding</span>
                         <span className="text-10px font-bold text-text-tertiary tracking-wide uppercase">Academy</span>
+                    </div>
+                </div>
+
+                {/* Academic Year Context Switcher */}
+                <div className="relative">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-primary pointer-events-none">
+                        <Calendar size={14} />
+                    </div>
+                    <select
+                        value={selectedYearId}
+                        onChange={(e) => setSelectedYearId(e.target.value)}
+                        className="w-full pl-9 pr-3 py-2 bg-white border border-border rounded-8 text-12px font-bold text-text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all appearance-none cursor-pointer shadow-sm"
+                    >
+                        {academicYears.length === 0 && <option>Loading...</option>}
+                        {academicYears.map(year => (
+                            <option key={year.id} value={year.id}>{year.name}</option>
+                        ))}
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-tertiary">
+                        <ChevronRight size={12} className="rotate-90" />
                     </div>
                 </div>
             </div>

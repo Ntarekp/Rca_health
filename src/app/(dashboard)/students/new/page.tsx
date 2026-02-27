@@ -1,18 +1,20 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, X } from 'lucide-react';
+import { useAcademicYear } from '@/context/AcademicYearContext';
 
 const StudentRegistrationPage = () => {
     const router = useRouter();
+    const { selectedYearId, academicYears } = useAcademicYear();
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
         dateOfBirth: '',
         gender: '',
         studentId: '',
-        class: '',
+        classId: '',
         insuranceProvider: '',
         insuranceNumber: '',
         parentName: '',
@@ -20,6 +22,36 @@ const StudentRegistrationPage = () => {
         allergies: '',
         medicalConditions: '',
     });
+
+    const [selectedYear, setSelectedYear] = useState<string>('');
+    const [classes, setClasses] = useState<any[]>([]);
+
+    useEffect(() => {
+        if (selectedYearId) {
+            setSelectedYear(selectedYearId);
+        } else if (academicYears.length > 0) {
+            setSelectedYear(academicYears[0].id);
+        }
+    }, [selectedYearId, academicYears]);
+
+    useEffect(() => {
+        if (selectedYear) {
+            const fetchClasses = async () => {
+                try {
+                    const response = await fetch(`http://127.0.0.1:8081/health/api/academic/years/${selectedYear}/classes`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        setClasses(data);
+                    }
+                } catch (error) {
+                    console.error('Error fetching classes:', error);
+                }
+            };
+            fetchClasses();
+        } else {
+            setClasses([]);
+        }
+    }, [selectedYear]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -32,13 +64,15 @@ const StudentRegistrationPage = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            const selectedClassObj = classes.find(c => c.id.toString() === formData.classId);
+
             const payload = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 dateOfBirth: formData.dateOfBirth,
                 gender: formData.gender,
                 schoolId: formData.studentId,
-                studentClass: formData.class,
+                schoolClass: selectedClassObj,
                 insuranceProvider: formData.insuranceProvider,
                 insuranceNumber: formData.insuranceNumber,
                 parentName: formData.parentName,
@@ -139,6 +173,39 @@ const StudentRegistrationPage = () => {
                         <h3 className="text-16px font-semibold text-primary mb-5 pb-2 border-b border-border-light">Academic Information</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col gap-1.5">
+                                <label htmlFor="academicYear" className="text-13px font-medium text-text-secondary">Academic Year</label>
+                                <select
+                                    id="academicYear"
+                                    value={selectedYear}
+                                    onChange={(e) => setSelectedYear(e.target.value)}
+                                    className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 bg-white"
+                                >
+                                    <option value="">Select Year</option>
+                                    {academicYears.map(year => (
+                                        <option key={year.id} value={year.id}>{year.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="flex flex-col gap-1.5">
+                                <label htmlFor="classId" className="text-13px font-medium text-text-secondary">Class</label>
+                                <select
+                                    id="classId"
+                                    name="classId"
+                                    value={formData.classId}
+                                    onChange={handleChange}
+                                    required
+                                    disabled={!selectedYear}
+                                    className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 bg-white disabled:bg-gray-100"
+                                >
+                                    <option value="">Select Class</option>
+                                    {classes.map(cls => (
+                                        <option key={cls.id} value={cls.id}>{cls.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="flex flex-col gap-1.5">
                                 <label htmlFor="studentId" className="text-13px font-medium text-text-secondary">Student ID</label>
                                 <input
                                     type="text"
@@ -150,28 +217,6 @@ const StudentRegistrationPage = () => {
                                     required
                                     className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
                                 />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                                <label htmlFor="class" className="text-13px font-medium text-text-secondary">Class</label>
-                                <select
-                                    id="class"
-                                    name="class"
-                                    value={formData.class}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 bg-white"
-                                >
-                                    <option value="">Select Class</option>
-                                    <option value="S4 MPC">S4 MPC</option>
-                                    <option value="S4 MCB">S4 MCB</option>
-                                    <option value="S4 PCB">S4 PCB</option>
-                                    <option value="S5 MPC">S5 MPC</option>
-                                    <option value="S5 MCB">S5 MCB</option>
-                                    <option value="S5 PCB">S5 PCB</option>
-                                    <option value="S6 MPC">S6 MPC</option>
-                                    <option value="S6 MCB">S6 MCB</option>
-                                    <option value="S6 PCB">S6 PCB</option>
-                                </select>
                             </div>
                         </div>
                     </div>

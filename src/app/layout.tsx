@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Sidebar from "@/components/layout/Sidebar";
-import Header from "@/components/layout/Header";
+import { AcademicYearProvider } from "@/context/AcademicYearContext";
 
 export const metadata: Metadata = {
     title: "RCA Student Health System",
@@ -16,7 +15,9 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className="font-secondary">
-                {children}
+                <AcademicYearProvider>
+                    {children}
+                </AcademicYearProvider>
             </body>
         </html>
     );

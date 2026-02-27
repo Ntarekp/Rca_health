@@ -1,5 +1,6 @@
 import Sidebar from "@/components/layout/Sidebar";
 import Header from "@/components/layout/Header";
+import { AcademicYearProvider } from "@/context/AcademicYearContext";
 
 export default function DashboardLayout({
     children,
@@ -7,7 +8,7 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     return (
-        <>
+        <AcademicYearProvider>
             <Sidebar />
             <div className="flex-1 flex flex-col min-h-screen">
                 <Header />
@@ -17,6 +18,6 @@ export default function DashboardLayout({
                     </div>
                 </main>
             </div>
-        </>
+        </AcademicYearProvider>
     );
 }
