@@ -2,28 +2,13 @@
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
-const dataBar = [
-    { name: 'Jan', consultations: 180 },
-    { name: 'Feb', consultations: 250 },
-    { name: 'Mar', consultations: 160 },
-    { name: 'Apr', consultations: 140 },
-    { name: 'May', consultations: 190 },
-    { name: 'Jun', consultations: 220 },
-    { name: 'Jul', consultations: 150 },
-    { name: 'Aug', consultations: 170 },
-    { name: 'Sep', consultations: 280 },
-    { name: 'Oct', consultations: 260 },
-    { name: 'Nov', consultations: 180 },
-    { name: 'Dec', consultations: 120 },
-];
+interface ChartsSectionProps {
+    monthlyData?: any[];
+    dispositionData?: any[];
+    totalDispositions?: number;
+}
 
-const dataPie = [
-    { name: 'Returned to Class', value: 70, color: '#14ae5c' },
-    { name: 'Sent Home', value: 25, color: '#f59e0b' },
-    { name: 'Transferred', value: 5, color: '#dc2626' },
-];
-
-const ChartsSection = () => {
+const ChartsSection = ({ monthlyData = [], dispositionData = [], totalDispositions = 0 }: ChartsSectionProps) => {
     return (
         <div className="grid grid-cols-12 gap-6 h-[400px]">
             {/* Bar Chart */}
@@ -42,7 +27,7 @@ const ChartsSection = () => {
                 </div>
 
                 <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={dataBar} barGap={8}>
+                    <BarChart data={monthlyData} barGap={8}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb80" />
                         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#797a7c' }} dy={10} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#797a7c' }} />
@@ -68,14 +53,14 @@ const ChartsSection = () => {
                     <ResponsiveContainer width="100%" height={250}>
                         <PieChart>
                             <Pie
-                                data={dataPie}
+                                data={dispositionData}
                                 innerRadius={60}
                                 outerRadius={80}
                                 paddingAngle={5}
                                 dataKey="value"
                                 stroke="none"
                             >
-                                {dataPie.map((entry, index) => (
+                                {dispositionData.map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={entry.color} />
                                 ))}
                             </Pie>
@@ -86,12 +71,12 @@ const ChartsSection = () => {
                     {/* Center Text */}
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
                         <p className="text-10px text-text-secondary">Total</p>
-                        <p className="text-24px font-bold text-text-primary">1,245</p>
+                        <p className="text-24px font-bold text-text-primary">{totalDispositions}</p>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-3 mt-4">
-                    {dataPie.map((item) => (
+                    {dispositionData.map((item) => (
                         <div key={item.name} className="flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></span>
                             <span className="text-12px text-text-secondary">{item.name}</span>

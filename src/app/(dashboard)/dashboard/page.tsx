@@ -16,7 +16,10 @@ export default function DashboardPage() {
         criticalAlerts: 0,
         consultationsThisMonth: 0,
         recentConsultations: [],
-        todaysAppointments: []
+        todaysAppointments: [],
+        monthlyConsultations: [],
+        dispositionStats: [],
+        totalDispositions: 0
     });
     const [loading, setLoading] = useState(true);
 
@@ -112,7 +115,11 @@ export default function DashboardPage() {
             </div>
 
             {/* Charts Section */}
-            <ChartsSection />
+            <ChartsSection 
+                monthlyData={stats.monthlyConsultations}
+                dispositionData={stats.dispositionStats}
+                totalDispositions={stats.totalDispositions}
+            />
 
             {/* Appointments Table & Recent Consultations */}
             <div className="grid grid-cols-4 gap-6">
