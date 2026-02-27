@@ -33,6 +33,7 @@ const StudentsPage = () => {
                 const response = await fetch('http://127.0.0.1:8081/health/api/students');
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('Raw students data:', data);
                     if (Array.isArray(data)) {
                         const mappedStudents = data.map((s: any) => ({
                             id: s.studentId,
@@ -47,6 +48,7 @@ const StudentsPage = () => {
                             status: 'active',
                             lastVisit: 'N/A'
                         }));
+                        console.log('Mapped students:', mappedStudents);
                         setStudents(mappedStudents);
                     }
                 }
@@ -148,7 +150,7 @@ const StudentsPage = () => {
         try {
             const payload = {
                 name: newClass.name,
-                academicYear: { id: selectedYearForClasses }
+                academicYearId: selectedYearForClasses
             };
             const response = await fetch('http://127.0.0.1:8081/health/api/academic/classes', {
                 method: 'POST',
@@ -189,6 +191,7 @@ const StudentsPage = () => {
     const filteredStudents = students.filter(student => {
         const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                               student.class.toLowerCase().includes(searchTerm.toLowerCase());
+        
         const matchesYear = selectedYearId ? student.academicYearId === selectedYearId : true;
         const matchesClass = selectedClass ? student.classId === selectedClass : true;
         return matchesSearch && matchesYear && matchesClass;

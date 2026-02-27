@@ -57,7 +57,8 @@ const Sidebar = () => {
                         onChange={(e) => setSelectedYearId(e.target.value)}
                         className="w-full pl-9 pr-3 py-2 bg-white border border-border rounded-8 text-12px font-bold text-text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all appearance-none cursor-pointer shadow-sm"
                     >
-                        {academicYears.length === 0 && <option>Loading...</option>}
+                        <option value="">All Years</option>
+                        {academicYears.length === 0 && <option disabled>Loading...</option>}
                         {academicYears.map(year => (
                             <option key={year.id} value={year.id}>{year.name}</option>
                         ))}
