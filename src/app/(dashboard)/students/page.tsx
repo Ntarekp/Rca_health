@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { LayoutGrid, List as ListIcon, Search, Plus } from 'lucide-react';
 
@@ -8,64 +8,48 @@ const StudentsPage = () => {
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState('');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    const [students, setStudents] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const students = [
-        {
-            id: '1',
-            name: 'Keza Sarah',
-            code: 'RCA-2024-001',
-            class: 'S4 MPC',
-            age: 16,
-            gender: 'Female',
-            insurance: 'RAMA',
-            status: 'active',
-            lastVisit: '2 days ago'
-        },
-        {
-            id: '2',
-            name: 'Manzi David',
-            code: 'RCA-2024-002',
-            class: 'S5 PCB',
-            age: 17,
-            gender: 'Male',
-            insurance: 'MMI',
-            status: 'critical',
-            lastVisit: 'Today'
-        },
-        {
-            id: '3',
-            name: 'Mutesi Joy',
-            code: 'RCA-2024-003',
-            class: 'S6 MEC',
-            age: 18,
-            gender: 'Female',
-            insurance: 'RSSB',
-            status: 'active',
-            lastVisit: '1 week ago'
-        },
-        {
-            id: '4',
-            name: 'Hirwa Peter',
-            code: 'RCA-2024-004',
-            class: 'S4 MCB',
-            age: 16,
-            gender: 'Male',
-            insurance: 'Radiant',
-            status: 'follow-up',
-            lastVisit: 'Yesterday'
-        },
-        {
-            id: '5',
-            name: 'Uwase Aline',
-            code: 'RCA-2024-005',
-            class: 'S5 LKK',
-            age: 17,
-            gender: 'Female',
-            insurance: 'RAMA',
-            status: 'active',
-            lastVisit: '3 days ago'
+    useEffect(() => {
+        const fetchStudents = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8081/health/api/students');
+                if (response.ok) {
+                    const data = await response.json();
+                    const mappedStudents = data.map((s: any) => ({
+                        id: s.studentId,
+                        name: `${s.firstName} ${s.lastName}`,
+                        code: s.schoolId,
+                        class: s.studentClass,
+                        age: calculateAge(s.dateOfBirth),
+                        gender: s.gender,
+                        insurance: s.insuranceProvider,
+                        status: 'active', // Default for now
+                        lastVisit: 'N/A' // Default for now
+                    }));
+                    setStudents(mappedStudents);
+                }
+            } catch (error) {
+                console.error('Error fetching students:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchStudents();
+    }, []);
+
+    const calculateAge = (dob: string) => {
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
         }
-    ];
+        return age;
+    };
 
     const getStatusBadge = (status: string) => {
         switch (status) {
@@ -84,6 +68,10 @@ const StudentsPage = () => {
         student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.class.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div className="space-y-6">

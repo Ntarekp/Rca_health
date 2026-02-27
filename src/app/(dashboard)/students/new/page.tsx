@@ -29,11 +29,42 @@ const StudentRegistrationPage = () => {
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // In a real app, this would be an API call
-        console.log('Submitting student data:', formData);
-        router.push('/students');
+        try {
+            const payload = {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                dateOfBirth: formData.dateOfBirth,
+                gender: formData.gender,
+                schoolId: formData.studentId,
+                studentClass: formData.class,
+                insuranceProvider: formData.insuranceProvider,
+                insuranceNumber: formData.insuranceNumber,
+                parentName: formData.parentName,
+                parentPhone: formData.parentPhone,
+                medicalHistory: {
+                    allergies: formData.allergies,
+                    chronicConditions: formData.medicalConditions ? formData.medicalConditions.split(',').map(s => s.trim()) : []
+                }
+            };
+
+            const response = await fetch('http://127.0.0.1:8081/health/api/students', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (response.ok) {
+                router.push('/students');
+            } else {
+                console.error('Failed to create student');
+            }
+        } catch (error) {
+            console.error('Error creating student:', error);
+        }
     };
 
     return (

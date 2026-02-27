@@ -2,26 +2,17 @@
 
 import { MoreHorizontal, Eye, Clock } from 'lucide-react';
 
-const appointmentsData = [
-    { id: 1, student: 'Keza Sarah', class: 'S4 MPC', time: '08:30 AM', reason: 'Headache', doctor: 'Nurse Jane', status: 'Completed' },
-    { id: 2, student: 'Mutesi Joy', class: 'S5 PCB', time: '09:15 AM', reason: 'Stomach Pain', doctor: 'Nurse Jane', status: 'In Progress' },
-    { id: 3, student: 'Hirwa Peter', class: 'S6 MEC', time: '10:00 AM', reason: 'Fever', doctor: 'Dr. John', status: 'Scheduled' },
-    { id: 4, student: 'Kwizera Paul', class: 'S4 MCB', time: '10:45 AM', reason: 'Injury', doctor: 'Dr. John', status: 'Scheduled' },
-    { id: 5, student: 'Uwase Aline', class: 'S5 LKK', time: '11:30 AM', reason: 'Checkup', doctor: 'Nurse Jane', status: 'Scheduled' },
-    { id: 6, student: 'Manzi David', class: 'S3 A', time: '02:00 PM', reason: 'Malaria Test', doctor: 'Lab Tech', status: 'Scheduled' },
-];
+interface AppointmentsTableProps {
+    data?: any[];
+}
 
-const getStatusStyle = (status: string) => {
-    switch (status) {
-        case 'Completed': return 'bg-[#e6f4ea] text-success';
-        case 'In Progress': return 'bg-[#fff7e6] text-warning';
-        case 'Scheduled': return 'bg-[#e8f0fe] text-primary';
-        case 'Cancelled': return 'bg-[#fce8e6] text-error';
-        default: return 'bg-gray-100 text-gray-600';
-    }
-};
+const AppointmentsTable = ({ data = [] }: AppointmentsTableProps) => {
+    // Helper to format time
+    const formatTime = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    };
 
-const AppointmentsTable = () => {
     return (
         <div className="bg-bg-card rounded-10 shadow-sm overflow-hidden h-full">
             <div className="p-6 border-b border-border-light flex justify-between items-center">
@@ -43,32 +34,38 @@ const AppointmentsTable = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border-light">
-                        {appointmentsData.map((item) => (
-                            <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                                <td className="px-6 py-4 text-13px font-medium text-text-primary">{item.student}</td>
-                                <td className="px-6 py-4 text-13px text-text-secondary">{item.class}</td>
-                                <td className="px-6 py-4 text-13px text-text-secondary flex items-center gap-2">
-                                    <Clock size={14} className="text-gray-400" /> {item.time}
-                                </td>
-                                <td className="px-6 py-4 text-13px text-text-secondary">{item.reason}</td>
-                                <td className="px-6 py-4 text-13px text-text-secondary">{item.doctor}</td>
-                                <td className="px-6 py-4">
-                                    <span className={`px-3 py-1 rounded-full text-10px font-medium ${getStatusStyle(item.status)}`}>
-                                        {item.status}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-2">
-                                        <button className="p-1 hover:bg-gray-200 rounded-full text-gray-500 transition-colors" title="View Details">
-                                            <Eye size={16} />
-                                        </button>
-                                        <button className="p-1 hover:bg-gray-200 rounded-full text-gray-500 transition-colors" title="More Actions">
-                                            <MoreHorizontal size={16} />
-                                        </button>
-                                    </div>
-                                </td>
+                        {data.length === 0 ? (
+                            <tr>
+                                <td colSpan={7} className="px-6 py-4 text-center text-12px text-text-tertiary">No appointments for today.</td>
                             </tr>
-                        ))}
+                        ) : (
+                            data.map((item) => (
+                                <tr key={item.visitId} className="hover:bg-gray-50 transition-colors">
+                                    <td className="px-6 py-4 text-13px font-medium text-text-primary">{item.studentName}</td>
+                                    <td className="px-6 py-4 text-13px text-text-secondary">{item.studentClass}</td>
+                                    <td className="px-6 py-4 text-13px text-text-secondary flex items-center gap-2">
+                                        <Clock size={14} className="text-gray-400" /> {formatTime(item.visitDateTime)}
+                                    </td>
+                                    <td className="px-6 py-4 text-13px text-text-secondary">{item.chiefComplaint}</td>
+                                    <td className="px-6 py-4 text-13px text-text-secondary">Nurse</td> {/* Placeholder for now */}
+                                    <td className="px-6 py-4">
+                                        <span className={`px-3 py-1 rounded-full text-10px font-medium bg-[#e6f4ea] text-success`}>
+                                            Completed
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-2">
+                                            <button className="p-1 hover:bg-gray-200 rounded-full text-gray-500 transition-colors" title="View Details">
+                                                <Eye size={16} />
+                                            </button>
+                                            <button className="p-1 hover:bg-gray-200 rounded-full text-gray-500 transition-colors" title="More Actions">
+                                                <MoreHorizontal size={16} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>

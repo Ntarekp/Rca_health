@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import { Plus, Users, Calendar, AlertTriangle, Activity, UserPlus, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import StatsCard from '@/features/dashboard/StatsCard';
@@ -9,6 +10,37 @@ import RecentConsultations from '@/features/dashboard/RecentConsultations';
 
 export default function DashboardPage() {
     const router = useRouter();
+    const [stats, setStats] = useState({
+        totalStudents: 0,
+        appointmentsToday: 0,
+        criticalAlerts: 0,
+        consultationsThisMonth: 0,
+        recentConsultations: [],
+        todaysAppointments: []
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8081/health/api/dashboard/stats');
+                if (response.ok) {
+                    const data = await response.json();
+                    setStats(data);
+                }
+            } catch (error) {
+                console.error('Error fetching dashboard stats:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchStats();
+    }, []);
+
+    if (loading) {
+        return <div>Loading dashboard...</div>;
+    }
 
     return (
         <div className="space-y-8 pb-10">
@@ -47,32 +79,32 @@ export default function DashboardPage() {
             <div className="grid grid-cols-4 gap-6">
                 <StatsCard
                     title="Total Students"
-                    value="1,245"
-                    trend={12}
+                    value={stats.totalStudents.toLocaleString()}
+                    trend={0} // Placeholder
                     trendDirection="up"
                     variant="primary"
                     icon={<Users size={20} />}
                 />
                 <StatsCard
                     title="Appointments Today"
-                    value="42"
-                    trend={5}
+                    value={stats.appointmentsToday.toLocaleString()}
+                    trend={0} // Placeholder
                     trendDirection="up"
                     variant="default"
                     icon={<Calendar size={20} />}
                 />
                 <StatsCard
                     title="Critical Alerts"
-                    value="3"
-                    trend={2}
+                    value={stats.criticalAlerts.toLocaleString()}
+                    trend={0} // Placeholder
                     trendDirection="down"
                     variant="default"
                     icon={<AlertTriangle size={20} className="text-error" />}
                 />
                 <StatsCard
                     title="Consultations This Month"
-                    value="156"
-                    trend={8}
+                    value={stats.consultationsThisMonth.toLocaleString()}
+                    trend={0} // Placeholder
                     trendDirection="up"
                     variant="default"
                     icon={<Activity size={20} />}
@@ -85,10 +117,10 @@ export default function DashboardPage() {
             {/* Appointments Table & Recent Consultations */}
             <div className="grid grid-cols-4 gap-6">
                 <div className="col-span-3">
-                    <AppointmentsTable />
+                    <AppointmentsTable data={stats.todaysAppointments} />
                 </div>
                 <div className="col-span-1">
-                    <RecentConsultations />
+                    <RecentConsultations data={stats.recentConsultations} />
                 </div>
             </div>
         </div>
