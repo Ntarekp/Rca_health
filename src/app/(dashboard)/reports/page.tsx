@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FileText, Download, Calendar, Filter, ArrowRight, Activity, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 const ReportsPage = () => {
@@ -9,30 +9,34 @@ const ReportsPage = () => {
         start: '2024-01-01',
         end: '2024-01-31'
     });
+    const [reportData, setReportData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
 
-    // Mock Data for Health System
-    const reportData = {
-        summary: {
-            totalStudents: 1245,
-            criticalCases: 12,
-            referrals: 8,
-            consultations: 450,
-            prescriptions: 320,
-            newAdmissions: 45,
-            discharges: 42
-        },
-        topDiagnoses: [
-            { name: 'Malaria', cases: 145, percentage: '32%' },
-            { name: 'Flu/Cold', cases: 120, percentage: '26%' },
-            { name: 'Headache', cases: 85, percentage: '18%' },
-            { name: 'Sports Injury', cases: 45, percentage: '10%' }
-        ],
-        trends: [
-            { month: 'Jan', consultations: 180, referrals: 2 },
-            { month: 'Feb', consultations: 250, referrals: 5 },
-            { month: 'Mar', consultations: 160, referrals: 1 }
-        ]
-    };
+    useEffect(() => {
+        const fetchReport = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8081/health/api/reports');
+                if (response.ok) {
+                    const data = await response.json();
+                    setReportData(data);
+                }
+            } catch (error) {
+                console.error('Error fetching report:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchReport();
+    }, []);
+
+    if (loading) {
+        return <div>Loading reports...</div>;
+    }
+
+    if (!reportData) {
+        return <div>Error loading reports.</div>;
+    }
 
     return (
         <div className="pb-10">
@@ -147,15 +151,21 @@ const ReportsPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-border-light text-13px font-bold">
-                                    {reportData.topDiagnoses.map((item, index) => (
-                                        <tr key={index} className="hover:bg-bg-primary/50 transition-colors">
-                                            <td className="px-5 py-3 text-text-primary">{item.name}</td>
-                                            <td className="px-5 py-3 text-text-secondary text-center font-black">{item.cases}</td>
-                                            <td className="px-5 py-3 text-right">
-                                                <span className="inline-block px-2 py-0.5 bg-primary/5 text-primary rounded-4 min-w-[50px]">{item.percentage}</span>
-                                            </td>
+                                    {reportData.topDiagnoses.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={3} className="px-5 py-3 text-center text-text-tertiary">No data available.</td>
                                         </tr>
-                                    ))}
+                                    ) : (
+                                        reportData.topDiagnoses.map((item: any, index: number) => (
+                                            <tr key={index} className="hover:bg-bg-primary/50 transition-colors">
+                                                <td className="px-5 py-3 text-text-primary">{item.name}</td>
+                                                <td className="px-5 py-3 text-text-secondary text-center font-black">{item.cases}</td>
+                                                <td className="px-5 py-3 text-right">
+                                                    <span className="inline-block px-2 py-0.5 bg-primary/5 text-primary rounded-4 min-w-[50px]">{item.percentage}</span>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
                                 </tbody>
                             </table>
                         </div>
@@ -180,20 +190,26 @@ const ReportsPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-border-light text-13px font-bold">
-                                    {reportData.trends.map((trend, index) => (
-                                        <tr key={index} className="hover:bg-bg-primary/50 transition-colors">
-                                            <td className="px-5 py-3 text-text-primary flex items-center gap-3">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                                                {trend.month} 2024
-                                            </td>
-                                            <td className="px-5 py-3 text-success font-black">{trend.consultations} Visits</td>
-                                            <td className="px-5 py-3 text-right">
-                                                <span className={`px-2 py-0.5 rounded-4 text-10px ${trend.referrals > 2 ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>
-                                                    {trend.referrals} Referrals
-                                                </span>
-                                            </td>
+                                    {reportData.trends.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={3} className="px-5 py-3 text-center text-text-tertiary">No data available.</td>
                                         </tr>
-                                    ))}
+                                    ) : (
+                                        reportData.trends.map((trend: any, index: number) => (
+                                            <tr key={index} className="hover:bg-bg-primary/50 transition-colors">
+                                                <td className="px-5 py-3 text-text-primary flex items-center gap-3">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                                                    {trend.month} 2024
+                                                </td>
+                                                <td className="px-5 py-3 text-success font-black">{trend.consultations} Visits</td>
+                                                <td className="px-5 py-3 text-right">
+                                                    <span className={`px-2 py-0.5 rounded-4 text-10px ${trend.referrals > 2 ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>
+                                                        {trend.referrals} Referrals
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
                                 </tbody>
                             </table>
                         </div>

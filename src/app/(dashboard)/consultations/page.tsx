@@ -1,75 +1,48 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { LayoutGrid, List as ListIcon, Plus, Eye, Edit2 } from 'lucide-react';
 
 const ConsultationsPage = () => {
     const router = useRouter();
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+    const [consultations, setConsultations] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const consultations = [
-        {
-            id: '101',
-            date: '2024-02-08',
-            time: '08:30 AM',
-            student: 'Keza Sarah',
-            complaint: 'Severe Headache',
-            diagnosis: 'Migraine',
-            treatment: 'Paracetamol 500mg',
-            disposition: 'Returned to Class',
-            handledBy: 'Nurse Jane',
-            status: 'completed'
-        },
-        {
-            id: '102',
-            date: '2024-02-08',
-            time: '09:15 AM',
-            student: 'Manzi David',
-            complaint: 'High Fever (39°C)',
-            diagnosis: 'Malaria Suspect',
-            treatment: 'Antipyretics given',
-            disposition: 'Sent Home',
-            handledBy: 'Dr. John',
-            status: 'pending-lab'
-        },
-        {
-            id: '103',
-            date: '2024-02-08',
-            time: '10:00 AM',
-            student: 'Mutesi Joy',
-            complaint: 'Sports Injury',
-            diagnosis: 'Sprained Ankle',
-            treatment: 'Ice pack, Rest',
-            disposition: 'Transferred',
-            handledBy: 'Nurse Jane',
-            status: 'completed'
-        },
-        {
-            id: '104',
-            date: '2024-02-07',
-            time: '02:20 PM',
-            student: 'Hirwa Peter',
-            complaint: 'Stomach Pain',
-            diagnosis: 'Gastritis',
-            treatment: 'Antacids',
-            disposition: 'Returned to Class',
-            handledBy: 'Dr. John',
-            status: 'completed'
-        },
-        {
-            id: '105',
-            date: '2024-02-07',
-            time: '11:00 AM',
-            student: 'Uwase Aline',
-            complaint: 'Dizziness',
-            diagnosis: 'Dehydration',
-            treatment: 'ORS given',
-            disposition: 'Returned to Class',
-            handledBy: 'Nurse Jane',
-            status: 'completed'
-        }
-    ];
+    useEffect(() => {
+        const fetchConsultations = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8081/health/api/visits');
+                if (response.ok) {
+                    const data = await response.json();
+                    const mappedData = data.map((item: any) => ({
+                        id: item.visitId,
+                        date: new Date(item.visitDateTime).toLocaleDateString(),
+                        time: new Date(item.visitDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        student: item.studentName,
+                        complaint: item.chiefComplaint,
+                        diagnosis: item.diagnosis,
+                        treatment: 'N/A', // Not in DTO yet
+                        disposition: 'N/A', // Not in DTO yet
+                        handledBy: 'Nurse', // Placeholder
+                        status: 'completed' // Placeholder
+                    }));
+                    setConsultations(mappedData);
+                }
+            } catch (error) {
+                console.error('Error fetching consultations:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchConsultations();
+    }, []);
+
+    if (loading) {
+        return <div>Loading consultations...</div>;
+    }
 
     return (
         <div className="space-y-6">
@@ -122,44 +95,49 @@ const ConsultationsPage = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border-light">
-                                {consultations.map((consultation) => (
-                                    <tr key={consultation.id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-4">
-                                            <div className="flex flex-col">
-                                                <span className="text-12px font-medium text-text-primary">{consultation.date}</span>
-                                                <span className="text-8px text-text-tertiary">{consultation.time}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 text-12px font-medium text-primary">{consultation.student}</td>
-                                        <td className="px-6 py-4 text-12px text-text-secondary">{consultation.complaint}</td>
-                                        <td className="px-6 py-4 text-12px text-text-secondary">{consultation.diagnosis}</td>
-                                        <td className="px-6 py-4">
-                                            <span className={`px-2 py-0.5 rounded-full text-8px font-medium inline-block ${consultation.disposition === 'Returned to Class' ? 'bg-success/20 text-success' : 'bg-error/20 text-error'
-                                                }`}>
-                                                {consultation.disposition}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-12px text-text-secondary">{consultation.handledBy}</td>
-                                        <td className="px-6 py-4">
-                                            <span className={`px-2 py-0.5 rounded-full text-8px font-medium inline-block ${consultation.status === 'completed' ? 'bg-success/20 text-success' : 'bg-warning/20 text-warning'}`}>
-                                                {consultation.status === 'pending-lab' ? 'In Lab' : consultation.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex gap-2">
-                                                <button
-                                                    className="p-1.5 border border-border rounded-5 text-text-secondary hover:text-primary hover:border-primary transition-all"
-                                                    onClick={() => router.push(`/consultations/${consultation.id}`)}
-                                                >
-                                                    <Eye size={16} />
-                                                </button>
-                                                <button className="p-1.5 border border-border rounded-5 text-text-secondary hover:text-primary hover:border-primary transition-all">
-                                                    <Edit2 size={16} />
-                                                </button>
-                                            </div>
-                                        </td>
+                                {consultations.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={8} className="px-6 py-4 text-center text-12px text-text-tertiary">No consultations found.</td>
                                     </tr>
-                                ))}
+                                ) : (
+                                    consultations.map((consultation) => (
+                                        <tr key={consultation.id} className="hover:bg-gray-50 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <div className="flex flex-col">
+                                                    <span className="text-12px font-medium text-text-primary">{consultation.date}</span>
+                                                    <span className="text-8px text-text-tertiary">{consultation.time}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-12px font-medium text-primary">{consultation.student}</td>
+                                            <td className="px-6 py-4 text-12px text-text-secondary">{consultation.complaint}</td>
+                                            <td className="px-6 py-4 text-12px text-text-secondary">{consultation.diagnosis}</td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-2 py-0.5 rounded-full text-8px font-medium inline-block bg-gray-100 text-gray-600`}>
+                                                    {consultation.disposition}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-12px text-text-secondary">{consultation.handledBy}</td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-2 py-0.5 rounded-full text-8px font-medium inline-block bg-success/20 text-success`}>
+                                                    {consultation.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        className="p-1.5 border border-border rounded-5 text-text-secondary hover:text-primary hover:border-primary transition-all"
+                                                        onClick={() => router.push(`/consultations/${consultation.id}`)}
+                                                    >
+                                                        <Eye size={16} />
+                                                    </button>
+                                                    <button className="p-1.5 border border-border rounded-5 text-text-secondary hover:text-primary hover:border-primary transition-all">
+                                                        <Edit2 size={16} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -173,8 +151,8 @@ const ConsultationsPage = () => {
                                     <h3 className="text-18px font-medium text-text-primary leading-tight">{consultation.student}</h3>
                                     <span className="text-8px text-text-tertiary uppercase tracking-wider">{consultation.date} {consultation.time}</span>
                                 </div>
-                                <span className={`px-2 py-0.5 rounded-full text-8px font-medium ${consultation.status === 'completed' ? 'bg-success/20 text-success' : 'bg-warning/20 text-warning'}`}>
-                                    {consultation.status === 'pending-lab' ? 'In Lab' : consultation.status}
+                                <span className={`px-2 py-0.5 rounded-full text-8px font-medium bg-success/20 text-success`}>
+                                    {consultation.status}
                                 </span>
                             </div>
 
@@ -189,7 +167,7 @@ const ConsultationsPage = () => {
                                 </div>
                                 <div className="flex justify-between items-center py-1.5 border-b border-border-light last:border-0">
                                     <span className="text-12px text-text-tertiary">Disposition</span>
-                                    <span className={`text-12px font-semibold text-right ${consultation.disposition === 'Returned to Class' ? 'text-success' : 'text-error'}`}>
+                                    <span className={`text-12px font-semibold text-right text-gray-600`}>
                                         {consultation.disposition}
                                     </span>
                                 </div>

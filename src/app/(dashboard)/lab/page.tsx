@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { LayoutGrid, List as ListIcon, Search, Plus } from 'lucide-react';
 
@@ -8,53 +8,37 @@ const LabPage = () => {
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState('');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    const [records, setRecords] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const records = [
-        {
-            id: '1',
-            student: 'Keza Sarah',
-            type: 'Laboratory',
-            date: '2024-02-08',
-            result: 'Malaria Test: Negative',
-            doctor: 'Lab Tech Jean',
-            tags: ['Malaria', 'Blood Test'],
-            status: 'completed',
-            priority: 'high'
-        },
-        {
-            id: '2',
-            student: 'Manzi David',
-            type: 'Medical History',
-            date: '2024-01-15',
-            result: 'Asthma Attack History',
-            doctor: 'Dr. John',
-            tags: ['Chronic', 'Respiratory'],
-            status: 'active',
-            priority: 'medium'
-        },
-        {
-            id: '3',
-            student: 'Mutesi Joy',
-            type: 'Laboratory',
-            date: '2024-02-07',
-            result: 'Stool Analysis: Pending',
-            doctor: 'Lab Tech Jean',
-            tags: ['Stool', 'Infection'],
-            status: 'pending',
-            priority: 'medium'
-        },
-        {
-            id: '4',
-            student: 'Hirwa Peter',
-            type: 'Medical History',
-            date: '2023-11-20',
-            result: 'Allergy: Penicillin',
-            doctor: 'Dr. John',
-            tags: ['Allergy', 'Critical'],
-            status: 'active',
-            priority: 'high'
-        }
-    ];
+    useEffect(() => {
+        const fetchLabs = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8081/health/api/labs');
+                if (response.ok) {
+                    const data = await response.json();
+                    const mappedData = data.map((item: any) => ({
+                        id: item.labId,
+                        student: item.studentName,
+                        type: 'Laboratory',
+                        date: new Date(item.visitDate).toLocaleDateString(),
+                        result: `${item.testName}: ${item.resultValue}`,
+                        doctor: item.technicianName,
+                        tags: [item.testName],
+                        status: 'completed', // Placeholder
+                        priority: 'medium' // Placeholder
+                    }));
+                    setRecords(mappedData);
+                }
+            } catch (error) {
+                console.error('Error fetching labs:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchLabs();
+    }, []);
 
     const filteredRecords = records.filter(record =>
         record.student.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -70,6 +54,10 @@ const LabPage = () => {
             default: return 'bg-bg-secondary text-text-tertiary';
         }
     };
+
+    if (loading) {
+        return <div>Loading lab records...</div>;
+    }
 
     return (
         <div className="space-y-6">
@@ -147,7 +135,7 @@ const LabPage = () => {
                                         <span className="text-12px font-medium text-text-primary text-right">{record.date}</span>
                                     </div>
                                     <div className="flex flex-wrap gap-2 pt-2">
-                                        {record.tags.map((tag, index) => (
+                                        {record.tags.map((tag: string, index: number) => (
                                             <span key={index} className="px-2 py-1 rounded-5 bg-info-bg text-primary text-8px">
                                                 {tag}
                                             </span>

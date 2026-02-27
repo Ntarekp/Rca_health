@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Package,
     Search,
@@ -18,15 +18,35 @@ import {
 
 const InventoryPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
+    const [inventoryItems, setInventoryItems] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const inventoryItems = [
-        { id: 1, name: 'Paracetamol 500mg', category: 'Medicines', stock: 450, unit: 'Tablets', status: 'In Stock', lastRestocked: '2024-02-05' },
-        { id: 2, name: 'Sterile Bandages', category: 'Equipment', stock: 12, unit: 'Rolls', status: 'Low Stock', lastRestocked: '2024-01-15' },
-        { id: 3, name: 'Surgical Masks', category: 'Consumables', stock: 0, unit: 'Boxes', status: 'Out of Stock', lastRestocked: '2023-12-20' },
-        { id: 4, name: 'Amoxicillin 250mg', category: 'Medicines', stock: 85, unit: 'Bottles', status: 'In Stock', lastRestocked: '2024-02-01' },
-        { id: 5, name: 'Adrenaline Auto-injector', category: 'Emergency', stock: 5, unit: 'Pens', status: 'Low Stock', lastRestocked: '2023-11-10' },
-        { id: 6, name: 'Disposable Gloves', category: 'Consumables', stock: 120, unit: 'Pairs', status: 'In Stock', lastRestocked: '2024-02-03' },
-    ];
+    useEffect(() => {
+        const fetchInventory = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8081/health/api/inventory');
+                if (response.ok) {
+                    const data = await response.json();
+                    const mappedData = data.map((item: any) => ({
+                        id: item.id,
+                        name: item.name,
+                        category: item.category,
+                        stock: item.stock,
+                        unit: item.unit,
+                        status: item.stock === 0 ? 'Out of Stock' : item.stock < 10 ? 'Low Stock' : 'In Stock',
+                        lastRestocked: item.lastRestocked || 'N/A'
+                    }));
+                    setInventoryItems(mappedData);
+                }
+            } catch (error) {
+                console.error('Error fetching inventory:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchInventory();
+    }, []);
 
     const getStatusStyle = (status: string) => {
         switch (status) {
@@ -45,6 +65,10 @@ const InventoryPage = () => {
             default: return null;
         }
     };
+
+    if (loading) {
+        return <div>Loading inventory...</div>;
+    }
 
     return (
         <div className="p-8 space-y-8 animate-in fade-in duration-500">
@@ -69,10 +93,10 @@ const InventoryPage = () => {
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {[
-                    { label: 'Total Items', value: '1,248', icon: Package, color: 'primary', trend: '+12%', up: true },
-                    { label: 'Low Stock', value: '14', icon: AlertTriangle, color: 'warning', trend: '-2', up: false },
-                    { label: 'Out of Stock', value: '3', icon: XCircle, color: 'danger', trend: 'Stable', up: null },
-                    { label: 'Recently Added', value: '28', icon: History, color: 'success', trend: '+5', up: true },
+                    { label: 'Total Items', value: inventoryItems.length.toString(), icon: Package, color: 'primary', trend: '+0%', up: true },
+                    { label: 'Low Stock', value: inventoryItems.filter(i => i.status === 'Low Stock').length.toString(), icon: AlertTriangle, color: 'warning', trend: '0', up: false },
+                    { label: 'Out of Stock', value: inventoryItems.filter(i => i.status === 'Out of Stock').length.toString(), icon: XCircle, color: 'danger', trend: 'Stable', up: null },
+                    { label: 'Recently Added', value: '0', icon: History, color: 'success', trend: '+0', up: true },
                 ].map((stat, i) => (
                     <div key={i} className="bg-white p-6 rounded-20 border border-border/50 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
                         <div className="flex items-center justify-between relative z-10">
@@ -134,50 +158,56 @@ const InventoryPage = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border/50">
-                            {inventoryItems.map((item) => (
-                                <tr key={item.id} className="hover:bg-slate-50/50 transition-colors group">
-                                    <td className="px-8 py-5">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-10 bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                                                <Package size={20} />
-                                            </div>
-                                            <span className="text-15px font-bold text-text-primary group-hover:text-primary transition-colors">{item.name}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-12px font-bold">
-                                            {item.category}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <div className="flex flex-col">
-                                            <span className="text-15px font-bold text-text-primary">{item.stock}</span>
-                                            <span className="text-12px text-text-tertiary font-medium">{item.unit}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-12px font-bold ${getStatusStyle(item.status)}`}>
-                                            {getStatusIcon(item.status)}
-                                            {item.status}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-5 text-14px text-text-secondary font-medium italic">
-                                        {item.lastRestocked}
-                                    </td>
-                                    <td className="px-8 py-5 text-right">
-                                        <button className="p-2 hover:bg-slate-200 rounded-8 transition-colors text-text-tertiary">
-                                            <MoreVertical size={18} />
-                                        </button>
-                                    </td>
+                            {inventoryItems.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="px-8 py-5 text-center text-text-tertiary">No inventory items found.</td>
                                 </tr>
-                            ))}
+                            ) : (
+                                inventoryItems.map((item) => (
+                                    <tr key={item.id} className="hover:bg-slate-50/50 transition-colors group">
+                                        <td className="px-8 py-5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-10 bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                                                    <Package size={20} />
+                                                </div>
+                                                <span className="text-15px font-bold text-text-primary group-hover:text-primary transition-colors">{item.name}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-12px font-bold">
+                                                {item.category}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <div className="flex flex-col">
+                                                <span className="text-15px font-bold text-text-primary">{item.stock}</span>
+                                                <span className="text-12px text-text-tertiary font-medium">{item.unit}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-12px font-bold ${getStatusStyle(item.status)}`}>
+                                                {getStatusIcon(item.status)}
+                                                {item.status}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5 text-14px text-text-secondary font-medium italic">
+                                            {item.lastRestocked}
+                                        </td>
+                                        <td className="px-8 py-5 text-right">
+                                            <button className="p-2 hover:bg-slate-200 rounded-8 transition-colors text-text-tertiary">
+                                                <MoreVertical size={18} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
 
                 {/* Footer/Pagination Placeholder */}
                 <div className="p-6 border-t border-border flex items-center justify-between bg-slate-50/30">
-                    <p className="text-14px text-text-tertiary font-medium italic">Showing 6 of 1,248 items</p>
+                    <p className="text-14px text-text-tertiary font-medium italic">Showing {inventoryItems.length} items</p>
                     <div className="flex gap-2">
                         <button className="px-4 py-2 border border-border rounded-10 text-13px font-bold text-text-secondary hover:bg-slate-100 transition-all disabled:opacity-50" disabled>Previous</button>
                         <button className="px-4 py-2 bg-primary text-white rounded-10 text-13px font-bold hover:bg-primary-dark transition-all shadow-sm">Next</button>
