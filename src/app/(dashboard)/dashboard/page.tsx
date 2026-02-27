@@ -17,8 +17,8 @@ export default function DashboardPage() {
         consultationsThisMonth: 0,
         recentConsultations: [],
         todaysAppointments: [],
-        monthlyConsultations: [],
         dispositionStats: [],
+        monthlyStats: [],
         totalDispositions: 0
     });
     const [loading, setLoading] = useState(true);
@@ -116,7 +116,7 @@ export default function DashboardPage() {
 
             {/* Charts Section */}
             <ChartsSection 
-                monthlyData={stats.monthlyConsultations}
+                monthlyData={stats.monthlyStats}
                 dispositionData={stats.dispositionStats}
                 totalDispositions={stats.totalDispositions}
             />

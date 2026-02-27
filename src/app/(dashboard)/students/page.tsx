@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LayoutGrid, List as ListIcon, Search, Plus } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 
 const StudentsPage = () => {
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState('');
-    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [students, setStudents] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -17,18 +16,24 @@ const StudentsPage = () => {
                 const response = await fetch('http://127.0.0.1:8081/health/api/students');
                 if (response.ok) {
                     const data = await response.json();
-                    const mappedStudents = data.map((s: any) => ({
-                        id: s.studentId,
-                        name: `${s.firstName} ${s.lastName}`,
-                        code: s.schoolId,
-                        class: s.studentClass,
-                        age: calculateAge(s.dateOfBirth),
-                        gender: s.gender,
-                        insurance: s.insuranceProvider,
-                        status: 'active', // Default for now
-                        lastVisit: 'N/A' // Default for now
-                    }));
-                    setStudents(mappedStudents);
+                    if (Array.isArray(data)) {
+                        const mappedStudents = data.map((s: any) => ({
+                            id: s.studentId,
+                            name: `${s.firstName} ${s.lastName}`,
+                            code: s.schoolId,
+                            class: s.studentClass,
+                            age: calculateAge(s.dateOfBirth),
+                            gender: s.gender,
+                            insurance: s.insuranceProvider,
+                            status: 'active', // Default for now
+                            lastVisit: 'N/A' // Default for now
+                        }));
+                        setStudents(mappedStudents);
+                    } else {
+                        console.error('API response is not an array:', data);
+                    }
+                } else {
+                    console.error('Failed to fetch students:', response.statusText);
                 }
             } catch (error) {
                 console.error('Error fetching students:', error);
@@ -93,21 +98,6 @@ const StudentsPage = () => {
                         />
                     </div>
 
-                    <div className="flex bg-bg-secondary rounded-lg p-1 h-[40px] items-center border border-border">
-                        <button
-                            className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-primary' : 'text-text-tertiary hover:text-text-secondary'}`}
-                            onClick={() => setViewMode('grid')}
-                        >
-                            <LayoutGrid size={18} />
-                        </button>
-                        <button
-                            className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-primary' : 'text-text-tertiary hover:text-text-secondary'}`}
-                            onClick={() => setViewMode('list')}
-                        >
-                            <ListIcon size={18} />
-                        </button>
-                    </div>
-
                     <button
                         className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-5 hover:bg-primary-dark transition-colors"
                         onClick={() => router.push('/students/new')}
@@ -118,74 +108,28 @@ const StudentsPage = () => {
                 </div>
             </div>
 
-            {viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {filteredStudents.map((student) => {
-                        const statusBadge = getStatusBadge(student.status);
-                        return (
-                            <div key={student.id} className="bg-bg-card border border-border rounded-10 p-5 flex flex-col gap-4 hover:shadow-md transition-shadow">
-                                <div className="flex justify-between items-start gap-3">
-                                    <div>
-                                        <h3 className="text-18px font-medium text-text-primary leading-tight">{student.name}</h3>
-                                        <span className="text-8px text-text-tertiary uppercase tracking-wider">{student.class}</span>
-                                    </div>
-                                    <span className={`px-2 py-0.5 rounded-full text-8px font-medium whitespace-nowrap ${statusBadge.className}`}>
-                                        {statusBadge.text}
-                                    </span>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <div className="flex justify-between items-center py-1.5 border-b border-border-light last:border-0">
-                                        <span className="text-12px text-text-tertiary">Student ID</span>
-                                        <span className="text-12px font-semibold text-text-primary">{student.code}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center py-1.5 border-b border-border-light last:border-0">
-                                        <span className="text-12px text-text-tertiary">Age/Gender</span>
-                                        <span className="text-12px font-semibold text-text-primary">{student.age} / {student.gender}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center py-1.5 border-b border-border-light last:border-0">
-                                        <span className="text-12px text-text-tertiary">Insurance</span>
-                                        <span className="text-12px font-semibold text-text-primary">{student.insurance}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center py-1.5 border-b border-border-light last:border-0">
-                                        <span className="text-12px text-text-tertiary">Last Visit</span>
-                                        <span className="text-12px font-semibold text-text-primary">{student.lastVisit}</span>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-2 mt-auto">
-                                    <button
-                                        className="flex-1 py-2 bg-primary text-white rounded-5 text-12px font-medium hover:bg-primary-dark transition-colors"
-                                        onClick={() => router.push(`/students/${student.id}`)}
-                                    >
-                                        View Profile
-                                    </button>
-                                    <button className="flex-1 py-2 border border-border text-primary rounded-5 text-12px font-medium hover:bg-gray-50 transition-colors">
-                                        Edit
-                                    </button>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            ) : (
-                <div className="bg-bg-card border border-border rounded-10 overflow-hidden shadow-sm">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="bg-bg-secondary border-b border-border">
-                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">Student Name</th>
-                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">Class</th>
-                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">ID Code</th>
-                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">Age / Gender</th>
-                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">Insurance</th>
-                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">Status</th>
-                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">Last Visit</th>
-                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">Actions</th>
+            <div className="bg-bg-card border border-border rounded-10 overflow-hidden shadow-sm">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-bg-secondary border-b border-border">
+                                <th className="px-6 py-4 text-12px font-medium text-text-primary">Student Name</th>
+                                <th className="px-6 py-4 text-12px font-medium text-text-primary">Class</th>
+                                <th className="px-6 py-4 text-12px font-medium text-text-primary">ID Code</th>
+                                <th className="px-6 py-4 text-12px font-medium text-text-primary">Age / Gender</th>
+                                <th className="px-6 py-4 text-12px font-medium text-text-primary">Insurance</th>
+                                <th className="px-6 py-4 text-12px font-medium text-text-primary">Status</th>
+                                <th className="px-6 py-4 text-12px font-medium text-text-primary">Last Visit</th>
+                                <th className="px-6 py-4 text-12px font-medium text-text-primary">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border-light">
+                            {filteredStudents.length === 0 ? (
+                                <tr>
+                                    <td colSpan={8} className="px-6 py-4 text-center text-text-tertiary">No students found.</td>
                                 </tr>
-                            </thead>
-                            <tbody className="divide-y divide-border-light">
-                                {filteredStudents.map((student) => {
+                            ) : (
+                                filteredStudents.map((student) => {
                                     const statusBadge = getStatusBadge(student.status);
                                     return (
                                         <tr key={student.id} className="hover:bg-gray-50 transition-colors">
@@ -215,12 +159,12 @@ const StudentsPage = () => {
                                             </td>
                                         </tr>
                                     );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
+                                })
+                            )}
+                        </tbody>
+                    </table>
                 </div>
-            )}
+            </div>
         </div>
     );
 };
