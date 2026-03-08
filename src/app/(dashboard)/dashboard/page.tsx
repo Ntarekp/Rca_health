@@ -26,7 +26,8 @@ export default function DashboardPage() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const response = await fetch('http://127.0.0.1:8081/health/api/dashboard/stats');
+                // Append a timestamp to completely bypass aggressive Next.js/Browser GET caching
+                const response = await fetch(`http://127.0.0.1:8081/health/api/dashboard/stats?t=${new Date().getTime()}`);
                 if (response.ok) {
                     const data = await response.json();
                     setStats(data);
@@ -115,7 +116,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Charts Section */}
-            <ChartsSection 
+            <ChartsSection
                 monthlyData={stats.monthlyStats}
                 dispositionData={stats.dispositionStats}
                 totalDispositions={stats.totalDispositions}

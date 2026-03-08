@@ -5,9 +5,10 @@ import { Plus, Calendar, BookOpen, Trash2, Check } from 'lucide-react';
 import { useAcademicYear } from '@/context/AcademicYearContext';
 
 const AcademicPage = () => {
-    const { years, selectedYear, setSelectedYear, refreshYears } = useAcademicYear();
+    const { academicYears, selectedYearId, setSelectedYearId } = useAcademicYear();
     const [activeTab, setActiveTab] = useState<'years' | 'classes'>('years');
     const [classes, setClasses] = useState<any[]>([]);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
 
     // Form states
     const [newYear, setNewYear] = useState({ name: '', startDate: '', endDate: '', isActive: false });
@@ -17,10 +18,10 @@ const AcademicPage = () => {
 
     // When switching to classes tab, ensure we fetch classes for the global selected year
     useEffect(() => {
-        if (activeTab === 'classes' && selectedYear) {
-            fetchClasses(selectedYear);
+        if (activeTab === 'classes' && selectedYearId) {
+            fetchClasses(selectedYearId);
         }
-    }, [activeTab, selectedYear]);
+    }, [activeTab, selectedYearId, refreshTrigger]);
 
     const fetchClasses = async (yearId: string) => {
         try {
@@ -45,7 +46,7 @@ const AcademicPage = () => {
             });
             if (response.ok) {
                 setNewYear({ name: '', startDate: '', endDate: '', isActive: false });
-                refreshYears(); // Refresh global context
+                setRefreshTrigger(prev => prev + 1); // Trigger a refresh indirectly
             }
         } catch (error) {
             console.error('Error creating year:', error);
@@ -56,12 +57,12 @@ const AcademicPage = () => {
 
     const handleCreateClass = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!selectedYear) return;
+        if (!selectedYearId) return;
         setLoading(true);
         try {
             const payload = {
                 name: newClass.name,
-                academicYear: { id: selectedYear }
+                academicYear: { id: selectedYearId }
             };
             const response = await fetch('http://127.0.0.1:8081/health/api/academic/classes', {
                 method: 'POST',
@@ -70,7 +71,7 @@ const AcademicPage = () => {
             });
             if (response.ok) {
                 setNewClass({ name: '' });
-                fetchClasses(selectedYear);
+                fetchClasses(selectedYearId);
             }
         } catch (error) {
             console.error('Error creating class:', error);
@@ -179,7 +180,7 @@ const AcademicPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-border-light">
-                                    {years.map((year) => (
+                                    {academicYears.map((year) => (
                                         <tr key={year.id} className="hover:bg-gray-50">
                                             <td className="px-6 py-3 text-13px font-medium text-text-primary">{year.name}</td>
                                             <td className="px-6 py-3 text-13px text-text-secondary">{year.startDate}</td>
@@ -214,9 +215,9 @@ const AcademicPage = () => {
                             <div className="mb-4">
                                 <label className="text-12px font-medium text-text-secondary block mb-1.5">Selected Academic Year</label>
                                 <div className="w-full px-3 py-2 border border-border rounded-5 text-13px bg-gray-50 text-text-primary font-medium">
-                                    {years.find(y => y.id.toString() === selectedYear)?.name || 'Select a year in Sidebar'}
+                                    {academicYears.find(y => y.id.toString() === selectedYearId)?.name || 'Select a year in Sidebar'}
                                 </div>
-                                {!selectedYear && <p className="text-10px text-error mt-1">Please select an academic year from the sidebar.</p>}
+                                {!selectedYearId && <p className="text-10px text-error mt-1">Please select an academic year from the sidebar.</p>}
                             </div>
                             <form onSubmit={handleCreateClass} className="space-y-4">
                                 <div>
@@ -232,7 +233,7 @@ const AcademicPage = () => {
                                 </div>
                                 <button
                                     type="submit"
-                                    disabled={loading || !selectedYear}
+                                    disabled={loading || !selectedYearId}
                                     className="w-full py-2 bg-primary text-white rounded-5 text-13px font-medium hover:bg-primary-dark transition-colors disabled:opacity-50"
                                 >
                                     {loading ? 'Creating...' : 'Add Class'}
@@ -246,7 +247,7 @@ const AcademicPage = () => {
                         <div className="bg-bg-card border border-border rounded-10 overflow-hidden shadow-sm">
                             <div className="p-4 border-b border-border bg-bg-secondary flex justify-between items-center">
                                 <h4 className="text-13px font-semibold text-text-primary">
-                                    Classes for {years.find(y => y.id.toString() === selectedYear)?.name || 'Selected Year'}
+                                    Classes for {academicYears.find(y => y.id.toString() === selectedYearId)?.name || 'Selected Year'}
                                 </h4>
                                 <span className="text-12px text-text-tertiary">{classes.length} Classes</span>
                             </div>

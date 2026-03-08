@@ -25,6 +25,16 @@ const StudentsPage = () => {
     const [selectedYearForClasses, setSelectedYearForClasses] = useState<string>('');
     const [classesForManagement, setClassesForManagement] = useState<any[]>([]);
 
+    // --- Notifications & UI State ---
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [studentToDelete, setStudentToDelete] = useState<any | null>(null);
+    const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+    const showToast = (type: 'success' | 'error', text: string) => {
+        setToastMessage({ type, text });
+        setTimeout(() => setToastMessage(null), 3000);
+    };
+
     // Fetch Students
     useEffect(() => {
         const fetchStudents = async () => {
@@ -35,22 +45,33 @@ const StudentsPage = () => {
                     const data = await response.json();
                     console.log('Raw students data:', data);
                     if (Array.isArray(data)) {
-                        const mappedStudents = data.map((s: any) => ({
-                            id: s.studentId,
-                            name: `${s.firstName} ${s.lastName}`,
-                            code: s.schoolId,
-                            class: s.schoolClass ? s.schoolClass.name : 'N/A',
-                            classId: s.schoolClass ? s.schoolClass.id.toString() : '',
-                            academicYearId: s.schoolClass && s.schoolClass.academicYear ? s.schoolClass.academicYear.id.toString() : '',
-                            age: calculateAge(s.dateOfBirth),
-                            gender: s.gender,
-                            insurance: s.insuranceProvider,
-                            status: 'active',
-                            lastVisit: 'N/A'
-                        }));
+                        const mappedStudents = data.map((s: any) => {
+                            try {
+                                const mapped = {
+                                    id: s?.studentId,
+                                    name: `${s?.firstName || ''} ${s?.lastName || ''}`.trim() || 'Unknown',
+                                    code: s?.schoolId || 'N/A',
+                                    class: s?.schoolClass?.name || 'N/A',
+                                    classId: s?.schoolClass?.id?.toString() || '',
+                                    academicYearId: s?.schoolClass?.academicYear?.id?.toString() || '',
+                                    age: s?.dateOfBirth ? calculateAge(s.dateOfBirth) : 'N/A',
+                                    gender: s?.gender || 'N/A',
+                                    insurance: s?.insuranceProvider || 'N/A',
+                                    status: 'active',
+                                    lastVisit: 'N/A'
+                                };
+                                console.log('Successfully mapped student:', mapped);
+                                return mapped;
+                            } catch (err) {
+                                console.error('Error mapping individual student:', s, err);
+                                return null;
+                            }
+                        }).filter(Boolean); // remove any nulls if mapping completely failed
                         console.log('Mapped students:', mappedStudents);
                         setStudents(mappedStudents);
                     }
+                } else {
+                    console.error('Failed to fetch students. Status:', response.status);
                 }
             } catch (error) {
                 console.error('Error fetching students:', error);
@@ -94,7 +115,7 @@ const StudentsPage = () => {
         if (activeTab === 'classes' && selectedYearForClasses) {
             fetchClassesForManagement(selectedYearForClasses);
         } else if (activeTab === 'classes' && yearsList.length > 0 && !selectedYearForClasses) {
-             setSelectedYearForClasses(yearsList[0].id);
+            setSelectedYearForClasses(yearsList[0].id);
         }
     }, [activeTab, selectedYearForClasses, yearsList]);
 
@@ -188,23 +209,62 @@ const StudentsPage = () => {
         }
     };
 
+    const handleDeleteStudent = async (id: number) => {
+        if (!studentToDelete) return;
+        setIsDeleting(true);
+        try {
+            const response = await fetch(`http://127.0.0.1:8081/health/api/students/${id}`, { method: 'DELETE' });
+            if (response.ok) {
+                setStudents(prev => prev.filter(s => s.id !== id));
+                showToast('success', 'Student successfully deleted.');
+
+                // Optional: forcefully clear Next.js client-side cache so the Dashboard auto-updates
+                router.refresh();
+            } else {
+                showToast('error', 'Failed to delete student.');
+            }
+        } catch (error) {
+            console.error('Error deleting student:', error);
+            showToast('error', 'An error occurred during deletion.');
+        } finally {
+            setIsDeleting(false);
+            setStudentToDelete(null);
+        }
+    };
+
     const filteredStudents = students.filter(student => {
         const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              student.class.toLowerCase().includes(searchTerm.toLowerCase());
-        
-        const matchesYear = selectedYearId ? student.academicYearId === selectedYearId : true;
-        const matchesClass = selectedClass ? student.classId === selectedClass : true;
-        
-        // console.log(`Filter: Year=${selectedYearId}, Class=${selectedClass} | Student: Year=${student.academicYearId}, Class=${student.classId} -> Match=${matchesYear && matchesClass}`);
-        
+            student.class.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (student.code && student.code.toLowerCase().includes(searchTerm.toLowerCase()));
+
+        // Display students matching the selected year, OR students with NO year assigned at all
+        const matchesYear = selectedYearId
+            ? (student.academicYearId === selectedYearId || !student.academicYearId)
+            : true;
+
+        const matchesClass = selectedClass
+            ? student.classId === selectedClass
+            : true;
+
         return matchesSearch && matchesYear && matchesClass;
     });
 
-    console.log('Filtered Students Count:', filteredStudents.length);
-    console.log('Selected Year ID:', selectedYearId);
-
     return (
-        <div className="space-y-6 pb-10">
+        <div className="space-y-6 pb-10 relative">
+            {/* Top Right Line Loader */}
+            {isDeleting && (
+                <div className="absolute top-0 right-0 w-48 h-1 bg-gray-200 rounded overflow-hidden z-50">
+                    <div className="h-full bg-primary animate-pulse w-full origin-left scale-x-0 animate-[loading-line_1s_ease-in-out_infinite]"></div>
+                </div>
+            )}
+
+            {/* Top Right Toast Notification */}
+            {toastMessage && (
+                <div className={`absolute top-4 right-4 px-4 py-3 rounded-8 shadow-lg z-50 flex items-center gap-3 animate-in slide-in-from-top-2 duration-300 ${toastMessage.type === 'success' ? 'bg-success/10 border border-success/20 text-success' : 'bg-error/10 border border-error/20 text-error'}`}>
+                    <span className="text-14px font-medium">{toastMessage.text}</span>
+                </div>
+            )}
+
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-24px font-semibold text-primary">Students & Academic</h1>
@@ -291,7 +351,7 @@ const StudentsPage = () => {
                                         <tr><td colSpan={8} className="px-6 py-4 text-center text-text-tertiary">Loading...</td></tr>
                                     ) : filteredStudents.length === 0 ? (
                                         <tr>
-                                            <td colSpan={8} className="px-6 py-4 text-center text-text-tertiary">No students found for this academic year.</td>
+                                            <td colSpan={8} className="px-6 py-4 text-center text-text-tertiary">No students found for this academic year. (State length: {students.length})</td>
                                         </tr>
                                     ) : (
                                         filteredStudents.map((student) => {
@@ -317,8 +377,12 @@ const StudentsPage = () => {
                                                             >
                                                                 View
                                                             </button>
-                                                            <button className="text-text-tertiary hover:text-text-secondary text-12px font-medium">
-                                                                Edit
+                                                            <button
+                                                                className="text-text-tertiary hover:text-error transition-colors"
+                                                                onClick={() => setStudentToDelete(student)}
+                                                                disabled={isDeleting}
+                                                            >
+                                                                <Trash2 size={16} />
                                                             </button>
                                                         </div>
                                                     </td>
@@ -494,6 +558,37 @@ const StudentsPage = () => {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {studentToDelete && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-bg-card border border-border rounded-10 shadow-xl max-w-[400px] w-full p-6 mx-4 animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center justify-center w-12 h-12 bg-error/10 text-error rounded-full mb-4">
+                            <Trash2 size={24} />
+                        </div>
+                        <h3 className="text-18px font-semibold text-text-primary mb-2">Confirm Deletion</h3>
+                        <p className="text-14px text-text-secondary mb-6">
+                            Are you absolutely sure you want to delete the student <span className="font-semibold text-text-primary">"{studentToDelete.name}"</span>? This action cannot be undone and will remove all their associated records.
+                        </p>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => setStudentToDelete(null)}
+                                disabled={isDeleting}
+                                className="px-4 py-2 text-14px font-medium text-text-secondary hover:bg-gray-100 rounded-5 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => handleDeleteStudent(studentToDelete.id)}
+                                disabled={isDeleting}
+                                className="px-4 py-2 bg-error text-white text-14px font-medium rounded-5 hover:bg-red-700 transition-colors flex items-center gap-2"
+                            >
+                                {isDeleting ? 'Deleting...' : 'Delete Student'}
+                            </button>
                         </div>
                     </div>
                 </div>

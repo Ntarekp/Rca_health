@@ -6,6 +6,8 @@ interface AcademicYear {
     id: string;
     name: string;
     isActive: boolean;
+    startDate: string;
+    endDate: string;
 }
 
 interface AcademicYearContextType {
@@ -28,14 +30,22 @@ export const AcademicYearProvider = ({ children }: { children: React.ReactNode }
                 const response = await fetch('http://127.0.0.1:8081/health/api/academic/years');
                 if (response.ok) {
                     const data = await response.json();
-                    setAcademicYears(data);
-                    
+
+                    // The backend returns 'id' as a number, but TypeScript expects a string.
+                    // Map over the data to explicitly convert ids to strings to fix strict equality '===' bugs in React.
+                    const formattedData = data.map((y: any) => ({
+                        ...y,
+                        id: y.id ? y.id.toString() : ''
+                    }));
+
+                    setAcademicYears(formattedData);
+
                     // Default to active year, or first year, or keep existing selection if valid
-                    const activeYear = data.find((y: any) => y.isActive);
+                    const activeYear = formattedData.find((y: any) => y.isActive);
                     if (activeYear) {
                         setSelectedYearId(activeYear.id);
-                    } else if (data.length > 0) {
-                        setSelectedYearId(data[0].id);
+                    } else if (formattedData.length > 0) {
+                        setSelectedYearId(formattedData[0].id);
                     }
                 }
             } catch (error) {

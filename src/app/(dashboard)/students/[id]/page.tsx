@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { User, Calendar, Phone, Edit, ArrowLeft, Activity, FileText } from 'lucide-react';
 
@@ -9,33 +9,69 @@ const StudentProfilePage = () => {
     const params = useParams();
     const [activeTab, setActiveTab] = useState('overview');
 
-    // Mock Data - In a real app, fetch based on params.id
-    const student = {
-        id: params.id || '1',
-        name: 'Keza Sarah',
-        code: 'RCA-2024-001',
-        class: 'S4 MPC',
-        age: 16,
-        gender: 'Female',
-        dob: '2008-05-15',
-        insurance: 'RAMA',
-        insuranceNumber: '1029384756',
-        parentName: 'Mukamanzi Jane',
-        parentPhone: '+250 788 123 456',
-        bloodGroup: 'O+',
-        allergies: ['Peanuts', 'Penicillin'],
-        chronicConditions: ['None'],
-        vitals: {
-            height: '165 cm',
-            weight: '52 kg',
-            bmi: '19.1'
-        }
-    };
+    const [student, setStudent] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchStudent = async () => {
+            if (!params.id) return;
+            try {
+                const response = await fetch(`http://127.0.0.1:8081/health/api/students/${params.id}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setStudent({
+                        id: data.studentId?.toString(),
+                        name: `${data.firstName || ''} ${data.lastName || ''}`.trim() || 'Unknown',
+                        code: data.schoolId || 'N/A',
+                        class: data.schoolClass?.name || 'N/A',
+                        age: data.dateOfBirth ? new Date().getFullYear() - new Date(data.dateOfBirth).getFullYear() : 'N/A',
+                        gender: data.gender || 'N/A',
+                        dob: data.dateOfBirth || 'N/A',
+                        insurance: data.insuranceProvider || 'N/A',
+                        insuranceNumber: data.insuranceNumber || 'N/A',
+                        parentName: data.parentName || 'N/A',
+                        parentPhone: data.parentPhone || 'N/A',
+                        bloodGroup: 'Unknown',
+                        allergies: ['None listed'],
+                        chronicConditions: ['None listed'],
+                        vitals: { height: 'N/A', weight: 'N/A', bmi: 'N/A' }
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching student:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStudent();
+    }, [params.id]);
 
     const consultations = [
         { id: 101, date: '2024-02-08', diagnosis: 'Migraine', doctor: 'Nurse Jane', type: 'Outpatient' },
         { id: 98, date: '2023-11-20', diagnosis: 'Malaria', doctor: 'Dr. John', type: 'Inpatient' },
     ];
+
+    if (loading) {
+        return (
+            <div className="max-w-[1200px] mx-auto pb-10 flex items-center justify-center p-20">
+                <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        );
+    }
+
+    if (!student) {
+        return (
+            <div className="max-w-[1200px] mx-auto pb-10 flex flex-col items-center justify-center py-20">
+                <h3 className="text-18px font-semibold mb-2">Student Not Found</h3>
+                <button
+                    onClick={() => router.push('/students')}
+                    className="text-primary hover:underline text-14px flex items-center gap-2 mt-4"
+                >
+                    <ArrowLeft size={16} /> Return to Students
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-[1200px] mx-auto pb-10">
