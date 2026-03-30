@@ -2,14 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LayoutGrid, List as ListIcon, Plus, Eye, Edit2 } from 'lucide-react';
-import { apiUrl, authenticatedFetch } from '@/utils/api';
+import { LayoutGrid, List as ListIcon, Plus, Eye, Edit2, Trash2 } from 'lucide-react';
+import { authenticatedFetch } from '@/utils/api';
 
 const ConsultationsPage = () => {
     const router = useRouter();
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
     const [consultations, setConsultations] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [consultationToDelete, setConsultationToDelete] = useState<any | null>(null);
+    const [deleting, setDeleting] = useState(false);
 
     useEffect(() => {
         const fetchConsultations = async () => {
@@ -40,6 +42,27 @@ const ConsultationsPage = () => {
 
         fetchConsultations();
     }, []);
+
+    const handleDeleteConsultation = async () => {
+        if (!consultationToDelete) return;
+        setDeleting(true);
+        try {
+            const response = await authenticatedFetch(`/api/visits/${consultationToDelete.id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                setConsultations((prev) => prev.filter((item) => item.id !== consultationToDelete.id));
+                setConsultationToDelete(null);
+            } else {
+                console.error('Failed to delete consultation');
+            }
+        } catch (error) {
+            console.error('Error deleting consultation:', error);
+        } finally {
+            setDeleting(false);
+        }
+    };
 
     if (loading) {
         return <div>Loading consultations...</div>;
@@ -132,7 +155,13 @@ const ConsultationsPage = () => {
                                                         <Eye size={16} />
                                                     </button>
                                                     <button className="p-1.5 border border-border rounded-5 text-text-secondary hover:text-primary hover:border-primary transition-all">
-                                                        <Edit2 size={16} />
+                                                        <Edit2 size={16} onClick={() => router.push(`/consultations/${consultation.id}/edit`)} />
+                                                    </button>
+                                                    <button
+                                                        className="p-1.5 border border-border rounded-5 text-text-secondary hover:text-error hover:border-error transition-all"
+                                                        onClick={() => setConsultationToDelete(consultation)}
+                                                    >
+                                                        <Trash2 size={16} />
                                                     </button>
                                                 </div>
                                             </td>
@@ -178,19 +207,58 @@ const ConsultationsPage = () => {
                                 </div>
                             </div>
 
-                            <div className="flex gap-2 mt-auto">
+                            <div className="grid grid-cols-3 gap-2 mt-auto">
                                 <button
-                                    className="flex-1 py-2 bg-primary text-white rounded-5 text-12px font-medium hover:bg-primary-dark transition-colors"
+                                    className="py-2 bg-primary text-white rounded-5 text-12px font-medium hover:bg-primary-dark transition-colors"
                                     onClick={() => router.push(`/consultations/${consultation.id}`)}
                                 >
-                                    View Details
+                                    View
                                 </button>
-                                <button className="flex-1 py-2 border border-border text-primary rounded-5 text-12px font-medium hover:bg-gray-50 transition-colors">
+                                <button
+                                    className="py-2 border border-border text-primary rounded-5 text-12px font-medium hover:bg-gray-50 transition-colors"
+                                    onClick={() => router.push(`/consultations/${consultation.id}/edit`)}
+                                >
                                     Edit
+                                </button>
+                                <button
+                                    className="py-2 border border-error text-error rounded-5 text-12px font-medium hover:bg-error/5 transition-colors"
+                                    onClick={() => setConsultationToDelete(consultation)}
+                                >
+                                    Delete
                                 </button>
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {consultationToDelete && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-bg-card border border-border rounded-10 shadow-xl max-w-[420px] w-full p-6 mx-4 animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center justify-center w-12 h-12 bg-error/10 text-error rounded-full mb-4">
+                            <Trash2 size={24} />
+                        </div>
+                        <h3 className="text-18px font-semibold text-text-primary mb-2">Delete Consultation</h3>
+                        <p className="text-14px text-text-secondary mb-6">
+                            Are you sure you want to delete consultation for <span className="font-semibold text-text-primary">{consultationToDelete.student}</span>? This action cannot be undone.
+                        </p>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => setConsultationToDelete(null)}
+                                disabled={deleting}
+                                className="px-4 py-2 text-14px font-medium text-text-secondary hover:bg-gray-100 rounded-5 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleDeleteConsultation}
+                                disabled={deleting}
+                                className="px-4 py-2 bg-error text-white text-14px font-medium rounded-5 hover:bg-red-700 transition-colors"
+                            >
+                                {deleting ? 'Deleting...' : 'Delete'}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
