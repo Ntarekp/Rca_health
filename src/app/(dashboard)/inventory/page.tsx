@@ -16,12 +16,26 @@ import {
     ArrowDownRight,
     Edit,
     Trash2,
-    X
+    X,
+    ChevronDown
 } from 'lucide-react';
 
-import { apiUrl } from '@/utils/api';
-
-const API_URL = apiUrl('/api/inventory');
+import { authenticatedFetch } from '@/utils/api';
+const COMMON_UNITS = [
+    'grams',
+    'milligrams',
+    'milliliters',
+    'liters',
+    'tablets',
+    'capsules',
+    'packets',
+    'sachets',
+    'bottles',
+    'boxes',
+    'pieces',
+    'vials',
+    'ampoules'
+];
 
 const InventoryPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -40,23 +54,29 @@ const InventoryPage = () => {
         lastRestocked: new Date().toISOString().split('T')[0]
     });
     const [actionLoading, setActionLoading] = useState(false);
+    const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null);
+    const [deleteLoading, setDeleteLoading] = useState(false);
+    const [isUnitDropdownOpen, setIsUnitDropdownOpen] = useState(false);
 
     const fetchInventory = async () => {
         setLoading(true);
         try {
             // Updated fetch call to use dynamic endpoint if needed
-            const response = await fetch(API_URL);
+            const response = await authenticatedFetch('/api/inventory');
             if (response.ok) {
                 const data = await response.json();
-                const mappedData = data.map((item: any) => ({
+                const mappedData = data.map((item: any) => {
+                    const stock = Number(item.stock ?? 0);
+
+                    return {
                     id: item.id,
                     name: item.name,
                     category: item.category,
-                    stock: item.stock,
-                    unit: item.unit,
-                    status: item.stock === 0 ? 'Out of Stock' : item.stock < 10 ? 'Low Stock' : 'In Stock',
+                    stock,
+                    unit: (item.unit || '').trim(),
+                    status: stock === 0 ? 'Out of Stock' : stock < 10 ? 'Low Stock' : 'In Stock',
                     lastRestocked: item.lastRestocked || new Date().toISOString().split('T')[0]
-                }));
+                }});
                 setInventoryItems(mappedData);
             }
         } catch (error) {
@@ -80,6 +100,7 @@ const InventoryPage = () => {
 
     const handleOpenModal = (mode: 'create' | 'edit', item?: any) => {
         setModalMode(mode);
+        setIsUnitDropdownOpen(false);
         if (mode === 'edit' && item) {
             setFormData({
                 id: item.id,
@@ -102,27 +123,36 @@ const InventoryPage = () => {
         setIsModalOpen(true);
     };
 
+    const handleUnitSelect = (unit: string) => {
+        setFormData(prev => ({
+            ...prev,
+            unit
+        }));
+        setIsUnitDropdownOpen(false);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setActionLoading(true);
 
+        if (!formData.unit.trim()) {
+            setActionLoading(false);
+            return;
+        }
+
         try {
-            const url = modalMode === 'create' ? API_URL : `${API_URL}/${formData.id}`;
             const method = modalMode === 'create' ? 'POST' : 'PUT';
 
             const payload = {
-                name: formData.name,
+                name: formData.name.trim(),
                 category: formData.category,
                 stock: formData.stock,
-                unit: formData.unit,
+                unit: formData.unit.trim(),
                 lastRestocked: formData.lastRestocked
             };
 
-            const response = await fetch(url, {
+            const response = await authenticatedFetch(`/api/inventory${modalMode === 'create' ? '' : `/${formData.id}`}`, {
                 method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
                 body: JSON.stringify(payload)
             });
 
@@ -139,21 +169,25 @@ const InventoryPage = () => {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!confirm('Are you sure you want to delete this item?')) return;
-        
+    const handleDeleteConfirm = async () => {
+        if (!deleteTarget) return;
+        setDeleteLoading(true);
+
         try {
-            const response = await fetch(`${API_URL}/${id}`, {
+            const response = await authenticatedFetch(`/api/inventory/${deleteTarget.id}`, {
                 method: 'DELETE'
             });
 
             if (response.ok) {
+                setDeleteTarget(null);
                 fetchInventory();
             } else {
                 console.error('Error deleting item');
             }
         } catch (error) {
             console.error('Error deleting item:', error);
+        } finally {
+            setDeleteLoading(false);
         }
     };
 
@@ -319,7 +353,7 @@ const InventoryPage = () => {
                                                         <Edit size={18} />
                                                     </button>
                                                     <button 
-                                                        onClick={() => handleDelete(item.id)}
+                                                        onClick={() => setDeleteTarget({ id: item.id, name: item.name })}
                                                         className="p-2 hover:bg-danger/10 hover:text-danger rounded-8 transition-colors"
                                                         title="Delete Item"
                                                     >
@@ -401,33 +435,59 @@ const InventoryPage = () => {
                                         onChange={handleChange}
                                         required
                                         min="0"
+                                        step="1"
                                         className="w-full px-4 py-3 bg-slate-50/50 border border-border rounded-12 text-14px focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                     />
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-13px font-bold text-text-secondary ml-1">Unit</label>
-                                    <input
-                                        type="text"
-                                        name="unit"
-                                        value={formData.unit}
-                                        onChange={handleChange}
-                                        required
-                                        className="w-full px-4 py-3 bg-slate-50/50 border border-border rounded-12 text-14px focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                        placeholder="e.g. Tablets, Boxes"
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            name="unit"
+                                            value={formData.unit}
+                                            onFocus={() => setIsUnitDropdownOpen(true)}
+                                            onBlur={() => setTimeout(() => setIsUnitDropdownOpen(false), 120)}
+                                            onChange={(e) => {
+                                                handleChange(e);
+                                                setIsUnitDropdownOpen(true);
+                                            }}
+                                            required
+                                            className="w-full pl-4 pr-10 py-3 bg-slate-50/50 border border-border rounded-12 text-14px focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                            placeholder="e.g. grams, packets, tablets"
+                                        />
+                                        <button
+                                            type="button"
+                                            onMouseDown={(e) => e.preventDefault()}
+                                            onClick={() => setIsUnitDropdownOpen(prev => !prev)}
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-text-tertiary hover:text-text-secondary"
+                                            aria-label="Toggle units"
+                                        >
+                                            <ChevronDown size={16} />
+                                        </button>
+
+                                        {isUnitDropdownOpen && (
+                                            <div className="absolute z-20 mt-2 w-full bg-white border border-border rounded-12 shadow-lg max-h-44 overflow-y-auto">
+                                                {COMMON_UNITS
+                                                    .filter((unit) => unit.toLowerCase().includes(formData.unit.toLowerCase()))
+                                                    .map((unit) => (
+                                                        <button
+                                                            key={unit}
+                                                            type="button"
+                                                            onMouseDown={(e) => e.preventDefault()}
+                                                            onClick={() => handleUnitSelect(unit)}
+                                                            className="w-full text-left px-4 py-2.5 text-14px text-text-secondary hover:bg-slate-50 transition-colors"
+                                                        >
+                                                            {unit}
+                                                        </button>
+                                                    ))}
+                                                {COMMON_UNITS.filter((unit) => unit.toLowerCase().includes(formData.unit.toLowerCase())).length === 0 && (
+                                                    <div className="px-4 py-3 text-13px text-text-tertiary">No matching unit. Keep typing to use a custom unit.</div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <div className="space-y-1">
-                                <label className="text-13px font-bold text-text-secondary ml-1">Last Restocked</label>
-                                <input
-                                    type="date"
-                                    name="lastRestocked"
-                                    value={formData.lastRestocked}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full px-4 py-3 bg-slate-50/50 border border-border rounded-12 text-14px focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                />
                             </div>
 
                             <div className="pt-4 flex items-center justify-end gap-3">
@@ -447,6 +507,37 @@ const InventoryPage = () => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {deleteTarget && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-24 w-full max-w-md shadow-2xl overflow-hidden">
+                        <div className="p-6 border-b border-border">
+                            <h2 className="text-20px font-bold text-text-primary">Delete Inventory Item</h2>
+                            <p className="text-14px text-text-tertiary mt-2">
+                                You are about to delete <span className="font-semibold text-text-secondary">{deleteTarget.name}</span>.
+                                This action cannot be undone.
+                            </p>
+                        </div>
+                        <div className="p-6 flex items-center justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setDeleteTarget(null)}
+                                className="px-5 py-2.5 rounded-12 text-14px font-bold text-text-secondary hover:bg-slate-100 transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleDeleteConfirm}
+                                disabled={deleteLoading}
+                                className="px-6 py-2.5 bg-danger text-white rounded-12 text-14px font-bold hover:bg-danger/90 transition-all disabled:opacity-50"
+                            >
+                                {deleteLoading ? 'Deleting...' : 'Delete Item'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
