@@ -17,6 +17,8 @@ const StudentsPage = () => {
     const [loadingStudents, setLoadingStudents] = useState(true);
     const [classes, setClasses] = useState<any[]>([]);
     const [selectedClass, setSelectedClass] = useState<string>('');
+    const [selectedStudentIds, setSelectedStudentIds] = useState<number[]>([]);
+    const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
 
     // --- Academic Management State ---
     const [yearsList, setYearsList] = useState<any[]>([]);
@@ -29,6 +31,8 @@ const StudentsPage = () => {
     // --- Notifications & UI State ---
     const [isDeleting, setIsDeleting] = useState(false);
     const [studentToDelete, setStudentToDelete] = useState<any | null>(null);
+    const [classToDelete, setClassToDelete] = useState<{ id: number; name: string } | null>(null);
+    const [yearToDelete, setYearToDelete] = useState<{ id: number; name: string } | null>(null);
     const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     
     // --- Excel Import State ---
@@ -139,18 +143,64 @@ const StudentsPage = () => {
         }
     };
 
-    const handleDeleteClass = async (classId: number, className: string) => {
-        const confirmed = window.confirm(`Delete class "${className}"? This cannot be undone.`);
-        if (!confirmed) return;
+    const toggleStudentSelection = (id: number) => {
+        setSelectedStudentIds(prev =>
+            prev.includes(id) ? prev.filter(studentId => studentId !== id) : [...prev, id]
+        );
+    };
 
+    const handleToggleSelectAll = (checked: boolean, visibleStudents: any[]) => {
+        const visibleIds = visibleStudents.map(student => student.id);
+        if (checked) {
+            setSelectedStudentIds(prev => Array.from(new Set([...prev, ...visibleIds])));
+        } else {
+            setSelectedStudentIds(prev => prev.filter(id => !visibleIds.includes(id)));
+        }
+    };
+
+    const handleBulkDeleteStudents = async () => {
+        if (selectedStudentIds.length === 0) return;
+
+        setIsDeleting(true);
+        try {
+            const response = await authenticatedFetch('/api/students/bulk', {
+                method: 'DELETE',
+                body: JSON.stringify({ studentIds: selectedStudentIds })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                setStudents(prev => prev.filter(student => !selectedStudentIds.includes(student.id)));
+                showToast('success', result.message || 'Students deleted successfully.');
+                setSelectedStudentIds([]);
+                setShowBulkDeleteConfirm(false);
+                router.refresh();
+            } else {
+                const errorText = await response.text();
+                showToast('error', errorText || 'Failed to delete selected students.');
+            }
+        } catch (error) {
+            console.error('Error deleting selected students:', error);
+            showToast('error', 'An error occurred while deleting selected students.');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    const handleDeleteClass = (classId: number, className: string) => {
+        setClassToDelete({ id: classId, name: className });
+    };
+
+    const confirmDeleteClass = async () => {
+        if (!classToDelete) return;
         setLoadingAction(true);
         try {
-            const response = await authenticatedFetch(`/api/academic/classes/${classId}`, {
+            const response = await authenticatedFetch(`/api/academic/classes/${classToDelete.id}`, {
                 method: 'DELETE'
             });
 
             if (response.ok) {
-                showToast('success', `Class "${className}" deleted successfully.`);
+                showToast('success', `Class "${classToDelete.name}" deleted successfully.`);
                 fetchClassesForManagement(selectedYearForClasses);
                 if (selectedYearId) {
                     const classesResponse = await authenticatedFetch(`/api/academic/years/${selectedYearId}/classes`);
@@ -168,23 +218,26 @@ const StudentsPage = () => {
             showToast('error', 'An error occurred while deleting class.');
         } finally {
             setLoadingAction(false);
+            setClassToDelete(null);
         }
     };
 
-    const handleDeleteYear = async (yearId: number, yearName: string) => {
-        const confirmed = window.confirm(`Delete academic year "${yearName}"? This cannot be undone.`);
-        if (!confirmed) return;
+    const handleDeleteYear = (yearId: number, yearName: string) => {
+        setYearToDelete({ id: yearId, name: yearName });
+    };
 
+    const confirmDeleteYear = async () => {
+        if (!yearToDelete) return;
         setLoadingAction(true);
         try {
-            const response = await authenticatedFetch(`/api/academic/years/${yearId}`, {
+            const response = await authenticatedFetch(`/api/academic/years/${yearToDelete.id}`, {
                 method: 'DELETE'
             });
 
             if (response.ok) {
-                showToast('success', `Academic year "${yearName}" deleted successfully.`);
+                showToast('success', `Academic year "${yearToDelete.name}" deleted successfully.`);
                 await fetchYearsList();
-                if (selectedYearForClasses === yearId.toString()) {
+                if (selectedYearForClasses === yearToDelete.id.toString()) {
                     setSelectedYearForClasses('');
                     setClassesForManagement([]);
                 }
@@ -197,6 +250,7 @@ const StudentsPage = () => {
             showToast('error', 'An error occurred while deleting academic year.');
         } finally {
             setLoadingAction(false);
+            setYearToDelete(null);
         }
     };
 
@@ -332,7 +386,7 @@ const StudentsPage = () => {
         if (!studentToDelete) return;
         setIsDeleting(true);
         try {
-            const response = await authenticatedFetch(`/api/students/${id}`, { method: 'DELETE' });
+            const response = await authenticatedFetch(`/api/students/id/${id}`, { method: 'DELETE' });
             if (response.ok) {
                 setStudents(prev => prev.filter(s => s.id !== id));
                 showToast('success', 'Student successfully deleted.');
@@ -367,6 +421,8 @@ const StudentsPage = () => {
 
         return matchesSearch && matchesYear && matchesClass;
     });
+
+    const allFilteredSelected = filteredStudents.length > 0 && filteredStudents.every(student => selectedStudentIds.includes(student.id));
 
     return (
         <div className="space-y-6 pb-10 relative">
@@ -426,6 +482,16 @@ const StudentsPage = () => {
                                     <option key={cls.id} value={cls.id}>{cls.name}</option>
                                 ))}
                             </select>
+                            {selectedStudentIds.length > 0 && (
+                                <button
+                                    className="flex items-center gap-2 px-3 py-2 bg-error text-white rounded-5 hover:bg-red-700 transition-colors text-12px"
+                                    onClick={() => setShowBulkDeleteConfirm(true)}
+                                    disabled={isDeleting}
+                                >
+                                    <Trash2 size={14} />
+                                    Delete Selected ({selectedStudentIds.length})
+                                </button>
+                            )}
                         </div>
 
                         <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
@@ -463,6 +529,14 @@ const StudentsPage = () => {
                             <table className="w-full text-left border-collapse">
                                 <thead className="bg-bg-secondary border-b border-border">
                                     <tr>
+                                        <th className="px-4 py-4 text-12px font-medium text-text-primary w-[40px]">
+                                            <input
+                                                type="checkbox"
+                                                checked={allFilteredSelected}
+                                                onChange={(e) => handleToggleSelectAll(e.target.checked, filteredStudents)}
+                                                className="rounded border-border text-primary focus:ring-primary"
+                                            />
+                                        </th>
                                         <th className="px-6 py-4 text-12px font-medium text-text-primary">Student Name</th>
                                         <th className="px-6 py-4 text-12px font-medium text-text-primary">Class</th>
                                         <th className="px-6 py-4 text-12px font-medium text-text-primary">ID Code</th>
@@ -475,15 +549,23 @@ const StudentsPage = () => {
                                 </thead>
                                 <tbody className="divide-y divide-border-light">
                                     {loadingStudents ? (
-                                        <tr><td colSpan={8} className="px-6 py-4 text-center text-text-tertiary">Loading...</td></tr>
+                                        <tr><td colSpan={9} className="px-6 py-4 text-center text-text-tertiary">Loading...</td></tr>
                                     ) : filteredStudents.length === 0 ? (
                                         <tr>
-                                            <td colSpan={8} className="px-6 py-4 text-center text-text-tertiary">No students found for this academic year. (State length: {students.length})</td>
+                                            <td colSpan={9} className="px-6 py-4 text-center text-text-tertiary">No students found for this academic year. (State length: {students.length})</td>
                                         </tr>
                                     ) : (
                                         filteredStudents.map((student) => {
                                             return (
                                                 <tr key={student.id} className="hover:bg-gray-50 transition-colors">
+                                                    <td className="px-4 py-4">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedStudentIds.includes(student.id)}
+                                                            onChange={() => toggleStudentSelection(student.id)}
+                                                            className="rounded border-border text-primary focus:ring-primary"
+                                                        />
+                                                    </td>
                                                     <td className="px-6 py-4 text-12px font-medium text-text-primary">{student.name}</td>
                                                     <td className="px-6 py-4 text-12px text-text-secondary">{student.class}</td>
                                                     <td className="px-6 py-4 text-12px text-text-secondary">{student.code}</td>
@@ -720,6 +802,96 @@ const StudentsPage = () => {
                                 className="px-4 py-2 bg-error text-white text-14px font-medium rounded-5 hover:bg-red-700 transition-colors flex items-center gap-2"
                             >
                                 {isDeleting ? 'Deleting...' : 'Delete Student'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showBulkDeleteConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-bg-card border border-border rounded-10 shadow-xl max-w-[420px] w-full p-6 mx-4 animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center justify-center w-12 h-12 bg-error/10 text-error rounded-full mb-4">
+                            <Trash2 size={24} />
+                        </div>
+                        <h3 className="text-18px font-semibold text-text-primary mb-2">Confirm Bulk Deletion</h3>
+                        <p className="text-14px text-text-secondary mb-6">
+                            Are you sure you want to delete <span className="font-semibold text-text-primary">{selectedStudentIds.length} selected student(s)</span>? This action cannot be undone.
+                        </p>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => setShowBulkDeleteConfirm(false)}
+                                disabled={isDeleting}
+                                className="px-4 py-2 text-14px font-medium text-text-secondary hover:bg-gray-100 rounded-5 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleBulkDeleteStudents}
+                                disabled={isDeleting}
+                                className="px-4 py-2 bg-error text-white text-14px font-medium rounded-5 hover:bg-red-700 transition-colors flex items-center gap-2"
+                            >
+                                {isDeleting ? 'Deleting...' : 'Delete Selected'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {classToDelete && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-bg-card border border-border rounded-10 shadow-xl max-w-[420px] w-full p-6 mx-4 animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center justify-center w-12 h-12 bg-error/10 text-error rounded-full mb-4">
+                            <Trash2 size={24} />
+                        </div>
+                        <h3 className="text-18px font-semibold text-text-primary mb-2">Delete Class</h3>
+                        <p className="text-14px text-text-secondary mb-6">
+                            Are you sure you want to delete class <span className="font-semibold text-text-primary">"{classToDelete.name}"</span>? This action cannot be undone.
+                        </p>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => setClassToDelete(null)}
+                                disabled={loadingAction}
+                                className="px-4 py-2 text-14px font-medium text-text-secondary hover:bg-gray-100 rounded-5 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmDeleteClass}
+                                disabled={loadingAction}
+                                className="px-4 py-2 bg-error text-white text-14px font-medium rounded-5 hover:bg-red-700 transition-colors flex items-center gap-2"
+                            >
+                                {loadingAction ? 'Deleting...' : 'Delete Class'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {yearToDelete && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-bg-card border border-border rounded-10 shadow-xl max-w-[420px] w-full p-6 mx-4 animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center justify-center w-12 h-12 bg-error/10 text-error rounded-full mb-4">
+                            <Trash2 size={24} />
+                        </div>
+                        <h3 className="text-18px font-semibold text-text-primary mb-2">Delete Academic Year</h3>
+                        <p className="text-14px text-text-secondary mb-6">
+                            Are you sure you want to delete academic year <span className="font-semibold text-text-primary">"{yearToDelete.name}"</span>? This action cannot be undone.
+                        </p>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => setYearToDelete(null)}
+                                disabled={loadingAction}
+                                className="px-4 py-2 text-14px font-medium text-text-secondary hover:bg-gray-100 rounded-5 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmDeleteYear}
+                                disabled={loadingAction}
+                                className="px-4 py-2 bg-error text-white text-14px font-medium rounded-5 hover:bg-red-700 transition-colors flex items-center gap-2"
+                            >
+                                {loadingAction ? 'Deleting...' : 'Delete Year'}
                             </button>
                         </div>
                     </div>
