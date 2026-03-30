@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, X } from 'lucide-react';
 import { useAcademicYear } from '@/context/AcademicYearContext';
-import { apiUrl } from '@/utils/api';
+import { apiUrl, authenticatedFetch } from '@/utils/api';
 
 const StudentRegistrationPage = () => {
     const router = useRouter();
@@ -39,7 +39,7 @@ const StudentRegistrationPage = () => {
         if (selectedYear) {
             const fetchClasses = async () => {
                 try {
-                    const response = await fetch(apiUrl(`/api/academic/years/${selectedYear}/classes`));
+                    const response = await authenticatedFetch(`/api/academic/years/${selectedYear}/classes`);
                     if (response.ok) {
                         const data = await response.json();
                         setClasses(data);
@@ -87,11 +87,8 @@ const StudentRegistrationPage = () => {
 
             console.log('Sending payload:', payload);
 
-            const response = await fetch(apiUrl('/api/students'), {
+            const response = await authenticatedFetch('/api/students', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
                 body: JSON.stringify(payload),
             });
 

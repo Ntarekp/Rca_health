@@ -2,24 +2,39 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const LoginPage = () => {
     const router = useRouter();
-    const [email, setEmail] = useState('');
+    const { login, isAuthenticated, isLoading: authLoading } = useAuth();
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    // Redirect to dashboard if already logged in
+    useEffect(() => {
+        if (!authLoading && isAuthenticated) {
+            router.push('/dashboard');
+        }
+    }, [isAuthenticated, authLoading, router]);
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError('');
         setIsLoading(true);
 
-        // Mock authentication delay
-        setTimeout(() => {
-            router.push('/dashboard');
-        }, 1500);
+        try {
+            await login(username, password);
+            // Router push is handled in the login function
+        } catch (err) {
+            setError('Invalid username or password');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -43,14 +58,21 @@ const LoginPage = () => {
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-6">
-                            {/* Email Input */}
+                            {error && (
+                                <div className="flex items-center gap-2 p-3 bg-error/10 border border-error/20 rounded-10 text-error text-13px">
+                                    <AlertCircle size={16} />
+                                    <span>{error}</span>
+                                </div>
+                            )}
+                            
+                            {/* Username Input */}
                             <div className="space-y-2">
                                 <div className="relative">
                                     <input
-                                        type="email"
-                                        placeholder="Email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        type="text"
+                                        placeholder="Username"
+                                        value={username}
+                                        onChange={(e) => setUsername(e.target.value)}
                                         required
                                         className="w-full h-[52px] px-6 bg-[#eef0f6] border border-slate-200/70 rounded-12 text-[14px] text-slate-700 placeholder:text-slate-400 outline-none focus:bg-white focus:border-slate-300 transition-all"
                                     />

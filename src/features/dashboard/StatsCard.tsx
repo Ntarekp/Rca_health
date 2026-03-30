@@ -34,7 +34,7 @@ const StatsCard = ({ title, value, trend, trendDirection, variant = 'default', i
             </div>
 
             <div className="mb-4">
-                <span className="text-36px font-bold text-valueColor">{value}</span>
+                <span className={`text-36px font-bold ${valueColor}`}>{value}</span>
             </div>
 
             <div className="flex items-center gap-2">

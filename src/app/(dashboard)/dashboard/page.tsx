@@ -7,7 +7,7 @@ import StatsCard from '@/features/dashboard/StatsCard';
 import ChartsSection from '@/features/dashboard/ChartsSection';
 import AppointmentsTable from '@/features/dashboard/AppointmentsTable';
 import RecentConsultations from '@/features/dashboard/RecentConsultations';
-import { apiUrl } from '@/utils/api';
+import { apiUrl, authenticatedFetch } from '@/utils/api';
 
 export default function DashboardPage() {
     const router = useRouter();
@@ -20,7 +20,11 @@ export default function DashboardPage() {
         todaysAppointments: [],
         dispositionStats: [],
         monthlyStats: [],
-        totalDispositions: 0
+        totalDispositions: 0,
+        totalStudentsTrend: 0,
+        appointmentsTodayTrend: 0,
+        criticalAlertsTrend: 0,
+        consultationsThisMonthTrend: 0
     });
     const [loading, setLoading] = useState(true);
 
@@ -28,7 +32,7 @@ export default function DashboardPage() {
         const fetchStats = async () => {
             try {
                 // Append a timestamp to completely bypass aggressive Next.js/Browser GET caching
-                const response = await fetch(`${apiUrl('/api/dashboard/stats')}?t=${new Date().getTime()}`);
+                const response = await authenticatedFetch(`/api/dashboard/stats?t=${new Date().getTime()}`);
                 if (response.ok) {
                     const data = await response.json();
                     setStats(data);
@@ -85,32 +89,32 @@ export default function DashboardPage() {
                 <StatsCard
                     title="Total Students"
                     value={stats.totalStudents.toLocaleString()}
-                    trend={0} // Placeholder
-                    trendDirection="up"
+                    trend={Math.abs(stats.totalStudentsTrend)}
+                    trendDirection={stats.totalStudentsTrend >= 0 ? "up" : "down"}
                     variant="primary"
                     icon={<Users size={20} />}
                 />
                 <StatsCard
                     title="Appointments Today"
                     value={stats.appointmentsToday.toLocaleString()}
-                    trend={0} // Placeholder
-                    trendDirection="up"
+                    trend={Math.abs(stats.appointmentsTodayTrend)}
+                    trendDirection={stats.appointmentsTodayTrend >= 0 ? "up" : "down"}
                     variant="default"
                     icon={<Calendar size={20} />}
                 />
                 <StatsCard
                     title="Critical Alerts"
                     value={stats.criticalAlerts.toLocaleString()}
-                    trend={0} // Placeholder
-                    trendDirection="down"
+                    trend={Math.abs(stats.criticalAlertsTrend)}
+                    trendDirection={stats.criticalAlertsTrend >= 0 ? "up" : "down"}
                     variant="default"
                     icon={<AlertTriangle size={20} className="text-error" />}
                 />
                 <StatsCard
                     title="Consultations This Month"
                     value={stats.consultationsThisMonth.toLocaleString()}
-                    trend={0} // Placeholder
-                    trendDirection="up"
+                    trend={Math.abs(stats.consultationsThisMonthTrend)}
+                    trendDirection={stats.consultationsThisMonthTrend >= 0 ? "up" : "down"}
                     variant="default"
                     icon={<Activity size={20} />}
                 />

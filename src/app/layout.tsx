@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AcademicYearProvider } from "@/context/AcademicYearContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
-    title: "RCA Student Health System",
-    description: "Ensuring wellness and professional health management for our academic community.",
+    title: "RCA Health System",
+    description: "Student Health Monitoring System",
 };
 
 export default function RootLayout({
@@ -15,9 +16,11 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className="font-secondary">
-                <AcademicYearProvider>
-                    {children}
-                </AcademicYearProvider>
+                <AuthProvider>
+                    <AcademicYearProvider>
+                        {children}
+                    </AcademicYearProvider>
+                </AuthProvider>
             </body>
         </html>
     );

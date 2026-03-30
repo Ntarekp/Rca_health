@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, Plus, Trash2, Calendar, BookOpen } from 'lucide-react';
 import { useAcademicYear } from '@/context/AcademicYearContext';
-import { apiUrl } from '@/utils/api';
+import { apiUrl, authenticatedFetch } from '@/utils/api';
 
 const StudentsPage = () => {
     const router = useRouter();
@@ -41,7 +41,7 @@ const StudentsPage = () => {
         const fetchStudents = async () => {
             setLoadingStudents(true);
             try {
-                const response = await fetch(apiUrl('/api/students'));
+                const response = await authenticatedFetch('/api/students');
                 if (response.ok) {
                     const data = await response.json();
                     console.log('Raw students data:', data);
@@ -88,7 +88,7 @@ const StudentsPage = () => {
         if (selectedYearId) {
             const fetchClasses = async () => {
                 try {
-                    const response = await fetch(apiUrl(`/api/academic/years/${selectedYearId}/classes`));
+                    const response = await authenticatedFetch(`/api/academic/years/${selectedYearId}/classes`);
                     if (response.ok) {
                         const data = await response.json();
                         setClasses(data);
@@ -122,7 +122,7 @@ const StudentsPage = () => {
 
     const fetchYearsList = async () => {
         try {
-            const response = await fetch(apiUrl('/api/academic/years'));
+            const response = await authenticatedFetch('/api/academic/years');
             if (response.ok) {
                 const data = await response.json();
                 setYearsList(data);
@@ -134,7 +134,7 @@ const StudentsPage = () => {
 
     const fetchClassesForManagement = async (yearId: string) => {
         try {
-            const response = await fetch(apiUrl(`/api/academic/years/${yearId}/classes`));
+            const response = await authenticatedFetch(`/api/academic/years/${yearId}/classes`);
             if (response.ok) {
                 const data = await response.json();
                 setClassesForManagement(data);
@@ -148,9 +148,8 @@ const StudentsPage = () => {
         e.preventDefault();
         setLoadingAction(true);
         try {
-            const response = await fetch(apiUrl('/api/academic/years'), {
+            const response = await authenticatedFetch('/api/academic/years', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newYear)
             });
             if (response.ok) {
@@ -174,9 +173,8 @@ const StudentsPage = () => {
                 name: newClass.name,
                 academicYearId: selectedYearForClasses
             };
-            const response = await fetch(apiUrl('/api/academic/classes'), {
+            const response = await authenticatedFetch('/api/academic/classes', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
             if (response.ok) {
@@ -214,7 +212,7 @@ const StudentsPage = () => {
         if (!studentToDelete) return;
         setIsDeleting(true);
         try {
-            const response = await fetch(apiUrl(`/api/students/${id}`), { method: 'DELETE' });
+            const response = await authenticatedFetch(`/api/students/${id}`, { method: 'DELETE' });
             if (response.ok) {
                 setStudents(prev => prev.filter(s => s.id !== id));
                 showToast('success', 'Student successfully deleted.');

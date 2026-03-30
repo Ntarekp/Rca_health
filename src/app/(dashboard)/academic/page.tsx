@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Calendar, BookOpen, Trash2, Check } from 'lucide-react';
 import { useAcademicYear } from '@/context/AcademicYearContext';
-import { apiUrl } from '@/utils/api';
+import { apiUrl, authenticatedFetch } from '@/utils/api';
 
 const AcademicPage = () => {
     const { academicYears, selectedYearId, setSelectedYearId } = useAcademicYear();
@@ -26,7 +26,7 @@ const AcademicPage = () => {
 
     const fetchClasses = async (yearId: string) => {
         try {
-            const response = await fetch(apiUrl(`/api/academic/years/${yearId}/classes`));
+            const response = await authenticatedFetch(`/api/academic/years/${yearId}/classes`);
             if (response.ok) {
                 const data = await response.json();
                 setClasses(data);
@@ -40,9 +40,8 @@ const AcademicPage = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const response = await fetch(apiUrl('/api/academic/years'), {
+            const response = await authenticatedFetch('/api/academic/years', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newYear)
             });
             if (response.ok) {
@@ -65,9 +64,8 @@ const AcademicPage = () => {
                 name: newClass.name,
                 academicYearId: parseInt(selectedYearId)
             };
-            const response = await fetch(apiUrl('/api/academic/classes'), {
+            const response = await authenticatedFetch('/api/academic/classes', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
             if (response.ok) {
