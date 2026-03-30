@@ -19,7 +19,9 @@ import {
     X
 } from 'lucide-react';
 
-const API_URL = 'http://127.0.0.1:8081/health/api/inventory';
+import { apiUrl } from '@/utils/api';
+
+const API_URL = apiUrl('/api/inventory');
 
 const InventoryPage = () => {
     const [searchQuery, setSearchQuery] = useState('');

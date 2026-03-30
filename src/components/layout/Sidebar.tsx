@@ -17,7 +17,12 @@ import {
 } from 'lucide-react';
 import { useAcademicYear } from '@/context/AcademicYearContext';
 
-const Sidebar = () => {
+type SidebarProps = {
+    isOpen?: boolean;
+    onClose?: () => void;
+};
+
+const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
     const pathname = usePathname();
     const { academicYears, selectedYearId, setSelectedYearId } = useAcademicYear();
 
@@ -32,7 +37,15 @@ const Sidebar = () => {
     ];
 
     return (
-        <aside className="fixed left-0 top-0 h-screen w-sidebar bg-bg-sidebar border-r border-border z-50 flex flex-col">
+        <>
+            <div
+                className={`fixed inset-0 bg-black/30 z-40 transition-opacity lg:hidden ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                onClick={onClose}
+            />
+
+            <aside
+                className={`fixed left-0 top-0 h-screen w-sidebar bg-bg-sidebar border-r border-border z-50 flex flex-col transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:block`}
+            >
             {/* Branding Section */}
             <div className="p-6 border-b border-border/50 bg-bg-sidebar">
                 <div className="flex items-center gap-3 mb-6">
@@ -79,6 +92,7 @@ const Sidebar = () => {
                             <Link
                                 key={item.path}
                                 href={item.path}
+                                onClick={onClose}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-12 text-14px font-semibold transition-all duration-200 group relative ${isActive
                                     ? 'bg-primary text-white shadow-md shadow-primary/20'
                                     : 'text-text-secondary hover:bg-primary/5 hover:text-primary'
@@ -125,7 +139,8 @@ const Sidebar = () => {
                     </div>
                 </div>
             </div>
-        </aside>
+            </aside>
+        </>
     );
 };
 

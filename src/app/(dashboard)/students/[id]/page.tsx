@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { User, Calendar, Phone, Edit, ArrowLeft, Activity, FileText } from 'lucide-react';
+import { apiUrl } from '@/utils/api';
 
 const StudentProfilePage = () => {
     const router = useRouter();
@@ -16,7 +17,7 @@ const StudentProfilePage = () => {
         const fetchStudent = async () => {
             if (!params.id) return;
             try {
-                const response = await fetch(`http://127.0.0.1:8081/health/api/students/${params.id}`);
+                const response = await fetch(apiUrl(`/api/students/${params.id}`));
                 if (response.ok) {
                     const data = await response.json();
                     setStudent({

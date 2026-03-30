@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FileText, Download, Calendar, Filter, ArrowRight, Activity, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { apiUrl } from '@/utils/api';
 
 const ReportsPage = () => {
     const [reportType, setReportType] = useState('monthly');
@@ -15,7 +16,7 @@ const ReportsPage = () => {
     useEffect(() => {
         const fetchReport = async () => {
             try {
-                const response = await fetch('http://127.0.0.1:8081/health/api/reports');
+                const response = await fetch(apiUrl('/api/reports'));
                 if (response.ok) {
                     const data = await response.json();
                     setReportData(data);

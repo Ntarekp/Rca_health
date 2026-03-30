@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, Plus, Trash2, Calendar, BookOpen } from 'lucide-react';
 import { useAcademicYear } from '@/context/AcademicYearContext';
+import { apiUrl } from '@/utils/api';
 
 const StudentsPage = () => {
     const router = useRouter();
@@ -40,7 +41,7 @@ const StudentsPage = () => {
         const fetchStudents = async () => {
             setLoadingStudents(true);
             try {
-                const response = await fetch('http://127.0.0.1:8081/health/api/students');
+                const response = await fetch(apiUrl('/api/students'));
                 if (response.ok) {
                     const data = await response.json();
                     console.log('Raw students data:', data);
@@ -87,7 +88,7 @@ const StudentsPage = () => {
         if (selectedYearId) {
             const fetchClasses = async () => {
                 try {
-                    const response = await fetch(`http://127.0.0.1:8081/health/api/academic/years/${selectedYearId}/classes`);
+                    const response = await fetch(apiUrl(`/api/academic/years/${selectedYearId}/classes`));
                     if (response.ok) {
                         const data = await response.json();
                         setClasses(data);
@@ -121,7 +122,7 @@ const StudentsPage = () => {
 
     const fetchYearsList = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8081/health/api/academic/years');
+            const response = await fetch(apiUrl('/api/academic/years'));
             if (response.ok) {
                 const data = await response.json();
                 setYearsList(data);
@@ -133,7 +134,7 @@ const StudentsPage = () => {
 
     const fetchClassesForManagement = async (yearId: string) => {
         try {
-            const response = await fetch(`http://127.0.0.1:8081/health/api/academic/years/${yearId}/classes`);
+            const response = await fetch(apiUrl(`/api/academic/years/${yearId}/classes`));
             if (response.ok) {
                 const data = await response.json();
                 setClassesForManagement(data);
@@ -147,7 +148,7 @@ const StudentsPage = () => {
         e.preventDefault();
         setLoadingAction(true);
         try {
-            const response = await fetch('http://127.0.0.1:8081/health/api/academic/years', {
+            const response = await fetch(apiUrl('/api/academic/years'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newYear)
@@ -173,7 +174,7 @@ const StudentsPage = () => {
                 name: newClass.name,
                 academicYearId: selectedYearForClasses
             };
-            const response = await fetch('http://127.0.0.1:8081/health/api/academic/classes', {
+            const response = await fetch(apiUrl('/api/academic/classes'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -213,7 +214,7 @@ const StudentsPage = () => {
         if (!studentToDelete) return;
         setIsDeleting(true);
         try {
-            const response = await fetch(`http://127.0.0.1:8081/health/api/students/${id}`, { method: 'DELETE' });
+            const response = await fetch(apiUrl(`/api/students/${id}`), { method: 'DELETE' });
             if (response.ok) {
                 setStudents(prev => prev.filter(s => s.id !== id));
                 showToast('success', 'Student successfully deleted.');
@@ -309,7 +310,7 @@ const StudentsPage = () => {
                             </select>
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
                             <div className="relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" size={18} />
                                 <input
@@ -317,7 +318,7 @@ const StudentsPage = () => {
                                     placeholder="Search students..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="bg-bg-card border border-border rounded-8 pl-10 pr-4 py-2 text-12px focus:ring-1 focus:ring-primary outline-none min-w-[240px]"
+                                    className="bg-bg-card border border-border rounded-8 pl-10 pr-4 py-2 text-12px focus:ring-1 focus:ring-primary outline-none w-full sm:w-auto sm:min-w-[240px]"
                                 />
                             </div>
 

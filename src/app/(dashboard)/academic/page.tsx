@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Calendar, BookOpen, Trash2, Check } from 'lucide-react';
 import { useAcademicYear } from '@/context/AcademicYearContext';
+import { apiUrl } from '@/utils/api';
 
 const AcademicPage = () => {
     const { academicYears, selectedYearId, setSelectedYearId } = useAcademicYear();
@@ -25,7 +26,7 @@ const AcademicPage = () => {
 
     const fetchClasses = async (yearId: string) => {
         try {
-            const response = await fetch(`http://127.0.0.1:8081/health/api/academic/years/${yearId}/classes`);
+            const response = await fetch(apiUrl(`/api/academic/years/${yearId}/classes`));
             if (response.ok) {
                 const data = await response.json();
                 setClasses(data);
@@ -39,7 +40,7 @@ const AcademicPage = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const response = await fetch('http://127.0.0.1:8081/health/api/academic/years', {
+            const response = await fetch(apiUrl('/api/academic/years'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newYear)
@@ -62,9 +63,9 @@ const AcademicPage = () => {
         try {
             const payload = {
                 name: newClass.name,
-                academicYear: { id: selectedYearId }
+                academicYearId: parseInt(selectedYearId)
             };
-            const response = await fetch('http://127.0.0.1:8081/health/api/academic/classes', {
+            const response = await fetch(apiUrl('/api/academic/classes'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -169,38 +170,40 @@ const AcademicPage = () => {
                     {/* Years List */}
                     <div className="lg:col-span-2">
                         <div className="bg-bg-card border border-border rounded-10 overflow-hidden shadow-sm">
-                            <table className="w-full text-left">
-                                <thead className="bg-bg-secondary border-b border-border">
-                                    <tr>
-                                        <th className="px-6 py-3 text-12px font-medium text-text-primary">Name</th>
-                                        <th className="px-6 py-3 text-12px font-medium text-text-primary">Start Date</th>
-                                        <th className="px-6 py-3 text-12px font-medium text-text-primary">End Date</th>
-                                        <th className="px-6 py-3 text-12px font-medium text-text-primary">Status</th>
-                                        <th className="px-6 py-3 text-12px font-medium text-text-primary text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-border-light">
-                                    {academicYears.map((year) => (
-                                        <tr key={year.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-3 text-13px font-medium text-text-primary">{year.name}</td>
-                                            <td className="px-6 py-3 text-13px text-text-secondary">{year.startDate}</td>
-                                            <td className="px-6 py-3 text-13px text-text-secondary">{year.endDate}</td>
-                                            <td className="px-6 py-3">
-                                                {year.isActive ? (
-                                                    <span className="px-2 py-0.5 bg-success/10 text-success text-10px font-bold rounded-full border border-success/20">ACTIVE</span>
-                                                ) : (
-                                                    <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-10px font-bold rounded-full">INACTIVE</span>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-3 text-right">
-                                                <button className="text-text-tertiary hover:text-error transition-colors">
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </td>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead className="bg-bg-secondary border-b border-border">
+                                        <tr>
+                                            <th className="px-6 py-3 text-12px font-medium text-text-primary">Name</th>
+                                            <th className="px-6 py-3 text-12px font-medium text-text-primary">Start Date</th>
+                                            <th className="px-6 py-3 text-12px font-medium text-text-primary">End Date</th>
+                                            <th className="px-6 py-3 text-12px font-medium text-text-primary">Status</th>
+                                            <th className="px-6 py-3 text-12px font-medium text-text-primary text-right">Actions</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody className="divide-y divide-border-light">
+                                        {academicYears.map((year) => (
+                                            <tr key={year.id} className="hover:bg-gray-50">
+                                                <td className="px-6 py-3 text-13px font-medium text-text-primary">{year.name}</td>
+                                                <td className="px-6 py-3 text-13px text-text-secondary">{year.startDate}</td>
+                                                <td className="px-6 py-3 text-13px text-text-secondary">{year.endDate}</td>
+                                                <td className="px-6 py-3">
+                                                    {year.isActive ? (
+                                                        <span className="px-2 py-0.5 bg-success/10 text-success text-10px font-bold rounded-full border border-success/20">ACTIVE</span>
+                                                    ) : (
+                                                        <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-10px font-bold rounded-full">INACTIVE</span>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-3 text-right">
+                                                    <button className="text-text-tertiary hover:text-error transition-colors">
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>

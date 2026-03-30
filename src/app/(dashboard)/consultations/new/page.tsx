@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, User, Activity, FileText, ClipboardList, X } from 'lucide-react';
+import { apiUrl } from '@/utils/api';
 
 const NewConsultationPage = () => {
     const router = useRouter();
@@ -29,7 +30,7 @@ const NewConsultationPage = () => {
     useEffect(() => {
         const fetchStudents = async () => {
             try {
-                const response = await fetch('http://127.0.0.1:8081/health/api/students');
+                const response = await fetch(apiUrl('/api/students'));
                 if (response.ok) {
                     const data = await response.json();
                     setStudents(data);
@@ -78,7 +79,7 @@ const NewConsultationPage = () => {
         };
 
         try {
-            const response = await fetch('http://127.0.0.1:8081/health/api/visits', {
+            const response = await fetch(apiUrl('/api/visits'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)

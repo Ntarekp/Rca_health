@@ -7,6 +7,7 @@ import StatsCard from '@/features/dashboard/StatsCard';
 import ChartsSection from '@/features/dashboard/ChartsSection';
 import AppointmentsTable from '@/features/dashboard/AppointmentsTable';
 import RecentConsultations from '@/features/dashboard/RecentConsultations';
+import { apiUrl } from '@/utils/api';
 
 export default function DashboardPage() {
     const router = useRouter();
@@ -27,7 +28,7 @@ export default function DashboardPage() {
         const fetchStats = async () => {
             try {
                 // Append a timestamp to completely bypass aggressive Next.js/Browser GET caching
-                const response = await fetch(`http://127.0.0.1:8081/health/api/dashboard/stats?t=${new Date().getTime()}`);
+                const response = await fetch(`${apiUrl('/api/dashboard/stats')}?t=${new Date().getTime()}`);
                 if (response.ok) {
                     const data = await response.json();
                     setStats(data);
@@ -49,14 +50,14 @@ export default function DashboardPage() {
     return (
         <div className="space-y-8 pb-10">
             {/* Page Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h2 className="text-14px text-text-tertiary font-normal mb-1">Good morning, Nurse</h2>
                     <h1 className="text-24px font-semibold text-primary">Student Health Dashboard</h1>
                     <p className="text-12px text-text-tertiary">Overview of student health and consultations</p>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3">
                     <button
                         onClick={() => router.push('/consultations/new')}
                         className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-5 hover:bg-primary-dark transition-colors"
@@ -80,7 +81,7 @@ export default function DashboardPage() {
 
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
                 <StatsCard
                     title="Total Students"
                     value={stats.totalStudents.toLocaleString()}
@@ -123,11 +124,11 @@ export default function DashboardPage() {
             />
 
             {/* Appointments Table & Recent Consultations */}
-            <div className="grid grid-cols-4 gap-6">
-                <div className="col-span-3">
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+                <div className="xl:col-span-3">
                     <AppointmentsTable data={stats.todaysAppointments} />
                 </div>
-                <div className="col-span-1">
+                <div className="xl:col-span-1">
                     <RecentConsultations data={stats.recentConsultations} />
                 </div>
             </div>
