@@ -14,6 +14,7 @@ const StudentRegistrationPage = () => {
         lastName: '',
         dateOfBirth: '',
         gender: '',
+        email: '',
         studentId: '',
         classId: '',
         insuranceProvider: '',
@@ -73,6 +74,7 @@ const StudentRegistrationPage = () => {
                 lastName: formData.lastName,
                 dateOfBirth: formData.dateOfBirth,
                 gender: formData.gender,
+                email: formData.email,
                 schoolId: formData.studentId,
                 schoolClass: schoolClassPayload,
                 insuranceProvider: formData.insuranceProvider,
@@ -168,6 +170,18 @@ const StudentRegistrationPage = () => {
                                     <option value="Male">Male</option>
                                     <option value="Female">Female</option>
                                 </select>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                <label htmlFor="email" className="text-13px font-semibold text-text-primary">Email</label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    placeholder="student@example.com"
+                                    className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10"
+                                />
                             </div>
                         </div>
                     </div>

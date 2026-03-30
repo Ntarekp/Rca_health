@@ -15,6 +15,7 @@ const EditStudentPage = () => {
         lastName: '',
         dateOfBirth: '',
         gender: '',
+        email: '',
         schoolId: '',
         classId: '',
         insuranceProvider: '',
@@ -40,6 +41,7 @@ const EditStudentPage = () => {
                         lastName: data.lastName || '',
                         dateOfBirth: data.dateOfBirth || '',
                         gender: data.gender || '',
+                        email: data.email || '',
                         schoolId: data.schoolId || '',
                         classId: data.schoolClass?.id?.toString() || '',
                         insuranceProvider: data.insuranceProvider || '',
@@ -76,6 +78,7 @@ const EditStudentPage = () => {
                 lastName: formData.lastName,
                 dateOfBirth: formData.dateOfBirth,
                 gender: formData.gender,
+                email: formData.email,
                 schoolId: formData.schoolId,
                 schoolClass: formData.classId ? { id: parseInt(formData.classId) } : null,
                 insuranceProvider: formData.insuranceProvider,
@@ -188,6 +191,18 @@ const EditStudentPage = () => {
                                     value={formData.dateOfBirth}
                                     onChange={handleChange}
                                     required
+                                    className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                <label htmlFor="email" className="text-13px font-semibold text-text-primary">Email</label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    placeholder="student@example.com"
                                     className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10"
                                 />
                             </div>

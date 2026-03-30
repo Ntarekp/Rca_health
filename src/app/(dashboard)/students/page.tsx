@@ -65,7 +65,7 @@ const StudentsPage = () => {
                                     age: s?.dateOfBirth ? calculateAge(s.dateOfBirth) : 'N/A',
                                     gender: s?.gender || 'N/A',
                                     insurance: s?.insuranceProvider || 'N/A',
-                                    status: 'active',
+                                    email: s?.email || 'N/A',
                                     lastVisit: 'N/A'
                                 };
                                 console.log('Successfully mapped student:', mapped);
@@ -139,6 +139,67 @@ const StudentsPage = () => {
         }
     };
 
+    const handleDeleteClass = async (classId: number, className: string) => {
+        const confirmed = window.confirm(`Delete class "${className}"? This cannot be undone.`);
+        if (!confirmed) return;
+
+        setLoadingAction(true);
+        try {
+            const response = await authenticatedFetch(`/api/academic/classes/${classId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                showToast('success', `Class "${className}" deleted successfully.`);
+                fetchClassesForManagement(selectedYearForClasses);
+                if (selectedYearId) {
+                    const classesResponse = await authenticatedFetch(`/api/academic/years/${selectedYearId}/classes`);
+                    if (classesResponse.ok) {
+                        const classesData = await classesResponse.json();
+                        setClasses(classesData);
+                    }
+                }
+            } else {
+                const errorText = await response.text();
+                showToast('error', errorText || 'Failed to delete class.');
+            }
+        } catch (error) {
+            console.error('Error deleting class:', error);
+            showToast('error', 'An error occurred while deleting class.');
+        } finally {
+            setLoadingAction(false);
+        }
+    };
+
+    const handleDeleteYear = async (yearId: number, yearName: string) => {
+        const confirmed = window.confirm(`Delete academic year "${yearName}"? This cannot be undone.`);
+        if (!confirmed) return;
+
+        setLoadingAction(true);
+        try {
+            const response = await authenticatedFetch(`/api/academic/years/${yearId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                showToast('success', `Academic year "${yearName}" deleted successfully.`);
+                await fetchYearsList();
+                if (selectedYearForClasses === yearId.toString()) {
+                    setSelectedYearForClasses('');
+                    setClassesForManagement([]);
+                }
+            } else {
+                const errorText = await response.text();
+                showToast('error', errorText || 'Failed to delete academic year.');
+            }
+        } catch (error) {
+            console.error('Error deleting academic year:', error);
+            showToast('error', 'An error occurred while deleting academic year.');
+        } finally {
+            setLoadingAction(false);
+        }
+    };
+
     const fetchClassesForManagement = async (yearId: string) => {
         try {
             const response = await authenticatedFetch(`/api/academic/years/${yearId}/classes`);
@@ -206,15 +267,6 @@ const StudentsPage = () => {
         return age;
     };
 
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case 'active': return { text: 'Active', className: 'bg-success/20 text-success' };
-            case 'critical': return { text: 'Critical Alert', className: 'bg-error/20 text-error' };
-            case 'follow-up': return { text: 'Follow Up', className: 'bg-warning/20 text-warning' };
-            default: return { text: 'Active', className: 'bg-bg-secondary text-text-tertiary' };
-        }
-    };
-
     const handleImportExcel = async () => {
         if (!importFile || !importClassId) {
             showToast('error', 'Please select a file and class');
@@ -257,7 +309,9 @@ const StudentsPage = () => {
                             academicYearId: s?.schoolClass?.academicYear?.id?.toString() || '',
                             age: s?.dateOfBirth ? calculateAge(s.dateOfBirth) : 'N/A',
                             gender: s?.gender || 'N/A',
-                            insurance: s?.insuranceProvider || 'N/A'
+                            insurance: s?.insuranceProvider || 'N/A',
+                            email: s?.email || 'N/A',
+                            lastVisit: 'N/A'
                         }));
                         setStudents(mappedStudents);
                     }
@@ -414,7 +468,7 @@ const StudentsPage = () => {
                                         <th className="px-6 py-4 text-12px font-medium text-text-primary">ID Code</th>
                                         <th className="px-6 py-4 text-12px font-medium text-text-primary">Age / Gender</th>
                                         <th className="px-6 py-4 text-12px font-medium text-text-primary">Insurance</th>
-                                        <th className="px-6 py-4 text-12px font-medium text-text-primary">Status</th>
+                                        <th className="px-6 py-4 text-12px font-medium text-text-primary">Email</th>
                                         <th className="px-6 py-4 text-12px font-medium text-text-primary">Last Visit</th>
                                         <th className="px-6 py-4 text-12px font-medium text-text-primary">Actions</th>
                                     </tr>
@@ -428,7 +482,6 @@ const StudentsPage = () => {
                                         </tr>
                                     ) : (
                                         filteredStudents.map((student) => {
-                                            const statusBadge = getStatusBadge(student.status);
                                             return (
                                                 <tr key={student.id} className="hover:bg-gray-50 transition-colors">
                                                     <td className="px-6 py-4 text-12px font-medium text-text-primary">{student.name}</td>
@@ -436,11 +489,7 @@ const StudentsPage = () => {
                                                     <td className="px-6 py-4 text-12px text-text-secondary">{student.code}</td>
                                                     <td className="px-6 py-4 text-12px text-text-secondary">{student.age} / {student.gender}</td>
                                                     <td className="px-6 py-4 text-12px text-text-secondary">{student.insurance}</td>
-                                                    <td className="px-6 py-4">
-                                                        <span className={`px-2 py-0.5 rounded-full text-8px font-medium inline-block ${statusBadge.className}`}>
-                                                            {statusBadge.text}
-                                                        </span>
-                                                    </td>
+                                                    <td className="px-6 py-4 text-12px text-text-secondary">{student.email}</td>
                                                     <td className="px-6 py-4 text-12px text-text-secondary">{student.lastVisit}</td>
                                                     <td className="px-6 py-4">
                                                         <div className="flex gap-3">
@@ -525,7 +574,12 @@ const StudentsPage = () => {
                                     classesForManagement.map((cls) => (
                                         <div key={cls.id} className="flex items-center justify-between p-3 border border-border rounded-5 bg-white hover:border-primary/50 transition-colors group">
                                             <span className="text-13px font-medium text-text-primary">{cls.name}</span>
-                                            <button className="text-text-tertiary hover:text-error opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button
+                                                className="text-text-tertiary hover:text-error opacity-0 group-hover:opacity-100 transition-opacity"
+                                                onClick={() => handleDeleteClass(cls.id, cls.name)}
+                                                disabled={loadingAction}
+                                                title="Delete class"
+                                            >
                                                 <Trash2 size={14} />
                                             </button>
                                         </div>
@@ -623,7 +677,12 @@ const StudentsPage = () => {
                                                 )}
                                             </td>
                                             <td className="px-6 py-3 text-right">
-                                                <button className="text-text-tertiary hover:text-error transition-colors">
+                                                <button
+                                                    className="text-text-tertiary hover:text-error transition-colors"
+                                                    onClick={() => handleDeleteYear(year.id, year.name)}
+                                                    disabled={loadingAction}
+                                                    title="Delete academic year"
+                                                >
                                                     <Trash2 size={16} />
                                                 </button>
                                             </td>
@@ -699,6 +758,7 @@ const StudentsPage = () => {
                                     <li><strong>Parent Phone</strong> (optional)</li>
                                     <li><strong>Insurance Provider</strong> (optional)</li>
                                     <li><strong>Insurance Number</strong> (optional)</li>
+                                    <li><strong>Email</strong> (optional)</li>
                                 </ol>
                             </div>
 
