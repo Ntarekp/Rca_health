@@ -3,11 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, User, Activity, FileText, ClipboardList, X } from 'lucide-react';
-import { apiUrl, authenticatedFetch } from '@/utils/api';
+import { useAcademicYear } from '@/context/AcademicYearContext';
+import { authenticatedFetch } from '@/utils/api';
 
 const NewConsultationPage = () => {
     const router = useRouter();
-    const [academicYears, setAcademicYears] = useState<any[]>([]);
+    const { academicYears, selectedYearId: globalSelectedYearId } = useAcademicYear();
     const [classes, setClasses] = useState<any[]>([]);
     const [students, setStudents] = useState<any[]>([]);
     const [selectedYearId, setSelectedYearId] = useState('');
@@ -31,21 +32,18 @@ const NewConsultationPage = () => {
 
     const commonSymptoms = ['Headache', 'Fever', 'Stomach Pain', 'Cough', 'Dizziness', 'Nausea', 'Fatigue'];
 
-    // Fetch academic years on mount
+    // Default to globally selected year (active year from context)
     useEffect(() => {
-        const fetchAcademicYears = async () => {
-            try {
-                const response = await authenticatedFetch('/api/academic/years');
-                if (response.ok) {
-                    const data = await response.json();
-                    setAcademicYears(data);
-                }
-            } catch (error) {
-                console.error('Error fetching academic years:', error);
-            }
-        };
-        fetchAcademicYears();
-    }, []);
+        if (globalSelectedYearId) {
+            setSelectedYearId(globalSelectedYearId);
+            return;
+        }
+
+        if (academicYears.length > 0 && !selectedYearId) {
+            const activeYear = academicYears.find((year: any) => Boolean(year.isActive ?? year.active));
+            setSelectedYearId((activeYear?.id ?? academicYears[0].id).toString());
+        }
+    }, [globalSelectedYearId, academicYears, selectedYearId]);
 
     // Fetch classes when academic year is selected
     useEffect(() => {

@@ -32,11 +32,11 @@ export const AcademicYearProvider = ({ children }: { children: React.ReactNode }
                 if (response.ok) {
                     const data = await response.json();
 
-                    // The backend returns 'id' as a number, but TypeScript expects a string.
-                    // Map over the data to explicitly convert ids to strings to fix strict equality '===' bugs in React.
+                    // Normalize backend payload: id as string and active flag from either isActive or active
                     const formattedData = data.map((y: any) => ({
                         ...y,
-                        id: y.id ? y.id.toString() : ''
+                        id: y.id ? y.id.toString() : '',
+                        isActive: Boolean(y.isActive ?? y.active)
                     }));
 
                     setAcademicYears(formattedData);

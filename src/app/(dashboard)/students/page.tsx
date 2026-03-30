@@ -127,7 +127,8 @@ const StudentsPage = () => {
         if (activeTab === 'classes' && selectedYearForClasses) {
             fetchClassesForManagement(selectedYearForClasses);
         } else if (activeTab === 'classes' && yearsList.length > 0 && !selectedYearForClasses) {
-            setSelectedYearForClasses(yearsList[0].id);
+            const activeYear = yearsList.find((y: any) => y.isActive);
+            setSelectedYearForClasses((activeYear?.id || yearsList[0].id).toString());
         }
     }, [activeTab, selectedYearForClasses, yearsList]);
 
@@ -136,7 +137,18 @@ const StudentsPage = () => {
             const response = await authenticatedFetch('/api/academic/years');
             if (response.ok) {
                 const data = await response.json();
-                setYearsList(data);
+                const normalizedYears = data.map((y: any) => ({
+                    ...y,
+                    id: y.id?.toString?.() ?? y.id,
+                    isActive: Boolean(y.isActive ?? y.active)
+                }));
+
+                setYearsList(normalizedYears);
+
+                const activeYear = normalizedYears.find((y: any) => y.isActive);
+                if (activeYear) {
+                    setSelectedYearForClasses(activeYear.id.toString());
+                }
             }
         } catch (error) {
             console.error('Error fetching years:', error);
