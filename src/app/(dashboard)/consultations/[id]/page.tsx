@@ -1,34 +1,118 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Printer, Activity, User, ClipboardList, FileText } from 'lucide-react';
+import { authenticatedFetch } from '@/utils/api';
 
 const ConsultationDetailsPage = () => {
     const router = useRouter();
     const params = useParams();
+    const [consultation, setConsultation] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
 
-    // Mock Data - In a real app, fetch based on params.id
-    const consultation = {
-        id: params.id || '101',
-        date: '2024-02-08',
-        time: '08:30 AM',
-        student: 'Keza Sarah',
-        code: 'RCA-2024-001',
-        class: 'S4 MPC',
-        handledBy: 'Nurse Jane',
-        vitals: {
-            temp: '37.2',
-            bp: '110/70',
-            pulse: '78',
-            weight: '52'
-        },
-        complaint: 'Severe Headache',
-        symptoms: ['Headache', 'Sensitivity to Light'],
-        diagnosis: 'Migraine',
-        treatment: 'Paracetamol 500mg, Rest in dark room',
-        disposition: 'Returned to Class after 1 hr',
-        notes: 'Advised to drink water'
-    };
+    useEffect(() => {
+        const fetchConsultation = async () => {
+            if (!params.id) return;
+            try {
+                const response = await authenticatedFetch(`/api/visits/${params.id}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Parse vitals from JSON string
+                    let vitals = { temp: 'N/A', bp: 'N/A', pulse: 'N/A', weight: 'N/A', spo2: 'N/A', painScore: 'N/A' };
+                    try {
+                        if (data.vitals) {
+                            const parsedVitals = typeof data.vitals === 'string' ? JSON.parse(data.vitals) : data.vitals;
+                            // Merge parsed vitals with defaults, keeping N/A for empty values
+                            vitals = {
+                                temp: parsedVitals.temp || 'N/A',
+                                bp: parsedVitals.bp || 'N/A',
+                                pulse: parsedVitals.pulse || 'N/A',
+                                weight: parsedVitals.weight || 'N/A',
+                                spo2: parsedVitals.spo2 || 'N/A',
+                                painScore: parsedVitals.painScore || 'N/A'
+                            };
+                        }
+                    } catch (e) {
+                        console.error('Error parsing vitals:', e, data.vitals);
+                    }
+
+                    // Extract symptoms from chief complaint if in parentheses
+                    let complaint = data.chiefComplaint || 'N/A';
+                    let symptoms: string[] = [];
+                    const symptomsMatch = complaint.match(/\((.+?)\)/);
+                    if (symptomsMatch) {
+                        symptoms = symptomsMatch[1].split(',').map((s) => s.trim());
+                        complaint = complaint.replace(/\s*\(.+?\)/, '');
+                    }
+
+                    // Parse treatment notes to extract disposition and notes
+                    let treatment = 'N/A';
+                    let prescription = 'N/A';
+                    let disposition = 'N/A';
+                    let notes = 'N/A';
+                    
+                    if (data.treatmentNotes) {
+                        const treatmentMatch = data.treatmentNotes.match(/Treatment:\s*(.+?)(?=\n|$)/i);
+                        const prescriptionMatch = data.treatmentNotes.match(/Prescription:\s*(.+?)(?=\n|$)/i);
+                        const dispositionMatch = data.treatmentNotes.match(/Disposition:\s*(.+?)(?=\n|$)/i);
+                        const notesMatch = data.treatmentNotes.match(/Notes:\s*(.+?)(?=\n|$)/i);
+                        
+                        treatment = treatmentMatch ? treatmentMatch[1].trim() : 'N/A';
+                        prescription = prescriptionMatch ? prescriptionMatch[1].trim() : 'N/A';
+                        disposition = dispositionMatch ? dispositionMatch[1].trim() : 'N/A';
+                        notes = notesMatch ? notesMatch[1].trim() : 'N/A';
+                    }
+
+                    setConsultation({
+                        id: data.visitId,
+                        date: new Date(data.visitDateTime).toLocaleDateString(),
+                        time: new Date(data.visitDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        student: data.studentName,
+                        class: data.studentClass || 'N/A',
+                        code: 'N/A', // Not in DTO
+                        handledBy: 'Nurse', // Placeholder
+                        vitals: vitals,
+                        complaint: complaint,
+                        symptoms: symptoms.length > 0 ? symptoms : ['None reported'],
+                        diagnosis: data.diagnosis || 'N/A',
+                        treatment: treatment,
+                        prescription: prescription,
+                        disposition: disposition,
+                        notes: notes
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching consultation:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchConsultation();
+    }, [params.id]);
+
+    if (loading) {
+        return (
+            <div className="max-w-[1000px] mx-auto pb-10 flex items-center justify-center p-20">
+                <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        );
+    }
+
+    if (!consultation) {
+        return (
+            <div className="max-w-[1000px] mx-auto pb-10 flex flex-col items-center justify-center py-20">
+                <h3 className="text-18px font-semibold mb-2">Consultation Not Found</h3>
+                <button
+                    onClick={() => router.push('/consultations')}
+                    className="text-primary hover:underline text-14px flex items-center gap-2 mt-4"
+                >
+                    <ArrowLeft size={16} /> Return to Consultations
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-[1000px] mx-auto pb-10">
@@ -152,6 +236,12 @@ const ConsultationDetailsPage = () => {
                                     <h4 className="text-10px text-text-tertiary uppercase tracking-wider font-bold mb-2">Treatment Given</h4>
                                     <p className="text-15px text-text-primary leading-relaxed">{consultation.treatment}</p>
                                 </div>
+                                {consultation.prescription && consultation.prescription !== 'N/A' && (
+                                    <div className="bg-white/50 p-4 rounded-8 border border-border-light">
+                                        <h4 className="text-10px text-text-tertiary uppercase tracking-wider font-bold mb-2">Prescription</h4>
+                                        <p className="text-15px text-text-primary leading-relaxed">{consultation.prescription}</p>
+                                    </div>
+                                )}
                                 <div className="bg-white/50 p-4 rounded-8 border border-border-light">
                                     <h4 className="text-10px text-text-tertiary uppercase tracking-wider font-bold mb-2">Disposition</h4>
                                     <p className="text-15px font-semibold text-primary">{consultation.disposition}</p>

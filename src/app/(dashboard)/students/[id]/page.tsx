@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { User, Calendar, Phone, Edit, ArrowLeft, Activity, FileText } from 'lucide-react';
-import { apiUrl } from '@/utils/api';
+import { apiUrl, authenticatedFetch } from '@/utils/api';
 
 const StudentProfilePage = () => {
     const router = useRouter();
@@ -11,15 +11,28 @@ const StudentProfilePage = () => {
     const [activeTab, setActiveTab] = useState('overview');
 
     const [student, setStudent] = useState<any>(null);
+    const [consultations, setConsultations] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchStudent = async () => {
             if (!params.id) return;
             try {
-                const response = await fetch(apiUrl(`/api/students/${params.id}`));
+                const response = await authenticatedFetch(`/api/students/${params.id}`);
                 if (response.ok) {
                     const data = await response.json();
+                    // Parse medical history
+                    let allergies = ['None listed'];
+                    let chronicConditions = ['None listed'];
+                    if (data.medicalHistory) {
+                        if (data.medicalHistory.allergies && data.medicalHistory.allergies.trim()) {
+                            allergies = [data.medicalHistory.allergies];
+                        }
+                        if (data.medicalHistory.chronicConditions && data.medicalHistory.chronicConditions.length > 0) {
+                            chronicConditions = data.medicalHistory.chronicConditions;
+                        }
+                    }
+
                     setStudent({
                         id: data.studentId?.toString(),
                         name: `${data.firstName || ''} ${data.lastName || ''}`.trim() || 'Unknown',
@@ -32,11 +45,33 @@ const StudentProfilePage = () => {
                         insuranceNumber: data.insuranceNumber || 'N/A',
                         parentName: data.parentName || 'N/A',
                         parentPhone: data.parentPhone || 'N/A',
-                        bloodGroup: 'Unknown',
-                        allergies: ['None listed'],
-                        chronicConditions: ['None listed'],
-                        vitals: { height: 'N/A', weight: 'N/A', bmi: 'N/A' }
+                        bloodGroup: data.medicalHistory?.bloodGroup || 'Unknown',
+                        allergies: allergies,
+                        chronicConditions: chronicConditions,
+                        vitals: { 
+                            height: data.medicalHistory?.height || 'N/A', 
+                            weight: data.medicalHistory?.weight || 'N/A', 
+                            bmi: data.medicalHistory?.bmi || 'N/A' 
+                        }
                     });
+
+                    // Fetch student's consultations
+                    const visitsResponse = await authenticatedFetch('/api/visits');
+                    if (visitsResponse.ok) {
+                        const allVisits = await visitsResponse.json();
+                        // Filter visits for this student
+                        const studentVisits = allVisits.filter((visit: any) => 
+                            visit.studentName === `${data.firstName} ${data.lastName}`
+                        ).map((visit: any) => ({
+                            id: visit.visitId,
+                            date: visit.visitDateTime,
+                            diagnosis: visit.diagnosis || 'N/A',
+                            complaint: visit.chiefComplaint || 'N/A',
+                            doctor: 'Nurse',
+                            type: 'Outpatient'
+                        }));
+                        setConsultations(studentVisits);
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching student:', error);
@@ -47,10 +82,6 @@ const StudentProfilePage = () => {
         fetchStudent();
     }, [params.id]);
 
-    const consultations = [
-        { id: 101, date: '2024-02-08', diagnosis: 'Migraine', doctor: 'Nurse Jane', type: 'Outpatient' },
-        { id: 98, date: '2023-11-20', diagnosis: 'Malaria', doctor: 'Dr. John', type: 'Inpatient' },
-    ];
 
     if (loading) {
         return (
@@ -101,7 +132,10 @@ const StudentProfilePage = () => {
                     </div>
                 </div>
                 <div className="flex gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-5 text-14px font-medium text-text-secondary hover:bg-gray-50 transition-colors">
+                    <button 
+                        onClick={() => router.push(`/students/${params.id}/edit`)}
+                        className="flex items-center gap-2 px-4 py-2 border border-border rounded-5 text-14px font-medium text-text-secondary hover:bg-gray-50 transition-colors"
+                    >
                         <Edit size={16} />
                         <span>Edit Profile</span>
                     </button>
@@ -208,27 +242,31 @@ const StudentProfilePage = () => {
 
                             <h3 className="text-14px font-semibold text-text-primary mb-6">Recent Activity</h3>
                             <div className="relative pl-8 space-y-8 before:absolute before:left-[11px] before:top-2 before:bottom-0 before:w-[2px] before:bg-border-light">
-                                <div className="relative">
-                                    <div className="absolute -left-[30px] top-0 w-6 h-6 rounded-full bg-white border-2 border-primary flex items-center justify-center z-10">
-                                        <FileText size={12} className="text-primary" />
+                                {consultations.slice(0, 3).map((consult, index) => {
+                                    const daysAgo = Math.floor((new Date().getTime() - new Date(consult.date).getTime()) / (1000 * 60 * 60 * 24));
+                                    const timeAgo = daysAgo === 0 ? 'Today' : daysAgo === 1 ? '1 day ago' : `${daysAgo} days ago`;
+                                    
+                                    return (
+                                        <div key={consult.id} className="relative">
+                                            <div className="absolute -left-[30px] top-0 w-6 h-6 rounded-full bg-white border-2 border-primary flex items-center justify-center z-10">
+                                                <FileText size={12} className="text-primary" />
+                                            </div>
+                                            <div className="flex justify-between items-start mb-1">
+                                                <span className="text-14px font-bold text-text-primary">Consultation</span>
+                                                <span className="text-12px text-text-tertiary">{timeAgo}</span>
+                                            </div>
+                                            <p className="text-14px text-text-secondary leading-relaxed">
+                                                {consult.complaint}. Diagnosis: {consult.diagnosis}
+                                            </p>
+                                        </div>
+                                    );
+                                })}
+                                {consultations.length === 0 && (
+                                    <div className="text-center py-8">
+                                        <Activity size={32} className="mx-auto text-text-tertiary mb-2 opacity-50" />
+                                        <p className="text-text-secondary text-14px">No recent activity</p>
                                     </div>
-                                    <div className="flex justify-between items-start mb-1">
-                                        <span className="text-14px font-bold text-text-primary">Consultation</span>
-                                        <span className="text-12px text-text-tertiary">2 days ago</span>
-                                    </div>
-                                    <p className="text-14px text-text-secondary leading-relaxed">Complained of severe headache. Prescribed Paracetamol and advised rest.</p>
-                                </div>
-
-                                <div className="relative">
-                                    <div className="absolute -left-[30px] top-0 w-6 h-6 rounded-full bg-white border-2 border-success flex items-center justify-center z-10">
-                                        <Activity size={12} className="text-success" />
-                                    </div>
-                                    <div className="flex justify-between items-start mb-1">
-                                        <span className="text-14px font-bold text-text-primary">Lab Results</span>
-                                        <span className="text-12px text-text-tertiary">1 week ago</span>
-                                    </div>
-                                    <p className="text-14px text-text-secondary leading-relaxed">Malaria smear: Negative. Widal test: Negative.</p>
-                                </div>
+                                )}
                             </div>
                         </div>
                     )}

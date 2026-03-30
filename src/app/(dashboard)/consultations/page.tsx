@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { LayoutGrid, List as ListIcon, Plus, Eye, Edit2 } from 'lucide-react';
-import { apiUrl } from '@/utils/api';
+import { apiUrl, authenticatedFetch } from '@/utils/api';
 
 const ConsultationsPage = () => {
     const router = useRouter();
@@ -14,7 +14,7 @@ const ConsultationsPage = () => {
     useEffect(() => {
         const fetchConsultations = async () => {
             try {
-                const response = await fetch(apiUrl('/api/visits'));
+                const response = await authenticatedFetch('/api/visits');
                 if (response.ok) {
                     const data = await response.json();
                     const mappedData = data.map((item: any) => ({
