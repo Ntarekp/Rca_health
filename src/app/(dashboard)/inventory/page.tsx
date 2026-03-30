@@ -57,6 +57,10 @@ const InventoryPage = () => {
     const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null);
     const [deleteLoading, setDeleteLoading] = useState(false);
     const [isUnitDropdownOpen, setIsUnitDropdownOpen] = useState(false);
+    const [stockTarget, setStockTarget] = useState<any | null>(null);
+    const [stockMode, setStockMode] = useState<'in' | 'out'>('in');
+    const [stockAmount, setStockAmount] = useState(1);
+    const [stockLoading, setStockLoading] = useState(false);
 
     const fetchInventory = async () => {
         setLoading(true);
@@ -83,6 +87,49 @@ const InventoryPage = () => {
             console.error('Error fetching inventory:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const openStockModal = (item: any, mode: 'in' | 'out') => {
+        setStockTarget(item);
+        setStockMode(mode);
+        setStockAmount(1);
+    };
+
+    const handleStockAdjust = async () => {
+        if (!stockTarget) return;
+
+        const currentStock = Number(stockTarget.stock ?? 0);
+        const amount = Number(stockAmount || 0);
+        if (amount <= 0) return;
+
+        const nextStock = stockMode === 'in' ? currentStock + amount : Math.max(0, currentStock - amount);
+
+        setStockLoading(true);
+        try {
+            const payload = {
+                name: stockTarget.name,
+                category: stockTarget.category,
+                stock: nextStock,
+                unit: stockTarget.unit,
+                lastRestocked: new Date().toISOString().split('T')[0]
+            };
+
+            const response = await authenticatedFetch(`/api/inventory/${stockTarget.id}`, {
+                method: 'PUT',
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                setStockTarget(null);
+                fetchInventory();
+            } else {
+                console.error('Error updating stock', await response.text());
+            }
+        } catch (error) {
+            console.error('Error updating stock:', error);
+        } finally {
+            setStockLoading(false);
         }
     };
 
@@ -345,6 +392,20 @@ const InventoryPage = () => {
                                             </td>
                                             <td className="px-8 py-5 text-right">
                                                 <div className="flex items-center justify-end gap-2 text-text-tertiary">
+                                                    <button
+                                                        onClick={() => openStockModal(item, 'in')}
+                                                        className="px-3 py-1.5 text-12px font-bold rounded-8 bg-success/10 text-success hover:bg-success/15 transition-colors"
+                                                        title="Stock In"
+                                                    >
+                                                        + In
+                                                    </button>
+                                                    <button
+                                                        onClick={() => openStockModal(item, 'out')}
+                                                        className="px-3 py-1.5 text-12px font-bold rounded-8 bg-warning/10 text-warning hover:bg-warning/20 transition-colors"
+                                                        title="Stock Out"
+                                                    >
+                                                        - Out
+                                                    </button>
                                                     <button 
                                                         onClick={() => handleOpenModal('edit', item)}
                                                         className="p-2 hover:bg-slate-200 hover:text-primary rounded-8 transition-colors"
@@ -382,8 +443,8 @@ const InventoryPage = () => {
             {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="bg-white rounded-24 w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-                        <div className="flex items-center justify-between p-6 border-b border-border">
+                    <div className="bg-white rounded-24 w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-border/60">
+                        <div className="flex items-center justify-between px-7 py-6 border-b border-border/70">
                             <h2 className="text-20px font-bold text-text-primary">
                                 {modalMode === 'create' ? 'New Inventory Item' : 'Edit Inventory Item'}
                             </h2>
@@ -395,8 +456,8 @@ const InventoryPage = () => {
                             </button>
                         </div>
                         
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                            <div className="space-y-1">
+                        <form onSubmit={handleSubmit} className="px-7 py-6 space-y-5">
+                            <div className="space-y-2">
                                 <label className="text-13px font-bold text-text-secondary ml-1">Item Name</label>
                                 <input
                                     type="text"
@@ -404,19 +465,19 @@ const InventoryPage = () => {
                                     value={formData.name}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 bg-slate-50/50 border border-border rounded-12 text-14px focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                    className="w-full px-4 py-3.5 bg-slate-50/60 border border-border/80 rounded-14 text-14px focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                     placeholder="e.g. Paracetamol"
                                 />
                             </div>
 
-                            <div className="space-y-1">
+                            <div className="space-y-2">
                                 <label className="text-13px font-bold text-text-secondary ml-1">Category</label>
                                 <select
                                     name="category"
                                     value={formData.category}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 bg-slate-50/50 border border-border rounded-12 text-14px focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                    className="w-full px-4 py-3.5 bg-slate-50/60 border border-border/80 rounded-14 text-14px focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                 >
                                     <option value="" disabled>Select category...</option>
                                     <option value="Medicine">Medicine</option>
@@ -425,8 +486,8 @@ const InventoryPage = () => {
                                 </select>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                <div className="space-y-2">
                                     <label className="text-13px font-bold text-text-secondary ml-1">Stock</label>
                                     <input
                                         type="number"
@@ -436,10 +497,10 @@ const InventoryPage = () => {
                                         required
                                         min="0"
                                         step="1"
-                                        className="w-full px-4 py-3 bg-slate-50/50 border border-border rounded-12 text-14px focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                        className="w-full px-4 py-3.5 bg-slate-50/60 border border-border/80 rounded-14 text-14px focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                     />
                                 </div>
-                                <div className="space-y-1">
+                                <div className="space-y-2">
                                     <label className="text-13px font-bold text-text-secondary ml-1">Unit</label>
                                     <div className="relative">
                                         <input
@@ -453,7 +514,7 @@ const InventoryPage = () => {
                                                 setIsUnitDropdownOpen(true);
                                             }}
                                             required
-                                            className="w-full pl-4 pr-10 py-3 bg-slate-50/50 border border-border rounded-12 text-14px focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                            className="w-full pl-4 pr-10 py-3.5 bg-slate-50/60 border border-border/80 rounded-14 text-14px focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                             placeholder="e.g. grams, packets, tablets"
                                         />
                                         <button
@@ -467,7 +528,7 @@ const InventoryPage = () => {
                                         </button>
 
                                         {isUnitDropdownOpen && (
-                                            <div className="absolute z-20 mt-2 w-full bg-white border border-border rounded-12 shadow-lg max-h-44 overflow-y-auto">
+                                            <div className="absolute z-20 mt-2 w-full bg-white border border-border rounded-12 shadow-lg max-h-52 overflow-y-auto">
                                                 {COMMON_UNITS
                                                     .filter((unit) => unit.toLowerCase().includes(formData.unit.toLowerCase()))
                                                     .map((unit) => (
@@ -490,23 +551,81 @@ const InventoryPage = () => {
                                 </div>
                             </div>
 
-                            <div className="pt-4 flex items-center justify-end gap-3">
+                            <div className="space-y-2">
+                                <label className="text-13px font-bold text-text-secondary ml-1">Last Restocked</label>
+                                <input
+                                    type="date"
+                                    name="lastRestocked"
+                                    value={formData.lastRestocked}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-4 py-3.5 bg-slate-50/60 border border-border/80 rounded-14 text-14px focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                />
+                            </div>
+
+                            <div className="pt-5 flex items-center justify-end gap-3">
                                 <button
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="px-5 py-2.5 rounded-12 text-14px font-bold text-text-secondary hover:bg-slate-100 transition-all font-medium"
+                                    className="px-5 py-3 rounded-12 text-14px font-bold text-text-secondary hover:bg-slate-100 transition-all font-medium"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={actionLoading}
-                                    className="px-6 py-2.5 bg-primary text-white rounded-12 text-14px font-bold hover:bg-primary-dark transition-all shadow-md shadow-primary/20 disabled:opacity-50"
+                                    className="px-6 py-3 bg-primary text-white rounded-12 text-14px font-bold hover:bg-primary-dark transition-all shadow-md shadow-primary/20 disabled:opacity-50"
                                 >
                                     {actionLoading ? 'Saving...' : 'Save Item'}
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {stockTarget && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-24 w-full max-w-md shadow-2xl overflow-hidden border border-border/60">
+                        <div className="p-6 border-b border-border/70">
+                            <h2 className="text-20px font-bold text-text-primary">
+                                {stockMode === 'in' ? 'Stock In' : 'Stock Out'}
+                            </h2>
+                            <p className="text-14px text-text-tertiary mt-2">
+                                Adjust stock for <span className="font-semibold text-text-secondary">{stockTarget.name}</span> ({stockTarget.unit}).
+                            </p>
+                            <p className="text-13px text-text-tertiary mt-1">
+                                Current stock: <span className="font-semibold text-text-secondary">{stockTarget.stock}</span>
+                            </p>
+                        </div>
+                        <div className="p-6 space-y-3">
+                            <label className="text-13px font-bold text-text-secondary ml-1">Quantity</label>
+                            <input
+                                type="number"
+                                min="1"
+                                step="1"
+                                value={stockAmount}
+                                onChange={(e) => setStockAmount(Number(e.target.value))}
+                                className="w-full px-4 py-3.5 bg-slate-50/60 border border-border/80 rounded-14 text-14px focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                            />
+                        </div>
+                        <div className="p-6 pt-0 flex items-center justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setStockTarget(null)}
+                                className="px-5 py-3 rounded-12 text-14px font-bold text-text-secondary hover:bg-slate-100 transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleStockAdjust}
+                                disabled={stockLoading || stockAmount < 1}
+                                className={`px-6 py-3 text-white rounded-12 text-14px font-bold transition-all disabled:opacity-50 ${stockMode === 'in' ? 'bg-success hover:bg-success/90' : 'bg-warning hover:bg-warning/90'}`}
+                            >
+                                {stockLoading ? 'Saving...' : stockMode === 'in' ? 'Confirm Stock In' : 'Confirm Stock Out'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
