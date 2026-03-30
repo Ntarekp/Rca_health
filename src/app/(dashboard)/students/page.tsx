@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Plus, Trash2, Calendar, BookOpen } from 'lucide-react';
+import { Search, Plus, Trash2, Calendar, BookOpen, Upload, X, FileSpreadsheet } from 'lucide-react';
 import { useAcademicYear } from '@/context/AcademicYearContext';
 import { apiUrl, authenticatedFetch } from '@/utils/api';
 
@@ -30,6 +30,13 @@ const StudentsPage = () => {
     const [isDeleting, setIsDeleting] = useState(false);
     const [studentToDelete, setStudentToDelete] = useState<any | null>(null);
     const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+    
+    // --- Excel Import State ---
+    const [showImportModal, setShowImportModal] = useState(false);
+    const [importFile, setImportFile] = useState<File | null>(null);
+    const [importClassId, setImportClassId] = useState('');
+    const [importing, setImporting] = useState(false);
+    const [importResult, setImportResult] = useState<any>(null);
 
     const showToast = (type: 'success' | 'error', text: string) => {
         setToastMessage({ type, text });
@@ -208,6 +215,65 @@ const StudentsPage = () => {
         }
     };
 
+    const handleImportExcel = async () => {
+        if (!importFile || !importClassId) {
+            showToast('error', 'Please select a file and class');
+            return;
+        }
+
+        setImporting(true);
+        setImportResult(null);
+
+        try {
+            const formData = new FormData();
+            formData.append('file', importFile);
+            formData.append('classId', importClassId);
+
+            const token = localStorage.getItem('authToken');
+            const response = await fetch(apiUrl('/api/students/import'), {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                setImportResult(result);
+                showToast('success', `Imported ${result.successCount} students successfully`);
+                
+                // Refresh students list
+                const studentsResponse = await authenticatedFetch('/api/students');
+                if (studentsResponse.ok) {
+                    const data = await studentsResponse.json();
+                    if (Array.isArray(data)) {
+                        const mappedStudents = data.map((s: any) => ({
+                            id: s?.studentId,
+                            name: `${s?.firstName || ''} ${s?.lastName || ''}`.trim() || 'Unknown',
+                            code: s?.schoolId || 'N/A',
+                            class: s?.schoolClass?.name || 'N/A',
+                            classId: s?.schoolClass?.id?.toString() || '',
+                            academicYearId: s?.schoolClass?.academicYear?.id?.toString() || '',
+                            age: s?.dateOfBirth ? calculateAge(s.dateOfBirth) : 'N/A',
+                            gender: s?.gender || 'N/A',
+                            insurance: s?.insuranceProvider || 'N/A'
+                        }));
+                        setStudents(mappedStudents);
+                    }
+                }
+            } else {
+                const errorText = await response.text();
+                showToast('error', errorText || 'Import failed');
+            }
+        } catch (error) {
+            console.error('Error importing students:', error);
+            showToast('error', 'Error importing students');
+        } finally {
+            setImporting(false);
+        }
+    };
+
     const handleDeleteStudent = async (id: number) => {
         if (!studentToDelete) return;
         setIsDeleting(true);
@@ -320,6 +386,14 @@ const StudentsPage = () => {
                                 />
                             </div>
 
+                            <button
+                                className="flex items-center gap-2 px-4 py-2 bg-success text-white rounded-5 hover:bg-success-dark transition-colors"
+                                onClick={() => setShowImportModal(true)}
+                            >
+                                <Upload size={18} />
+                                <span className="text-14px font-medium">Import Excel</span>
+                            </button>
+                            
                             <button
                                 className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-5 hover:bg-primary-dark transition-colors"
                                 onClick={() => router.push('/students/new')}
@@ -587,6 +661,146 @@ const StudentsPage = () => {
                                 className="px-4 py-2 bg-error text-white text-14px font-medium rounded-5 hover:bg-red-700 transition-colors flex items-center gap-2"
                             >
                                 {isDeleting ? 'Deleting...' : 'Delete Student'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Excel Import Modal */}
+            {showImportModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-10 shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="p-6 border-b border-border flex justify-between items-center">
+                            <div>
+                                <h2 className="text-20px font-semibold text-primary">Import Students from Excel</h2>
+                                <p className="text-12px text-text-tertiary mt-1">Upload an Excel file to bulk import students</p>
+                            </div>
+                            <button onClick={() => { setShowImportModal(false); setImportResult(null); setImportFile(null); }} className="text-text-tertiary hover:text-primary">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div className="p-6 space-y-6">
+                            {/* Excel Format Instructions */}
+                            <div className="bg-primary/5 border border-primary/20 rounded-8 p-4">
+                                <h3 className="text-14px font-semibold text-primary mb-2 flex items-center gap-2">
+                                    <FileSpreadsheet size={16} />
+                                    Excel File Format
+                                </h3>
+                                <p className="text-12px text-text-secondary mb-2">Your Excel file should have the following columns (in order):</p>
+                                <ol className="text-12px text-text-secondary space-y-1 ml-4 list-decimal">
+                                    <li><strong>School ID</strong> (required) - e.g., RCA-2024-001</li>
+                                    <li><strong>First Name</strong> (required)</li>
+                                    <li><strong>Last Name</strong> (required)</li>
+                                    <li><strong>Gender</strong> (optional) - Male/Female</li>
+                                    <li><strong>Date of Birth</strong> (optional) - Date format</li>
+                                    <li><strong>Parent Name</strong> (optional)</li>
+                                    <li><strong>Parent Phone</strong> (optional)</li>
+                                    <li><strong>Insurance Provider</strong> (optional)</li>
+                                    <li><strong>Insurance Number</strong> (optional)</li>
+                                </ol>
+                            </div>
+
+                            {/* Class Selection */}
+                            <div className="flex flex-col gap-2">
+                                <label className="text-13px font-semibold text-text-primary">Select Class <span className="text-error">*</span></label>
+                                <select
+                                    value={importClassId}
+                                    onChange={(e) => setImportClassId(e.target.value)}
+                                    className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 appearance-none cursor-pointer"
+                                >
+                                    <option value="">Select a class</option>
+                                    {classes.map(cls => (
+                                        <option key={cls.id} value={cls.id}>{cls.name}</option>
+                                    ))}
+                                </select>
+                                <p className="text-11px text-text-tertiary">All imported students will be assigned to this class</p>
+                            </div>
+
+                            {/* File Upload */}
+                            <div className="flex flex-col gap-2">
+                                <label className="text-13px font-semibold text-text-primary">Excel File <span className="text-error">*</span></label>
+                                <div className="border-2 border-dashed border-border rounded-10 p-6 text-center hover:border-primary/50 transition-colors">
+                                    <input
+                                        type="file"
+                                        accept=".xlsx"
+                                        onChange={(e) => setImportFile(e.target.files?.[0] || null)}
+                                        className="hidden"
+                                        id="excel-upload"
+                                    />
+                                    <label htmlFor="excel-upload" className="cursor-pointer">
+                                        <FileSpreadsheet size={48} className="mx-auto text-primary mb-3" />
+                                        {importFile ? (
+                                            <p className="text-14px font-medium text-primary">{importFile.name}</p>
+                                        ) : (
+                                            <>
+                                                <p className="text-14px font-medium text-text-primary mb-1">Click to upload Excel file</p>
+                                                <p className="text-12px text-text-tertiary">Only .xlsx files are supported</p>
+                                            </>
+                                        )}
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* Import Results */}
+                            {importResult && (
+                                <div className="bg-bg-secondary rounded-8 p-4 space-y-3">
+                                    <h3 className="text-14px font-semibold text-text-primary">Import Results</h3>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        <div className="bg-success/10 border border-success/20 rounded-8 p-3 text-center">
+                                            <p className="text-24px font-bold text-success">{importResult.successCount}</p>
+                                            <p className="text-11px text-success">Imported</p>
+                                        </div>
+                                        <div className="bg-warning/10 border border-warning/20 rounded-8 p-3 text-center">
+                                            <p className="text-24px font-bold text-warning">{importResult.skippedCount}</p>
+                                            <p className="text-11px text-warning">Skipped</p>
+                                        </div>
+                                        <div className="bg-error/10 border border-error/20 rounded-8 p-3 text-center">
+                                            <p className="text-24px font-bold text-error">{importResult.errorCount}</p>
+                                            <p className="text-11px text-error">Errors</p>
+                                        </div>
+                                    </div>
+                                    
+                                    {importResult.errors && importResult.errors.length > 0 && (
+                                        <div className="mt-3">
+                                            <p className="text-12px font-semibold text-error mb-2">Errors:</p>
+                                            <div className="max-h-32 overflow-y-auto space-y-1">
+                                                {importResult.errors.map((error: string, idx: number) => (
+                                                    <p key={idx} className="text-11px text-error bg-error/5 px-2 py-1 rounded">{error}</p>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    {importResult.skipped && importResult.skipped.length > 0 && (
+                                        <div className="mt-3">
+                                            <p className="text-12px font-semibold text-warning mb-2">Skipped:</p>
+                                            <div className="max-h-32 overflow-y-auto space-y-1">
+                                                {importResult.skipped.map((skip: string, idx: number) => (
+                                                    <p key={idx} className="text-11px text-warning bg-warning/5 px-2 py-1 rounded">{skip}</p>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="p-6 border-t border-border flex justify-end gap-3">
+                            <button
+                                onClick={() => { setShowImportModal(false); setImportResult(null); setImportFile(null); }}
+                                className="px-6 py-2 border border-border rounded-5 text-14px font-medium text-text-secondary hover:bg-bg-primary transition-colors"
+                            >
+                                Close
+                            </button>
+                            <button
+                                onClick={handleImportExcel}
+                                disabled={importing || !importFile || !importClassId}
+                                className="px-6 py-2 bg-primary text-white rounded-5 text-14px font-medium hover:bg-primary-dark transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <Upload size={18} />
+                                {importing ? 'Importing...' : 'Import Students'}
                             </button>
                         </div>
                     </div>
