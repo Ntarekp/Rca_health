@@ -3,11 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, User, Activity, FileText, ClipboardList, X } from 'lucide-react';
-import { apiUrl } from '@/utils/api';
+import { apiUrl, authenticatedFetch } from '@/utils/api';
 
 const NewConsultationPage = () => {
     const router = useRouter();
+    const [academicYears, setAcademicYears] = useState<any[]>([]);
+    const [classes, setClasses] = useState<any[]>([]);
     const [students, setStudents] = useState<any[]>([]);
+    const [selectedYearId, setSelectedYearId] = useState('');
+    const [selectedClassId, setSelectedClassId] = useState('');
     const [formData, setFormData] = useState({
         studentId: '',
         temp: '',
@@ -27,20 +31,69 @@ const NewConsultationPage = () => {
 
     const commonSymptoms = ['Headache', 'Fever', 'Stomach Pain', 'Cough', 'Dizziness', 'Nausea', 'Fatigue'];
 
+    // Fetch academic years on mount
     useEffect(() => {
-        const fetchStudents = async () => {
+        const fetchAcademicYears = async () => {
             try {
-                const response = await fetch(apiUrl('/api/students'));
+                const response = await authenticatedFetch('/api/academic/years');
                 if (response.ok) {
                     const data = await response.json();
-                    setStudents(data);
+                    setAcademicYears(data);
                 }
             } catch (error) {
-                console.error('Error fetching students:', error);
+                console.error('Error fetching academic years:', error);
             }
         };
-        fetchStudents();
+        fetchAcademicYears();
     }, []);
+
+    // Fetch classes when academic year is selected
+    useEffect(() => {
+        if (selectedYearId) {
+            const fetchClasses = async () => {
+                try {
+                    const response = await authenticatedFetch(`/api/academic/years/${selectedYearId}/classes`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        setClasses(data);
+                        setSelectedClassId(''); // Reset class selection
+                        setStudents([]); // Clear students
+                    }
+                } catch (error) {
+                    console.error('Error fetching classes:', error);
+                }
+            };
+            fetchClasses();
+        } else {
+            setClasses([]);
+            setStudents([]);
+            setSelectedClassId('');
+        }
+    }, [selectedYearId]);
+
+    // Fetch students when class is selected
+    useEffect(() => {
+        if (selectedClassId) {
+            const fetchStudents = async () => {
+                try {
+                    const response = await authenticatedFetch('/api/students');
+                    if (response.ok) {
+                        const allStudents = await response.json();
+                        // Filter students by selected class
+                        const filteredStudents = allStudents.filter(
+                            (student: any) => student.schoolClass?.id?.toString() === selectedClassId
+                        );
+                        setStudents(filteredStudents);
+                    }
+                } catch (error) {
+                    console.error('Error fetching students:', error);
+                }
+            };
+            fetchStudents();
+        } else {
+            setStudents([]);
+        }
+    }, [selectedClassId]);
 
     const toggleSymptom = (symptom: string) => {
         setFormData(prev => ({
@@ -79,9 +132,8 @@ const NewConsultationPage = () => {
         };
 
         try {
-            const response = await fetch(apiUrl('/api/visits'), {
+            const response = await authenticatedFetch('/api/visits', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
 
@@ -110,23 +162,70 @@ const NewConsultationPage = () => {
                             <User size={18} className="text-primary" />
                             Student Information
                         </h3>
-                        <div className="flex flex-col gap-2 max-w-[400px]">
-                            <label className="text-13px font-semibold text-text-primary">Select Student <span className="text-error">*</span></label>
-                            <select
-                                name="studentId"
-                                value={formData.studentId}
-                                onChange={handleChange}
-                                required
-                                className="w-full px-4 py-2.5 bg-white border-3 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 appearance-none cursor-pointer"
-                            >
-                                <option value="">Search or select student...</option>
-                                {students.map(student => (
-                                    <option key={student.studentId} value={student.studentId}>
-                                        {student.firstName} {student.lastName} ({student.schoolClass ? student.schoolClass.name : 'No Class'})
-                                    </option>
-                                ))}
-                            </select>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-13px font-semibold text-text-primary">Academic Year <span className="text-error">*</span></label>
+                                <select
+                                    value={selectedYearId}
+                                    onChange={(e) => setSelectedYearId(e.target.value)}
+                                    required
+                                    className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 appearance-none cursor-pointer"
+                                >
+                                    <option value="">Select Year</option>
+                                    {academicYears.map(year => (
+                                        <option key={year.id} value={year.id}>
+                                            {year.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <label className="text-13px font-semibold text-text-primary">Class <span className="text-error">*</span></label>
+                                <select
+                                    value={selectedClassId}
+                                    onChange={(e) => setSelectedClassId(e.target.value)}
+                                    required
+                                    disabled={!selectedYearId}
+                                    className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 appearance-none cursor-pointer disabled:bg-bg-secondary disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    <option value="">Select Class</option>
+                                    {classes.map(cls => (
+                                        <option key={cls.id} value={cls.id}>
+                                            {cls.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <label className="text-13px font-semibold text-text-primary">Student <span className="text-error">*</span></label>
+                                <select
+                                    name="studentId"
+                                    value={formData.studentId}
+                                    onChange={handleChange}
+                                    required
+                                    disabled={!selectedClassId}
+                                    className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 appearance-none cursor-pointer disabled:bg-bg-secondary disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    <option value="">Select Student</option>
+                                    {students.map(student => (
+                                        <option key={student.studentId} value={student.studentId}>
+                                            {student.firstName} {student.lastName} - {student.schoolId}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
+                        {!selectedYearId && (
+                            <p className="text-12px text-text-tertiary mt-2">Please select an academic year first</p>
+                        )}
+                        {selectedYearId && !selectedClassId && (
+                            <p className="text-12px text-text-tertiary mt-2">Please select a class to see students</p>
+                        )}
+                        {selectedClassId && students.length === 0 && (
+                            <p className="text-12px text-warning mt-2">No students found in this class</p>
+                        )}
                     </div>
 
                     {/* Vitals */}

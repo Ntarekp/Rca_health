@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { apiUrl } from '@/utils/api';
+import { apiUrl, authenticatedFetch } from '@/utils/api';
 
 interface AcademicYear {
     id: string;
@@ -28,7 +28,7 @@ export const AcademicYearProvider = ({ children }: { children: React.ReactNode }
     useEffect(() => {
         const fetchYears = async () => {
             try {
-                const response = await fetch(apiUrl('/api/academic/years'));
+                const response = await authenticatedFetch('/api/academic/years');
                 if (response.ok) {
                     const data = await response.json();
 
