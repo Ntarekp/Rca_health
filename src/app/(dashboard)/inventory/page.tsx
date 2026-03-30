@@ -181,9 +181,9 @@ const InventoryPage = () => {
     );
 
     return (
-        <div className="p-8 space-y-8 animate-in fade-in duration-500 relative">
+        <div className="space-y-6 pb-10">
             {/* Header section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-32px font-bold text-text-primary tracking-tight">Inventory Management</h1>
                     <p className="text-text-tertiary text-15px mt-1 font-medium italic">Track and manage medical materials & supplies</p>
@@ -204,7 +204,7 @@ const InventoryPage = () => {
             </div>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
                 {[
                     { label: 'Total Items', value: inventoryItems.length.toString(), icon: Package, color: 'primary', trend: '+0%', up: true },
                     { label: 'Low Stock', value: inventoryItems.filter(i => i.status === 'Low Stock').length.toString(), icon: AlertTriangle, color: 'warning', trend: '0', up: false },
@@ -235,7 +235,7 @@ const InventoryPage = () => {
             {/* Main Content Card */}
             <div className="bg-white rounded-24 border border-border shadow-sm overflow-hidden min-h-[500px]">
                 {/* Internal Header/Filters */}
-                <div className="p-6 border-b border-border bg-slate-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="p-4 sm:p-6 border-b border-border bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="relative flex-1 max-w-md">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" size={18} />
                         <input

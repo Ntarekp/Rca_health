@@ -98,7 +98,7 @@ const ReportsPage = () => {
                         <h3 className="text-18px font-bold text-text-primary">Executive Summary</h3>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-6 sm:gap-8">
                         <div className="space-y-2">
                             <span className="text-10px font-extrabold text-text-tertiary uppercase tracking-widest block">Consultations</span>
                             <span className="text-28px font-black text-text-primary block leading-none">{reportData.summary.consultations}</span>
