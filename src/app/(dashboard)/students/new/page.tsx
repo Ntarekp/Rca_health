@@ -120,7 +120,7 @@ const StudentRegistrationPage = () => {
                         <h3 className="text-16px font-semibold text-primary mb-5 pb-2 border-b border-border-light">Personal Information</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="firstName" className="text-13px font-medium text-text-secondary">First Name</label>
+                                <label htmlFor="firstName" className="text-13px font-semibold text-text-primary">First Name <span className="text-error">*</span></label>
                                 <input
                                     type="text"
                                     id="firstName"
@@ -128,11 +128,12 @@ const StudentRegistrationPage = () => {
                                     value={formData.firstName}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                    placeholder="Enter first name"
+                                    className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10"
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="lastName" className="text-13px font-medium text-text-secondary">Last Name</label>
+                                <label htmlFor="lastName" className="text-13px font-semibold text-text-primary">Last Name <span className="text-error">*</span></label>
                                 <input
                                     type="text"
                                     id="lastName"
@@ -140,11 +141,12 @@ const StudentRegistrationPage = () => {
                                     value={formData.lastName}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                    placeholder="Enter last name"
+                                    className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10"
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="dateOfBirth" className="text-13px font-medium text-text-secondary">Date of Birth</label>
+                                <label htmlFor="dateOfBirth" className="text-13px font-semibold text-text-primary">Date of Birth <span className="text-error">*</span></label>
                                 <input
                                     type="date"
                                     id="dateOfBirth"
@@ -152,18 +154,18 @@ const StudentRegistrationPage = () => {
                                     value={formData.dateOfBirth}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                    className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10"
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="gender" className="text-13px font-medium text-text-secondary">Gender</label>
+                                <label htmlFor="gender" className="text-13px font-semibold text-text-primary">Gender <span className="text-error">*</span></label>
                                 <select
                                     id="gender"
                                     name="gender"
                                     value={formData.gender}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 bg-white"
+                                    className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 appearance-none cursor-pointer"
                                 >
                                     <option value="">Select Gender</option>
                                     <option value="Male">Male</option>
@@ -178,12 +180,12 @@ const StudentRegistrationPage = () => {
                         <h3 className="text-16px font-semibold text-primary mb-5 pb-2 border-b border-border-light">Academic Information</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="academicYear" className="text-13px font-medium text-text-secondary">Academic Year</label>
+                                <label htmlFor="academicYear" className="text-13px font-semibold text-text-primary">Academic Year</label>
                                 <select
                                     id="academicYear"
                                     value={selectedYear}
                                     onChange={(e) => setSelectedYear(e.target.value)}
-                                    className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 bg-white"
+                                    className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 appearance-none cursor-pointer"
                                 >
                                     <option value="">Select Year</option>
                                     {academicYears.map(year => (
@@ -193,7 +195,7 @@ const StudentRegistrationPage = () => {
                             </div>
 
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="classId" className="text-13px font-medium text-text-secondary">Class</label>
+                                <label htmlFor="classId" className="text-13px font-semibold text-text-primary">Class <span className="text-error">*</span></label>
                                 <select
                                     id="classId"
                                     name="classId"
@@ -201,7 +203,7 @@ const StudentRegistrationPage = () => {
                                     onChange={handleChange}
                                     required
                                     disabled={!selectedYear}
-                                    className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 bg-white disabled:bg-gray-100"
+                                    className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 appearance-none cursor-pointer disabled:bg-bg-secondary disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     <option value="">Select Class</option>
                                     {classes.map(cls => (
@@ -211,7 +213,7 @@ const StudentRegistrationPage = () => {
                             </div>
 
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="studentId" className="text-13px font-medium text-text-secondary">Student ID</label>
+                                <label htmlFor="studentId" className="text-13px font-semibold text-text-primary">Student ID <span className="text-error">*</span></label>
                                 <input
                                     type="text"
                                     id="studentId"
@@ -220,7 +222,7 @@ const StudentRegistrationPage = () => {
                                     onChange={handleChange}
                                     placeholder="e.g., RCA-2024-XXX"
                                     required
-                                    className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                    className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10"
                                 />
                             </div>
                         </div>
@@ -231,13 +233,13 @@ const StudentRegistrationPage = () => {
                         <h3 className="text-16px font-semibold text-primary mb-5 pb-2 border-b border-border-light">Medical & Emergency Details</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="insuranceProvider" className="text-13px font-medium text-text-secondary">Insurance Provider</label>
+                                <label htmlFor="insuranceProvider" className="text-13px font-semibold text-text-primary">Insurance Provider</label>
                                 <select
                                     id="insuranceProvider"
                                     name="insuranceProvider"
                                     value={formData.insuranceProvider}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 bg-white"
+                                    className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 appearance-none cursor-pointer"
                                 >
                                     <option value="">Select Provider</option>
                                     <option value="RAMA">RAMA</option>
@@ -248,18 +250,19 @@ const StudentRegistrationPage = () => {
                                 </select>
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="insuranceNumber" className="text-13px font-medium text-text-secondary">Insurance Number</label>
+                                <label htmlFor="insuranceNumber" className="text-13px font-semibold text-text-primary">Insurance Number</label>
                                 <input
                                     type="text"
                                     id="insuranceNumber"
                                     name="insuranceNumber"
                                     value={formData.insuranceNumber}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                    placeholder="Enter insurance number"
+                                    className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10"
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="parentName" className="text-13px font-medium text-text-secondary">Parent/Guardian Name</label>
+                                <label htmlFor="parentName" className="text-13px font-semibold text-text-primary">Parent/Guardian Name <span className="text-error">*</span></label>
                                 <input
                                     type="text"
                                     id="parentName"
@@ -267,11 +270,12 @@ const StudentRegistrationPage = () => {
                                     value={formData.parentName}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                    placeholder="Enter parent/guardian name"
+                                    className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10"
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="parentPhone" className="text-13px font-medium text-text-secondary">Parent/Guardian Phone</label>
+                                <label htmlFor="parentPhone" className="text-13px font-semibold text-text-primary">Parent/Guardian Phone <span className="text-error">*</span></label>
                                 <input
                                     type="tel"
                                     id="parentPhone"
@@ -279,11 +283,12 @@ const StudentRegistrationPage = () => {
                                     value={formData.parentPhone}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                    placeholder="e.g., +250 788 123 456"
+                                    className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10"
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5 md:col-span-2">
-                                <label htmlFor="allergies" className="text-13px font-medium text-text-secondary">Allergies (Optional)</label>
+                                <label htmlFor="allergies" className="text-13px font-semibold text-text-primary">Allergies (Optional)</label>
                                 <textarea
                                     id="allergies"
                                     name="allergies"
@@ -291,11 +296,11 @@ const StudentRegistrationPage = () => {
                                     onChange={handleChange}
                                     placeholder="List any known allergies..."
                                     rows={2}
-                                    className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 min-h-[80px]"
+                                    className="w-full px-4 py-3 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 resize-none min-h-[80px]"
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5 md:col-span-2">
-                                <label htmlFor="medicalConditions" className="text-13px font-medium text-text-secondary">Chronic Medical Conditions (Optional)</label>
+                                <label htmlFor="medicalConditions" className="text-13px font-semibold text-text-primary">Chronic Medical Conditions (Optional)</label>
                                 <textarea
                                     id="medicalConditions"
                                     name="medicalConditions"
@@ -303,7 +308,7 @@ const StudentRegistrationPage = () => {
                                     onChange={handleChange}
                                     placeholder="List any chronic conditions (e.g., Asthma, Diabetes)..."
                                     rows={2}
-                                    className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 min-h-[80px]"
+                                    className="w-full px-4 py-3 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 resize-none min-h-[80px]"
                                 />
                             </div>
                         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -25,6 +25,30 @@ type SidebarProps = {
 const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
     const pathname = usePathname();
     const { academicYears, selectedYearId, setSelectedYearId } = useAcademicYear();
+    
+    const [userData, setUserData] = useState({
+        name: 'Nurse',
+        role: 'Healthcare Provider',
+        initials: 'N'
+    });
+
+    useEffect(() => {
+        // TODO: Fetch actual user data from authentication context or API
+        // For now, using placeholder that can be replaced with real user data
+        const storedUser = localStorage.getItem('currentUser');
+        if (storedUser) {
+            try {
+                const user = JSON.parse(storedUser);
+                setUserData({
+                    name: user.name || 'Nurse',
+                    role: user.role || 'Healthcare Provider',
+                    initials: user.name ? user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2) : 'N'
+                });
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+            }
+        }
+    }, []);
 
     const menuItems = [
         { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
@@ -82,7 +106,7 @@ const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
                 </div>
             </div>
 
-            <nav className="flex-1 px-4 py-6 overflow-y-auto custom-scrollbar">
+            <nav className="flex-1 px-4 py-6 overflow-y-auto custom-scrollbar mb-auto">
                 <div className="space-y-1.5">
                     {menuItems.map((item) => {
                         const isActive = pathname.startsWith(item.path);
@@ -113,7 +137,7 @@ const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
             </nav>
 
             {/* Bottom Section: Status & Profile */}
-            <div className="p-4 mt-auto border-t border-border/50 space-y-4 bg-bg-sidebar">
+            <div className="p-4 border-t border-border/50 space-y-4 bg-bg-sidebar">
                 {/* Clinic Status */}
                 <div className="bg-primary/5 border border-primary/10 rounded-12 p-3 relative overflow-hidden group">
                     <div className="relative z-10 flex items-center justify-between">
@@ -128,14 +152,14 @@ const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
                     <div className="absolute -right-4 -bottom-4 w-12 h-12 bg-primary/5 rounded-full blur-xl" />
                 </div>
 
-                {/* Nurse Profile */}
+                {/* User Profile */}
                 <div className="flex items-center gap-3 p-2 rounded-12 hover:bg-bg-secondary transition-all cursor-pointer group">
                     <div className="w-10 h-10 bg-primary/10 rounded-full border border-primary/20 flex items-center justify-center text-primary font-bold shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
-                        <span className="text-14px">NK</span>
+                        <span className="text-14px">{userData.initials}</span>
                     </div>
                     <div className="flex flex-col min-w-0">
-                        <p className="text-13px font-bold text-text-primary truncate leading-tight transition-colors group-hover:text-primary">Nurse Kwishima</p>
-                        <p className="text-11px font-medium text-text-tertiary">Head Nurse</p>
+                        <p className="text-13px font-bold text-text-primary truncate leading-tight transition-colors group-hover:text-primary">{userData.name}</p>
+                        <p className="text-11px font-medium text-text-tertiary">{userData.role}</p>
                     </div>
                 </div>
             </div>

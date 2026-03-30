@@ -110,14 +110,14 @@ const NewConsultationPage = () => {
                             <User size={18} className="text-primary" />
                             Student Information
                         </h3>
-                        <div className="flex flex-col gap-1.5 max-w-[400px]">
-                            <label className="text-13px font-medium text-text-secondary">Select Student</label>
+                        <div className="flex flex-col gap-2 max-w-[400px]">
+                            <label className="text-13px font-semibold text-text-primary">Select Student <span className="text-error">*</span></label>
                             <select
                                 name="studentId"
                                 value={formData.studentId}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 bg-white"
+                                className="w-full px-4 py-2.5 bg-white border-3 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 appearance-none cursor-pointer"
                             >
                                 <option value="">Search or select student...</option>
                                 {students.map(student => (
@@ -136,8 +136,8 @@ const NewConsultationPage = () => {
                             Vital Signs
                         </h3>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-13px font-medium text-text-secondary">Temperature</label>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-13px font-semibold text-text-primary">Temperature</label>
                                 <div className="relative">
                                     <input
                                         type="number"
@@ -146,9 +146,9 @@ const NewConsultationPage = () => {
                                         onChange={handleChange}
                                         placeholder="36.5"
                                         step="0.1"
-                                        className="w-full pl-4 pr-10 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                        className="w-full pl-4 pr-12 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10"
                                     />
-                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-12px text-text-tertiary">°C</span>
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-12px font-bold text-text-tertiary">°C</span>
                                 </div>
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -233,8 +233,8 @@ const NewConsultationPage = () => {
                             Clinical Assessment
                         </h3>
                         <div className="space-y-6">
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-13px font-medium text-text-secondary">Chief Complaint</label>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-13px font-semibold text-text-primary">Chief Complaint <span className="text-error">*</span></label>
                                 <input
                                     type="text"
                                     name="complaint"
@@ -242,7 +242,7 @@ const NewConsultationPage = () => {
                                     onChange={handleChange}
                                     placeholder="Main reason for visit..."
                                     required
-                                    className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                    className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10"
                                 />
                             </div>
 
@@ -266,26 +266,26 @@ const NewConsultationPage = () => {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-13px font-medium text-text-secondary">Provisional Diagnosis</label>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-13px font-semibold text-text-primary">Provisional Diagnosis</label>
                                     <textarea
                                         name="diagnosis"
                                         value={formData.diagnosis}
                                         onChange={handleChange}
                                         rows={3}
                                         placeholder="Clinical impression..."
-                                        className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 min-h-[100px]"
+                                        className="w-full px-4 py-3 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 resize-none min-h-[100px]"
                                     />
                                 </div>
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-13px font-medium text-text-secondary">Treatment / Procedures</label>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-13px font-semibold text-text-primary">Treatment / Procedures</label>
                                     <textarea
                                         name="treatment"
                                         value={formData.treatment}
                                         onChange={handleChange}
                                         rows={3}
                                         placeholder="Immediate care given..."
-                                        className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 min-h-[100px]"
+                                        className="w-full px-4 py-3 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 resize-none min-h-[100px]"
                                     />
                                 </div>
                             </div>
@@ -299,25 +299,25 @@ const NewConsultationPage = () => {
                             Disposition & Plan
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-13px font-medium text-text-secondary">Prescription</label>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-13px font-semibold text-text-primary">Prescription</label>
                                 <textarea
                                     name="prescription"
                                     value={formData.prescription}
                                     onChange={handleChange}
                                     rows={4}
                                     placeholder="Medications prescribed..."
-                                    className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 min-h-[120px]"
+                                    className="w-full px-4 py-3 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 resize-none min-h-[120px]"
                                 />
                             </div>
                             <div className="space-y-5">
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-13px font-medium text-text-secondary">Disposition</label>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-13px font-semibold text-text-primary">Disposition</label>
                                     <select
                                         name="disposition"
                                         value={formData.disposition}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 bg-white"
+                                        className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 appearance-none cursor-pointer"
                                     >
                                         <option value="Returned to Class">Return to Class</option>
                                         <option value="Sent Home">Send Home</option>
@@ -325,15 +325,15 @@ const NewConsultationPage = () => {
                                         <option value="Admitted">Admit to Infirmary</option>
                                     </select>
                                 </div>
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-13px font-medium text-text-secondary">Additional Notes</label>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-13px font-semibold text-text-primary">Additional Notes</label>
                                     <textarea
                                         name="notes"
                                         value={formData.notes}
                                         onChange={handleChange}
                                         rows={3}
                                         placeholder="Any other remarks..."
-                                        className="w-full px-4 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 min-h-[80px]"
+                                        className="w-full px-4 py-3 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 resize-none min-h-[80px]"
                                     />
                                 </div>
                             </div>
