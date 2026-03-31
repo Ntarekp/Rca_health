@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { FileText, Download, User, Activity, Users, TrendingUp, Search, Calendar, Printer, FileBarChart } from 'lucide-react';
+import { FileText, Download, User, Activity, Users, TrendingUp, Search, Calendar, Printer, FileBarChart, Package, AlertTriangle, BarChart3 } from 'lucide-react';
 import { authenticatedFetch } from '@/utils/api';
 import './print.css';
 
-type ReportType = 'facility' | 'student' | 'disease' | 'class';
+type ReportType = 'facility' | 'student' | 'disease' | 'class' | 'inventory';
 
 const ReportsPage = () => {
     const [reportType, setReportType] = useState<ReportType>('facility');
@@ -105,6 +105,9 @@ const ReportsPage = () => {
                     }
                     url = `/api/reports/class/${classId}?${params.toString()}`;
                     break;
+                case 'inventory':
+                    url = '/api/reports/inventory';
+                    break;
             }
 
             const response = await authenticatedFetch(url);
@@ -182,7 +185,7 @@ const ReportsPage = () => {
                 </div>
 
                 {/* Report Type Selection */}
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                     <button
                         onClick={() => { setReportType('facility'); setReportData(null); }}
                         className={`p-5 rounded-16 border-2 transition-all text-left ${
@@ -233,6 +236,19 @@ const ReportsPage = () => {
                         <Users size={24} className={reportType === 'class' ? 'text-primary' : 'text-slate-400'} />
                         <h3 className="text-16px font-bold text-slate-900 mt-3">Class Health Report</h3>
                         <p className="text-13px text-slate-600 mt-1">Health overview by class</p>
+                    </button>
+
+                    <button
+                        onClick={() => { setReportType('inventory'); setReportData(null); }}
+                        className={`p-5 rounded-16 border-2 transition-all text-left ${
+                            reportType === 'inventory'
+                                ? 'border-primary bg-primary/5'
+                                : 'border-slate-200 bg-white hover:border-primary/50'
+                        }`}
+                    >
+                        <Package size={24} className={reportType === 'inventory' ? 'text-primary' : 'text-slate-400'} />
+                        <h3 className="text-16px font-bold text-slate-900 mt-3">Inventory Report</h3>
+                        <p className="text-13px text-slate-600 mt-1">Stock levels and alerts</p>
                     </button>
                 </div>
 
@@ -294,6 +310,12 @@ const ReportsPage = () => {
                             This report will show overall facility statistics including consultations, diagnoses, trends, and inventory status for the selected date range.
                         </p>
                     )}
+
+                    {reportType === 'inventory' && (
+                        <p className="text-14px text-slate-600">
+                            This report provides a comprehensive overview of all inventory items, stock levels, category breakdowns, and critical alerts for items requiring immediate attention.
+                        </p>
+                    )}
                 </div>
             </div>
 
@@ -321,6 +343,10 @@ const ReportsPage = () => {
 
             {!loading && reportData && reportType === 'class' && (
                 <ClassReport data={reportData} dateRange={dateRange} />
+            )}
+
+            {!loading && reportData && reportType === 'inventory' && (
+                <InventoryReport data={reportData} />
             )}
 
             {/* Print Footer */}
@@ -763,6 +789,288 @@ const ClassReport = ({ data, dateRange }: any) => (
                             </tbody>
                         </table>
                     )}
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
+// Inventory Report Component
+const InventoryReport = ({ data }: any) => (
+    <div className="space-y-6 print-section">
+        <div className="bg-white border border-slate-200 rounded-20 p-8 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+                <div>
+                    <h2 className="text-22px font-bold text-slate-900">Inventory & Stock Management Report</h2>
+                    <p className="text-14px text-slate-600 mt-1">Generated on {new Date(data.summary.reportDate).toLocaleDateString()}</p>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-12 border border-primary/20">
+                    <Package size={20} className="text-primary" />
+                    <span className="text-14px font-bold text-primary">{data.summary.totalItems} Total Items</span>
+                </div>
+            </div>
+            
+            {/* Summary Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                <div className="stat-box p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-16 border-2 border-slate-200 text-center">
+                    <div className="flex justify-center mb-2">
+                        <div className="p-2 bg-white rounded-10 shadow-sm">
+                            <Package size={20} className="text-slate-600" />
+                        </div>
+                    </div>
+                    <p className="text-11px font-bold text-slate-500 uppercase mb-1">Total Items</p>
+                    <p className="text-32px font-extrabold text-slate-900">{data.summary.totalItems}</p>
+                </div>
+                <div className="stat-box p-5 bg-gradient-to-br from-red-50 to-red-100 rounded-16 border-2 border-red-200 text-center">
+                    <div className="flex justify-center mb-2">
+                        <div className="p-2 bg-white rounded-10 shadow-sm">
+                            <AlertTriangle size={20} className="text-danger" />
+                        </div>
+                    </div>
+                    <p className="text-11px font-bold text-danger uppercase mb-1">Out of Stock</p>
+                    <p className="text-32px font-extrabold text-danger">{data.summary.outOfStock}</p>
+                    <p className="text-11px text-danger/70 font-semibold mt-1">CRITICAL</p>
+                </div>
+                <div className="stat-box p-5 bg-gradient-to-br from-orange-50 to-orange-100 rounded-16 border-2 border-orange-200 text-center">
+                    <div className="flex justify-center mb-2">
+                        <div className="p-2 bg-white rounded-10 shadow-sm">
+                            <TrendingUp size={20} className="text-warning" />
+                        </div>
+                    </div>
+                    <p className="text-11px font-bold text-warning uppercase mb-1">Low Stock</p>
+                    <p className="text-32px font-extrabold text-warning">{data.summary.lowStock}</p>
+                    <p className="text-11px text-warning/70 font-semibold mt-1">RESTOCK SOON</p>
+                </div>
+                <div className="stat-box p-5 bg-gradient-to-br from-amber-50 to-amber-100 rounded-16 border-2 border-amber-200 text-center">
+                    <div className="flex justify-center mb-2">
+                        <div className="p-2 bg-white rounded-10 shadow-sm">
+                            <BarChart3 size={20} className="text-amber-600" />
+                        </div>
+                    </div>
+                    <p className="text-11px font-bold text-amber-700 uppercase mb-1">Watch Level</p>
+                    <p className="text-32px font-extrabold text-amber-700">{data.summary.watchLevel}</p>
+                    <p className="text-11px text-amber-600 font-semibold mt-1">MONITOR</p>
+                </div>
+                <div className="stat-box p-5 bg-gradient-to-br from-green-50 to-green-100 rounded-16 border-2 border-green-200 text-center">
+                    <div className="flex justify-center mb-2">
+                        <div className="p-2 bg-white rounded-10 shadow-sm">
+                            <Activity size={20} className="text-success" />
+                        </div>
+                    </div>
+                    <p className="text-11px font-bold text-success uppercase mb-1">In Stock</p>
+                    <p className="text-32px font-extrabold text-success">{data.summary.inStock}</p>
+                    <p className="text-11px text-success/70 font-semibold mt-1">ADEQUATE</p>
+                </div>
+            </div>
+
+            {/* Critical Alerts */}
+            {data.criticalAlerts && data.criticalAlerts.length > 0 && (
+                <div className="mb-8 print-section">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-danger/10 rounded-10">
+                            <AlertTriangle size={20} className="text-danger" />
+                        </div>
+                        <h3 className="text-18px font-bold text-slate-900">Critical Alerts & Recommendations</h3>
+                    </div>
+                    <div className="bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-16 p-6">
+                        <div className="space-y-3">
+                            {data.criticalAlerts.slice(0, 5).map((alert: any, index: number) => (
+                                <div key={index} className="flex items-start gap-4 p-4 bg-white rounded-12 border border-red-100 shadow-sm">
+                                    <div className={`p-2 rounded-10 ${
+                                        alert.alertLevel === 'CRITICAL' ? 'bg-danger/10' :
+                                        alert.alertLevel === 'HIGH' ? 'bg-warning/10' :
+                                        'bg-amber-100'
+                                    }`}>
+                                        <AlertTriangle size={18} className={`${
+                                            alert.alertLevel === 'CRITICAL' ? 'text-danger' :
+                                            alert.alertLevel === 'HIGH' ? 'text-warning' :
+                                            'text-amber-600'
+                                        }`} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <h4 className="text-15px font-bold text-slate-900">{alert.name}</h4>
+                                            <span className={`px-3 py-1 rounded-full text-10px font-bold uppercase ${
+                                                alert.alertLevel === 'CRITICAL' ? 'bg-danger/10 text-danger' :
+                                                alert.alertLevel === 'HIGH' ? 'bg-warning/10 text-warning' :
+                                                'bg-amber-100 text-amber-700'
+                                            }`}>
+                                                {alert.alertLevel}
+                                            </span>
+                                        </div>
+                                        <p className="text-13px text-slate-600 mb-2">
+                                            <span className="font-semibold">{alert.category}</span> • Current Stock: <span className="font-bold text-slate-900">{alert.currentStock} {alert.unit}</span>
+                                        </p>
+                                        <div className="flex items-center gap-2 text-12px">
+                                            <span className="text-slate-500">📋 Action:</span>
+                                            <span className="font-semibold text-slate-700">{alert.recommendation}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Category Breakdown */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div className="print-section">
+                    <h3 className="text-18px font-bold text-slate-900 mb-4">Category Breakdown</h3>
+                    <div className="bg-slate-50 border border-slate-200 rounded-16 p-5">
+                        {data.categoryBreakdown.length === 0 ? (
+                            <p className="text-slate-500 text-center py-4">No categories found</p>
+                        ) : (
+                            <div className="space-y-3">
+                                {data.categoryBreakdown.map((category: any, index: number) => (
+                                    <div key={index} className="p-4 bg-white rounded-12 border border-slate-200">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h4 className="text-15px font-bold text-slate-900">{category.category}</h4>
+                                            <span className="text-13px font-bold text-primary">{category.percentage.toFixed(1)}%</span>
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-3 text-center">
+                                            <div>
+                                                <p className="text-10px text-slate-500 uppercase font-bold mb-1">Total</p>
+                                                <p className="text-18px font-extrabold text-slate-900">{category.totalItems}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-10px text-danger uppercase font-bold mb-1">Out</p>
+                                                <p className="text-18px font-extrabold text-danger">{category.outOfStock}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-10px text-warning uppercase font-bold mb-1">Low</p>
+                                                <p className="text-18px font-extrabold text-warning">{category.lowStock}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="print-section">
+                    <h3 className="text-18px font-bold text-slate-900 mb-4">Stock Status Distribution</h3>
+                    <div className="bg-slate-50 border border-slate-200 rounded-16 p-5">
+                        <div className="space-y-4">
+                            <div className="p-4 bg-white rounded-12 border-l-4 border-success">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-12px font-bold text-slate-600 uppercase">In Stock</p>
+                                        <p className="text-24px font-extrabold text-success mt-1">{data.summary.inStock} items</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-28px font-extrabold text-success">
+                                            {((data.summary.inStock / data.summary.totalItems) * 100).toFixed(0)}%
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="p-4 bg-white rounded-12 border-l-4 border-amber-500">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-12px font-bold text-slate-600 uppercase">Watch Level</p>
+                                        <p className="text-24px font-extrabold text-amber-600 mt-1">{data.summary.watchLevel} items</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-28px font-extrabold text-amber-600">
+                                            {((data.summary.watchLevel / data.summary.totalItems) * 100).toFixed(0)}%
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="p-4 bg-white rounded-12 border-l-4 border-warning">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-12px font-bold text-slate-600 uppercase">Low Stock</p>
+                                        <p className="text-24px font-extrabold text-warning mt-1">{data.summary.lowStock} items</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-28px font-extrabold text-warning">
+                                            {((data.summary.lowStock / data.summary.totalItems) * 100).toFixed(0)}%
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="p-4 bg-white rounded-12 border-l-4 border-danger">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-12px font-bold text-slate-600 uppercase">Out of Stock</p>
+                                        <p className="text-24px font-extrabold text-danger mt-1">{data.summary.outOfStock} items</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-28px font-extrabold text-danger">
+                                            {((data.summary.outOfStock / data.summary.totalItems) * 100).toFixed(0)}%
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Full Inventory Table */}
+            <div className="print-section">
+                <h3 className="text-18px font-bold text-slate-900 mb-4">Complete Inventory List</h3>
+                {data.items.length === 0 ? (
+                    <p className="text-slate-500 text-center py-8">No inventory items found</p>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full border-collapse border border-slate-200 rounded-12">
+                            <thead className="bg-gradient-to-r from-slate-100 to-slate-50">
+                                <tr>
+                                    <th className="px-5 py-4 text-left text-11px font-bold text-slate-700 uppercase border border-slate-200">Item Name</th>
+                                    <th className="px-5 py-4 text-left text-11px font-bold text-slate-700 uppercase border border-slate-200">Category</th>
+                                    <th className="px-5 py-4 text-center text-11px font-bold text-slate-700 uppercase border border-slate-200">Stock</th>
+                                    <th className="px-5 py-4 text-left text-11px font-bold text-slate-700 uppercase border border-slate-200">Unit</th>
+                                    <th className="px-5 py-4 text-center text-11px font-bold text-slate-700 uppercase border border-slate-200">Status</th>
+                                    <th className="px-5 py-4 text-left text-11px font-bold text-slate-700 uppercase border border-slate-200">Last Restocked</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {data.items.map((item: any, index: number) => (
+                                    <tr key={index} className="hover:bg-slate-50/50 transition-colors">
+                                        <td className="px-5 py-4 text-slate-900 font-semibold border border-slate-200">{item.name}</td>
+                                        <td className="px-5 py-4 border border-slate-200">
+                                            <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-12px font-bold">
+                                                {item.category}
+                                            </span>
+                                        </td>
+                                        <td className="px-5 py-4 text-center text-slate-900 font-bold text-16px border border-slate-200">{item.currentStock}</td>
+                                        <td className="px-5 py-4 text-slate-600 font-medium border border-slate-200">{item.unit}</td>
+                                        <td className="px-5 py-4 text-center border border-slate-200">
+                                            <span className={`px-3 py-1.5 rounded-full text-11px font-bold uppercase ${
+                                                item.status === 'Out of Stock' ? 'bg-danger/10 text-danger border border-danger/20' :
+                                                item.status === 'Low Stock' ? 'bg-warning/10 text-warning border border-warning/20' :
+                                                item.status === 'Watch' ? 'bg-amber-100 text-amber-700 border border-amber-200' :
+                                                'bg-success/10 text-success border border-success/20'
+                                            }`}>
+                                                {item.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-5 py-4 text-slate-600 border border-slate-200">
+                                            {item.lastRestocked ? new Date(item.lastRestocked).toLocaleDateString() : 'N/A'}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
+
+            {/* Report Footer */}
+            <div className="mt-8 pt-6 border-t-2 border-slate-200">
+                <div className="flex items-center justify-between">
+                    <div className="text-12px text-slate-600">
+                        <p className="font-bold">Report Generated: {new Date().toLocaleString()}</p>
+                        <p className="mt-1">RCA Health Facility Management System</p>
+                    </div>
+                    <div className="text-right text-12px text-slate-600">
+                        <p className="font-bold">Inventory Management</p>
+                        <p className="mt-1">Confidential Medical Document</p>
+                    </div>
                 </div>
             </div>
         </div>
