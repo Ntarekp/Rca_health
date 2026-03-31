@@ -26,8 +26,8 @@ export async function authenticatedFetch(path: string, options: RequestInit = {}
         },
     });
 
-    if (response.status === 401) {
-        // Token expired or invalid, redirect to login
+    if (response.status === 401 || response.status === 403) {
+        // Token expired, invalid, or forbidden - redirect to login
         if (typeof window !== 'undefined') {
             localStorage.removeItem('authToken');
             localStorage.removeItem('currentUser');
