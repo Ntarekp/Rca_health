@@ -16,11 +16,13 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className="font-secondary">
-                <AuthProvider>
-                    <AcademicYearProvider>
-                        {children}
-                    </AcademicYearProvider>
-                </AuthProvider>
+                <LanguageProvider>
+                    <AuthProvider>
+                        <AcademicYearProvider>
+                            {children}
+                        </AcademicYearProvider>
+                    </AuthProvider>
+                </LanguageProvider>
             </body>
         </html>
     );
