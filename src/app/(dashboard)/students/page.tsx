@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Search, Plus, Trash2, Calendar, BookOpen, Upload, X, FileSpreadsheet } from 'lucide-react';
 import { useAcademicYear } from '@/context/AcademicYearContext';
 import { apiUrl, authenticatedFetch } from '@/utils/api';
 
 const StudentsPage = () => {
     const router = useRouter();
+    const { t, locale } = useLanguage();
     const { selectedYearId, academicYears } = useAcademicYear();
     const [activeTab, setActiveTab] = useState<'students' | 'classes' | 'years'>('students');
 
@@ -453,9 +455,11 @@ const StudentsPage = () => {
             )}
 
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-24px font-semibold text-primary">Students & Academic</h1>
-                    <p className="text-12px text-text-tertiary">Manage students, classes, and academic years</p>
+                <div className="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 className="text-24px font-semibold text-primary mb-1">{t('students.title')}</h1>
+                        <p className="text-12px text-text-tertiary">{t('students.subtitle')}</p>
+                    </div>
                 </div>
             </div>
 
@@ -464,19 +468,19 @@ const StudentsPage = () => {
                     className={`px-6 py-3 text-14px font-medium transition-colors border-b-2 ${activeTab === 'students' ? 'border-primary text-primary' : 'border-transparent text-text-secondary hover:text-primary'}`}
                     onClick={() => setActiveTab('students')}
                 >
-                    Student List
+                    {t('students.studentsTab')}
                 </button>
                 <button
                     className={`px-6 py-3 text-14px font-medium transition-colors border-b-2 ${activeTab === 'classes' ? 'border-primary text-primary' : 'border-transparent text-text-secondary hover:text-primary'}`}
                     onClick={() => setActiveTab('classes')}
                 >
-                    Manage Classes
+                    {t('students.classesTab')}
                 </button>
                 <button
                     className={`px-6 py-3 text-14px font-medium transition-colors border-b-2 ${activeTab === 'years' ? 'border-primary text-primary' : 'border-transparent text-text-secondary hover:text-primary'}`}
                     onClick={() => setActiveTab('years')}
                 >
-                    Manage Years
+                    {t('students.yearsTab')}
                 </button>
             </div>
 
@@ -489,7 +493,7 @@ const StudentsPage = () => {
                                 onChange={(e) => setSelectedClass(e.target.value)}
                                 className="bg-white border border-border rounded-8 px-3 py-2 text-12px outline-none focus:border-primary"
                             >
-                                <option value="">All Classes</option>
+                                <option value="">{t('students.allClasses')}</option>
                                 {classes.map(cls => (
                                     <option key={cls.id} value={cls.id}>{cls.name}</option>
                                 ))}
@@ -501,7 +505,7 @@ const StudentsPage = () => {
                                     disabled={isDeleting}
                                 >
                                     <Trash2 size={14} />
-                                    Delete Selected ({selectedStudentIds.length})
+                                    {t('students.deleteSelected', { count: selectedStudentIds.length })}
                                 </button>
                             )}
                         </div>
@@ -511,7 +515,7 @@ const StudentsPage = () => {
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" size={18} />
                                 <input
                                     type="text"
-                                    placeholder="Search students..."
+                                    placeholder={t('students.searchStudents')}
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="bg-bg-card border border-border rounded-8 pl-10 pr-4 py-2 text-12px focus:ring-1 focus:ring-primary outline-none w-full sm:w-auto sm:min-w-[240px]"
@@ -523,7 +527,7 @@ const StudentsPage = () => {
                                 onClick={() => setShowImportModal(true)}
                             >
                                 <Upload size={18} />
-                                <span className="text-14px font-medium">Import Excel</span>
+                                <span className="text-14px font-medium">{t('students.importExcel')}</span>
                             </button>
                             
                             <button
@@ -531,7 +535,7 @@ const StudentsPage = () => {
                                 onClick={() => router.push('/students/new')}
                             >
                                 <Plus size={18} />
-                                <span className="text-14px font-medium">Register Student</span>
+                                <span className="text-14px font-medium">{t('students.newStudent')}</span>
                             </button>
                         </div>
                     </div>
@@ -549,22 +553,22 @@ const StudentsPage = () => {
                                                 className="rounded border-border text-primary focus:ring-primary"
                                             />
                                         </th>
-                                        <th className="px-6 py-4 text-12px font-medium text-text-primary">Student Name</th>
-                                        <th className="px-6 py-4 text-12px font-medium text-text-primary">Class</th>
-                                        <th className="px-6 py-4 text-12px font-medium text-text-primary">ID Code</th>
-                                        <th className="px-6 py-4 text-12px font-medium text-text-primary">Age / Gender</th>
-                                        <th className="px-6 py-4 text-12px font-medium text-text-primary">Insurance</th>
-                                        <th className="px-6 py-4 text-12px font-medium text-text-primary">Email</th>
-                                        <th className="px-6 py-4 text-12px font-medium text-text-primary">Last Visit</th>
-                                        <th className="px-6 py-4 text-12px font-medium text-text-primary">Actions</th>
+                                        <th className="px-6 py-4 text-12px font-medium text-text-primary">{t('students.studentName')}</th>
+                                        <th className="px-6 py-4 text-12px font-medium text-text-primary">{t('students.class')}</th>
+                                        <th className="px-6 py-4 text-12px font-medium text-text-primary">{t('students.idCode')}</th>
+                                        <th className="px-6 py-4 text-12px font-medium text-text-primary">{t('students.ageGender')}</th>
+                                        <th className="px-6 py-4 text-12px font-medium text-text-primary">{t('students.insurance')}</th>
+                                        <th className="px-6 py-4 text-12px font-medium text-text-primary">{t('students.email')}</th>
+                                        <th className="px-6 py-4 text-12px font-medium text-text-primary">{t('students.lastVisit')}</th>
+                                        <th className="px-6 py-4 text-12px font-medium text-text-primary">{t('students.actions')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-border-light">
                                     {loadingStudents ? (
-                                        <tr><td colSpan={9} className="px-6 py-4 text-center text-text-tertiary">Loading...</td></tr>
+                                        <tr><td colSpan={9} className="px-6 py-4 text-center text-text-tertiary">{t('common.loading')}</td></tr>
                                     ) : filteredStudents.length === 0 ? (
                                         <tr>
-                                            <td colSpan={9} className="px-6 py-4 text-center text-text-tertiary">No students found for this academic year. (State length: {students.length})</td>
+                                            <td colSpan={9} className="px-6 py-4 text-center text-text-tertiary">{t('students.noStudentsFound')}</td>
                                         </tr>
                                     ) : (
                                         filteredStudents.map((student) => {
@@ -591,7 +595,7 @@ const StudentsPage = () => {
                                                                 className="text-primary hover:underline text-12px font-medium"
                                                                 onClick={() => router.push(`/students/${student.id}`)}
                                                             >
-                                                                View
+                                                                {t('students.view')}
                                                             </button>
                                                             <button
                                                                 className="text-text-tertiary hover:text-error transition-colors"

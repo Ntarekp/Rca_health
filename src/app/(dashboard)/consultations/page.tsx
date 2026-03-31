@@ -3,10 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { LayoutGrid, List as ListIcon, Plus, Eye, Edit2, Trash2 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { authenticatedFetch } from '@/utils/api';
 
 const ConsultationsPage = () => {
     const router = useRouter();
+    const { t, locale } = useLanguage();
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
     const [consultations, setConsultations] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -71,9 +74,12 @@ const ConsultationsPage = () => {
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-24px font-semibold text-primary">Consultations</h1>
-                    <p className="text-12px text-text-tertiary">View and manage all student consultations</p>
+                <div className="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 className="text-24px font-semibold text-primary mb-1">{t('visits.title')}</h1>
+                        <p className="text-12px text-text-tertiary">{t('visits.subtitle')}</p>
+                    </div>
+                    <LanguageSwitcher />
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
@@ -97,7 +103,7 @@ const ConsultationsPage = () => {
                         onClick={() => router.push('/consultations/new')}
                     >
                         <Plus size={18} />
-                        <span className="text-14px font-medium">New Consultation</span>
+                        <span className="text-14px font-medium">{t('visits.newVisit')}</span>
                     </button>
                 </div>
             </div>
@@ -108,14 +114,14 @@ const ConsultationsPage = () => {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-bg-secondary border-b border-border">
-                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">Date & Time</th>
-                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">Student</th>
-                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">Complaint</th>
-                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">Diagnosis</th>
-                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">Disposition</th>
-                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">Handled By</th>
-                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">Status</th>
-                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">Actions</th>
+                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">{t('visits.dateTime')}</th>
+                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">{t('visits.student')}</th>
+                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">{t('visits.complaint')}</th>
+                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">{t('visits.diagnosis')}</th>
+                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">{t('visits.disposition')}</th>
+                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">{t('visits.handledBy')}</th>
+                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">{t('visits.status')}</th>
+                                    <th className="px-6 py-4 text-12px font-medium text-text-primary">{t('visits.actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border-light">
@@ -188,21 +194,21 @@ const ConsultationsPage = () => {
 
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center py-1.5 border-b border-border-light last:border-0">
-                                    <span className="text-12px text-text-tertiary">Complaint</span>
+                                    <span className="text-12px text-text-tertiary">{t('visits.complaint')}</span>
                                     <span className="text-12px font-semibold text-text-primary text-right">{consultation.complaint}</span>
                                 </div>
                                 <div className="flex justify-between items-center py-1.5 border-b border-border-light last:border-0">
-                                    <span className="text-12px text-text-tertiary">Diagnosis</span>
+                                    <span className="text-12px text-text-tertiary">{t('visits.diagnosis')}</span>
                                     <span className="text-12px font-semibold text-text-primary text-right">{consultation.diagnosis}</span>
                                 </div>
                                 <div className="flex justify-between items-center py-1.5 border-b border-border-light last:border-0">
-                                    <span className="text-12px text-text-tertiary">Disposition</span>
+                                    <span className="text-12px text-text-tertiary">{t('visits.disposition')}</span>
                                     <span className={`text-12px font-semibold text-right text-gray-600`}>
                                         {consultation.disposition}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center py-1.5 border-b border-border-light last:border-0">
-                                    <span className="text-12px text-text-tertiary">Handled By</span>
+                                    <span className="text-12px text-text-tertiary">{t('visits.handledBy')}</span>
                                     <span className="text-12px font-semibold text-text-primary text-right">{consultation.handledBy}</span>
                                 </div>
                             </div>
@@ -212,53 +218,25 @@ const ConsultationsPage = () => {
                                     className="py-2 bg-primary text-white rounded-5 text-12px font-medium hover:bg-primary-dark transition-colors"
                                     onClick={() => router.push(`/consultations/${consultation.id}`)}
                                 >
-                                    View
+                                    {t('lab.viewDetails')}
                                 </button>
                                 <button
-                                    className="py-2 border border-border text-primary rounded-5 text-12px font-medium hover:bg-gray-50 transition-colors"
+                                    className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-8 text-12px font-medium hover:bg-primary-dark transition-colors"
                                     onClick={() => router.push(`/consultations/${consultation.id}/edit`)}
                                 >
-                                    Edit
+                                    <Edit2 size={14} />
+                                    {t('common.edit')}
                                 </button>
                                 <button
-                                    className="py-2 border border-error text-error rounded-5 text-12px font-medium hover:bg-error/5 transition-colors"
+                                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-8 text-12px font-medium hover:bg-red-700 transition-colors"
                                     onClick={() => setConsultationToDelete(consultation)}
                                 >
-                                    Delete
+                                    <Trash2 size={14} />
+                                    {t('common.delete')}
                                 </button>
                             </div>
                         </div>
                     ))}
-                </div>
-            )}
-
-            {consultationToDelete && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-bg-card border border-border rounded-10 shadow-xl max-w-[420px] w-full p-6 mx-4 animate-in zoom-in-95 duration-200">
-                        <div className="flex items-center justify-center w-12 h-12 bg-error/10 text-error rounded-full mb-4">
-                            <Trash2 size={24} />
-                        </div>
-                        <h3 className="text-18px font-semibold text-text-primary mb-2">Delete Consultation</h3>
-                        <p className="text-14px text-text-secondary mb-6">
-                            Are you sure you want to delete consultation for <span className="font-semibold text-text-primary">{consultationToDelete.student}</span>? This action cannot be undone.
-                        </p>
-                        <div className="flex gap-3 justify-end">
-                            <button
-                                onClick={() => setConsultationToDelete(null)}
-                                disabled={deleting}
-                                className="px-4 py-2 text-14px font-medium text-text-secondary hover:bg-gray-100 rounded-5 transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleDeleteConsultation}
-                                disabled={deleting}
-                                className="px-4 py-2 bg-error text-white text-14px font-medium rounded-5 hover:bg-red-700 transition-colors"
-                            >
-                                {deleting ? 'Deleting...' : 'Delete'}
-                            </button>
-                        </div>
-                    </div>
                 </div>
             )}
         </div>

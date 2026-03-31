@@ -16,6 +16,7 @@ import {
     Calendar
 } from 'lucide-react';
 import { useAcademicYear } from '@/context/AcademicYearContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type SidebarProps = {
     isOpen?: boolean;
@@ -25,6 +26,7 @@ type SidebarProps = {
 const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
     const pathname = usePathname();
     const { academicYears, selectedYearId, setSelectedYearId } = useAcademicYear();
+    const { t, locale } = useLanguage();
     
     const [userData, setUserData] = useState({
         name: 'Nurse',
@@ -51,13 +53,13 @@ const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
     }, []);
 
     const menuItems = [
-        { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-        { name: 'Students', icon: Users, path: '/students' },
-        { name: 'Consultations', icon: ClipboardList, path: '/consultations' },
-        { name: 'Inventory', icon: Package, path: '/inventory' },
-        { name: 'Reports', icon: FileText, path: '/reports' },
-        { name: 'Lab & History', icon: FlaskConical, path: '/lab' },
-        { name: 'Settings', icon: Settings, path: '/settings' },
+        { name: t('navigation.dashboard'), icon: LayoutDashboard, path: '/dashboard' },
+        { name: t('navigation.students'), icon: Users, path: '/students' },
+        { name: t('navigation.visits'), icon: ClipboardList, path: '/consultations' },
+        { name: locale === 'en' ? 'Inventory' : 'Inventaire', icon: Package, path: '/inventory' },
+        { name: t('navigation.reports'), icon: FileText, path: '/reports' },
+        { name: t('navigation.lab'), icon: FlaskConical, path: '/lab' },
+        { name: t('navigation.settings'), icon: Settings, path: '/settings' },
     ];
 
     return (
@@ -94,8 +96,8 @@ const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
                         onChange={(e) => setSelectedYearId(e.target.value)}
                         className="w-full pl-9 pr-3 py-2 bg-white border border-border rounded-8 text-12px font-bold text-text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all appearance-none cursor-pointer shadow-sm"
                     >
-                        <option value="">All Years</option>
-                        {academicYears.length === 0 && <option disabled>Loading...</option>}
+                        <option value="">{locale === 'en' ? 'All Years' : 'Toutes les années'}</option>
+                        {academicYears.length === 0 && <option disabled>{t('common.loading')}</option>}
                         {academicYears.map(year => (
                             <option key={year.id} value={year.id}>{year.name}</option>
                         ))}

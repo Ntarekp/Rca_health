@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Calendar, Plus, Edit, Trash2, Check, X, AlertCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Calendar, Plus, Edit, Trash2, Check, X, AlertCircle, ArrowLeft } from 'lucide-react';
 import { authenticatedFetch } from '@/utils/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -17,7 +18,8 @@ interface Term {
 }
 
 export default function TermManagementPage() {
-  const { t } = useLanguage();
+  const router = useRouter();
+  const { t, locale } = useLanguage();
   const [terms, setTerms] = useState<Term[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -134,10 +136,19 @@ export default function TermManagementPage() {
 
   return (
     <div className="max-w-[1200px] mx-auto pb-10">
+      <div className="flex items-center gap-4 mb-6">
+        <button
+          onClick={() => router.push('/settings')}
+          className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-primary hover:bg-slate-50 rounded-10 transition-colors font-medium"
+        >
+          <ArrowLeft size={18} />
+          <span className="text-14px">{t('common.back')}</span>
+        </button>
+      </div>
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-28px font-extrabold text-slate-900">{t('settings.termConfiguration')}</h1>
-          <p className="text-14px text-slate-600 mt-1">Manage academic terms and reporting periods</p>
+          <p className="text-14px text-slate-600 mt-1">{locale === 'en' ? 'Manage academic terms and reporting periods' : 'Gérer les trimestres académiques et les périodes de rapport'}</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
@@ -153,7 +164,7 @@ export default function TermManagementPage() {
         <div className="bg-white border-2 border-slate-200 rounded-16 p-8 mb-8 shadow-lg">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-20px font-extrabold text-slate-900">
-              {editingTerm ? t('common.edit') : t('settings.addTerm')}
+              {editingTerm ? (locale === 'en' ? 'Edit Term' : 'Modifier le trimestre') : t('settings.addTerm')}
             </h2>
             <button onClick={resetForm} className="text-slate-400 hover:text-slate-600">
               <X size={24} />
@@ -171,7 +182,7 @@ export default function TermManagementPage() {
                   value={formData.termName}
                   onChange={(e) => setFormData({ ...formData, termName: e.target.value })}
                   required
-                  placeholder="e.g., Term 1, First Semester"
+                  placeholder={locale === 'en' ? 'e.g., Term 1, First Semester' : 'ex: Trimestre 1, Premier semestre'}
                   className="w-full px-4 py-3 border-2 border-slate-300 rounded-10 text-14px font-medium outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
                 />
               </div>
@@ -185,7 +196,7 @@ export default function TermManagementPage() {
                   value={formData.academicYear}
                   onChange={(e) => setFormData({ ...formData, academicYear: e.target.value })}
                   required
-                  placeholder="e.g., 2024, 2024-2025"
+                  placeholder={locale === 'en' ? 'e.g., 2024, 2024-2025' : 'ex: 2024, 2024-2025'}
                   className="w-full px-4 py-3 border-2 border-slate-300 rounded-10 text-14px font-medium outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
                 />
               </div>
@@ -225,7 +236,7 @@ export default function TermManagementPage() {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                placeholder="Optional description or notes about this term"
+                placeholder={locale === 'en' ? 'Optional description or notes about this term' : 'Description ou notes facultatives sur ce trimestre'}
                 className="w-full px-4 py-3 border-2 border-slate-300 rounded-10 text-14px font-medium outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 resize-none"
               />
             </div>
@@ -238,7 +249,7 @@ export default function TermManagementPage() {
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
                   className="w-5 h-5 text-primary border-2 border-slate-300 rounded focus:ring-2 focus:ring-primary/20"
                 />
-                <span className="text-14px font-bold text-slate-700">Active Term</span>
+                <span className="text-14px font-bold text-slate-700">{locale === 'en' ? 'Active Term' : 'Trimestre actif'}</span>
               </label>
 
               <label className="flex items-center gap-3 cursor-pointer">
@@ -290,12 +301,12 @@ export default function TermManagementPage() {
               <div className="flex gap-2">
                 {term.isCurrent && (
                   <span className="px-2 py-1 bg-primary text-white text-9px font-bold rounded-full uppercase">
-                    Current
+                    {locale === 'en' ? 'Current' : 'Actuel'}
                   </span>
                 )}
                 {term.isActive && !term.isCurrent && (
                   <span className="px-2 py-1 bg-success text-white text-9px font-bold rounded-full uppercase">
-                    Active
+                    {locale === 'en' ? 'Active' : 'Actif'}
                   </span>
                 )}
               </div>
@@ -320,7 +331,7 @@ export default function TermManagementPage() {
                   className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-primary/10 text-primary rounded-8 text-11px font-bold hover:bg-primary/20 transition-colors"
                 >
                   <Check size={14} />
-                  Set Current
+                  {locale === 'en' ? 'Set Current' : 'Définir actuel'}
                 </button>
               )}
               <button
@@ -344,8 +355,8 @@ export default function TermManagementPage() {
       {terms.length === 0 && !showForm && (
         <div className="text-center py-16">
           <AlertCircle className="mx-auto text-slate-300 mb-4" size={48} />
-          <p className="text-16px font-bold text-slate-600 mb-2">No terms configured</p>
-          <p className="text-14px text-slate-500 mb-6">Create your first academic term to enable period-based reporting</p>
+          <p className="text-16px font-bold text-slate-600 mb-2">{locale === 'en' ? 'No terms configured' : 'Aucun trimestre configuré'}</p>
+          <p className="text-14px text-slate-500 mb-6">{locale === 'en' ? 'Create your first academic term to enable period-based reporting' : 'Créez votre premier trimestre académique pour activer les rapports par période'}</p>
           <button
             onClick={() => setShowForm(true)}
             className="px-6 py-3 bg-primary text-white rounded-12 text-14px font-bold hover:bg-primary-dark transition-colors shadow-sm"

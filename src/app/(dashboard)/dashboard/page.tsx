@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Plus, Users, Calendar, AlertTriangle, Activity, UserPlus, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/contexts/LanguageContext';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import StatsCard from '@/features/dashboard/StatsCard';
 import ChartsSection from '@/features/dashboard/ChartsSection';
 import AppointmentsTable from '@/features/dashboard/AppointmentsTable';
@@ -11,6 +13,7 @@ import { apiUrl, authenticatedFetch } from '@/utils/api';
 
 export default function DashboardPage() {
     const router = useRouter();
+    const { t, locale } = useLanguage();
     const [stats, setStats] = useState({
         totalStudents: 0,
         appointmentsToday: 0,
@@ -48,7 +51,14 @@ export default function DashboardPage() {
     }, []);
 
     if (loading) {
-        return <div>Loading dashboard...</div>;
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <div className="text-center space-y-3">
+                    <Activity className="animate-pulse mx-auto text-primary" size={40} />
+                    <p className="text-14px font-medium text-slate-600">{t('common.loading')}</p>
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -56,29 +66,30 @@ export default function DashboardPage() {
             {/* Page Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 className="text-14px text-text-tertiary font-normal mb-1">Good morning, Nurse</h2>
-                    <h1 className="text-24px font-semibold text-primary">Student Health Dashboard</h1>
-                    <p className="text-12px text-text-tertiary">Overview of student health and consultations</p>
+                    <h2 className="text-14px text-text-tertiary font-normal mb-1">{locale === 'en' ? 'Good morning, Nurse' : 'Bonjour, Infirmière'}</h2>
+                    <h1 className="text-24px font-semibold text-primary">{t('dashboard.title')}</h1>
+                    <p className="text-12px text-text-tertiary">{t('dashboard.overview')}</p>
                 </div>
 
                 <div className="flex flex-wrap gap-3">
+                    <LanguageSwitcher />
                     <button
                         onClick={() => router.push('/consultations/new')}
                         className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-5 hover:bg-primary-dark transition-colors"
                     >
                         <Plus size={16} />
-                        <span className="text-14px font-medium">New Consultation</span>
+                        <span className="text-14px font-medium">{locale === 'en' ? 'New Consultation' : 'Nouvelle consultation'}</span>
                     </button>
                     <button
                         onClick={() => router.push('/students/new')}
                         className="flex items-center gap-2 px-4 py-2 bg-white text-primary rounded-5 border border-border hover:bg-gray-50 transition-colors"
                     >
                         <UserPlus size={16} />
-                        <span className="text-14px font-medium">Register Student</span>
+                        <span className="text-14px font-medium">{locale === 'en' ? 'Register Student' : 'Inscrire un étudiant'}</span>
                     </button>
                     <button className="flex items-center gap-2 px-4 py-2 bg-white text-text-secondary rounded-5 border border-border hover:bg-gray-50 transition-colors">
                         <FileText size={16} />
-                        <span className="text-14px font-medium">Reports</span>
+                        <span className="text-14px font-medium">{t('navigation.reports')}</span>
                     </button>
                 </div>
             </div>
@@ -87,7 +98,7 @@ export default function DashboardPage() {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
                 <StatsCard
-                    title="Total Students"
+                    title={t('dashboard.totalStudents')}
                     value={stats.totalStudents.toLocaleString()}
                     trend={Math.abs(stats.totalStudentsTrend)}
                     trendDirection={stats.totalStudentsTrend >= 0 ? "up" : "down"}
@@ -95,7 +106,7 @@ export default function DashboardPage() {
                     icon={<Users size={20} />}
                 />
                 <StatsCard
-                    title="Appointments Today"
+                    title={locale === 'en' ? 'Appointments Today' : 'Rendez-vous aujourd\'hui'}
                     value={stats.appointmentsToday.toLocaleString()}
                     trend={Math.abs(stats.appointmentsTodayTrend)}
                     trendDirection={stats.appointmentsTodayTrend >= 0 ? "up" : "down"}
@@ -103,7 +114,7 @@ export default function DashboardPage() {
                     icon={<Calendar size={20} />}
                 />
                 <StatsCard
-                    title="Critical Alerts"
+                    title={locale === 'en' ? 'Critical Alerts' : 'Alertes critiques'}
                     value={stats.criticalAlerts.toLocaleString()}
                     trend={Math.abs(stats.criticalAlertsTrend)}
                     trendDirection={stats.criticalAlertsTrend >= 0 ? "up" : "down"}
@@ -111,7 +122,7 @@ export default function DashboardPage() {
                     icon={<AlertTriangle size={20} className="text-error" />}
                 />
                 <StatsCard
-                    title="Consultations This Month"
+                    title={locale === 'en' ? 'Consultations This Month' : 'Consultations ce mois'}
                     value={stats.consultationsThisMonth.toLocaleString()}
                     trend={Math.abs(stats.consultationsThisMonthTrend)}
                     trendDirection={stats.consultationsThisMonthTrend >= 0 ? "up" : "down"}

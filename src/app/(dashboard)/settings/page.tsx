@@ -10,6 +10,8 @@ const SettingsPage = () => {
     const { t, locale } = useLanguage();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState('general');
+    const [saving, setSaving] = useState(false);
+    const [saveSuccess, setSaveSuccess] = useState(false);
     const [settings, setSettings] = useState({
         notifications: true,
         emailAlerts: true,
@@ -17,10 +19,42 @@ const SettingsPage = () => {
         autoReorder: false,
         timezone: 'Africa/Kigali'
     });
+    const [originalSettings, setOriginalSettings] = useState(settings);
+
+    useEffect(() => {
+        // Load settings from localStorage
+        const savedSettings = localStorage.getItem('appSettings');
+        if (savedSettings) {
+            const parsed = JSON.parse(savedSettings);
+            setSettings(parsed);
+            setOriginalSettings(parsed);
+        }
+    }, []);
 
     const handleSettingChange = (key: string, value: boolean | string) => {
         setSettings(prev => ({ ...prev, [key]: value }));
+        setSaveSuccess(false);
     };
+
+    const handleSave = () => {
+        setSaving(true);
+        // Save to localStorage
+        localStorage.setItem('appSettings', JSON.stringify(settings));
+        setOriginalSettings(settings);
+        
+        setTimeout(() => {
+            setSaving(false);
+            setSaveSuccess(true);
+            setTimeout(() => setSaveSuccess(false), 3000);
+        }, 500);
+    };
+
+    const handleDiscard = () => {
+        setSettings(originalSettings);
+        setSaveSuccess(false);
+    };
+
+    const hasChanges = JSON.stringify(settings) !== JSON.stringify(originalSettings);
 
     return (
         <div className="max-w-[1200px] mx-auto pb-20">
@@ -73,13 +107,13 @@ const SettingsPage = () => {
 
                         <div className="mt-8 p-4 bg-primary rounded-10 text-white relative overflow-hidden">
                             <div className="relative z-10">
-                                <h4 className="text-12px font-bold mb-2">System Status</h4>
+                                <h4 className="text-12px font-bold mb-2">{locale === 'en' ? 'System Status' : 'État du système'}</h4>
                                 <div className="flex items-center gap-2 mb-4">
                                     <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
                                     <span className="text-13px font-bold">{t('common.appName')}</span>
                                 </div>
                                 <div className="text-10px opacity-80 mt-2">
-                                    {t('common.language')}: {locale === 'en' ? 'English' : 'Français'}
+                                    {locale === 'en' ? 'Language' : 'Langue'}: {locale === 'en' ? 'English' : 'Français'}
                                 </div>
                             </div>
                             <div className="absolute top-[-20px] right-[-20px] w-20 h-20 bg-white/10 rounded-full blur-xl" />
@@ -99,7 +133,7 @@ const SettingsPage = () => {
                             </div>
                             <div>
                                 <h3 className="text-18px font-bold text-text-primary">{t('settings.notifications')}</h3>
-                                <p className="text-11px text-text-tertiary font-bold uppercase tracking-wider">Configure notification preferences</p>
+                                <p className="text-11px text-text-tertiary font-bold uppercase tracking-wider">{locale === 'en' ? 'Configure notification preferences' : 'Configurer les préférences de notification'}</p>
                             </div>
                         </div>
 
@@ -208,14 +242,42 @@ const SettingsPage = () => {
                     )}
 
                     {/* Footer Actions */}
+                    {saveSuccess && (
+                        <div className="mb-4 p-4 bg-success/10 border-2 border-success/30 rounded-12 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+                            <div className="w-8 h-8 bg-success rounded-full flex items-center justify-center">
+                                <Save size={16} className="text-white" />
+                            </div>
+                            <div>
+                                <p className="text-14px font-bold text-success">{t('messages.success.saved')}</p>
+                                <p className="text-12px text-success/80">{locale === 'en' ? 'Your preferences have been updated successfully' : 'Vos préférences ont été mises à jour avec succès'}</p>
+                            </div>
+                        </div>
+                    )}
                     <div className="flex justify-end gap-3 pt-4">
-                        <button className="flex items-center gap-2 px-6 py-2.5 border border-border bg-white text-text-secondary rounded-10 text-14px font-bold hover:bg-bg-primary transition-all group">
+                        <button 
+                            onClick={handleDiscard}
+                            disabled={!hasChanges}
+                            className="flex items-center gap-2 px-6 py-2.5 border border-border bg-white text-text-secondary rounded-10 text-14px font-bold hover:bg-bg-primary transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
                             <RotateCcw size={18} className="group-hover:rotate-[-45deg] transition-transform" />
-                            <span>{t('common.cancel')}</span>
+                            <span>{locale === 'en' ? 'Discard Changes' : 'Annuler les modifications'}</span>
                         </button>
-                        <button className="flex items-center gap-2 px-8 py-2.5 bg-primary text-white rounded-10 text-14px font-bold hover:bg-primary-dark transition-all shadow-lg shadow-primary/20">
-                            <Save size={18} />
-                            <span>{t('common.save')}</span>
+                        <button 
+                            onClick={handleSave}
+                            disabled={!hasChanges || saving}
+                            className="flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-primary to-primary-dark text-white rounded-12 text-16px font-black hover:from-primary-dark hover:to-primary hover:scale-105 transition-all shadow-xl shadow-primary/40 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:shadow-lg"
+                        >
+                            {saving ? (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    <span>{locale === 'en' ? 'Saving...' : 'Enregistrement...'}</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Save size={18} />
+                                    <span>{t('common.save')}</span>
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>

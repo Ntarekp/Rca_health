@@ -3,10 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { LayoutGrid, List as ListIcon, Search, Plus, Filter, FlaskConical, AlertCircle, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { authenticatedFetch } from '@/utils/api';
 
 const LabPage = () => {
     const router = useRouter();
+    const { t, locale } = useLanguage();
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('ALL');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -103,7 +106,7 @@ const LabPage = () => {
             <div className="flex items-center justify-center min-h-[400px]">
                 <div className="text-center space-y-3">
                     <FlaskConical className="animate-pulse mx-auto text-primary" size={40} />
-                    <p className="text-14px font-medium text-slate-600">Loading laboratory records...</p>
+                    <p className="text-14px font-medium text-slate-600">{t('lab.loading')}</p>
                 </div>
             </div>
         );
@@ -115,28 +118,28 @@ const LabPage = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-white border border-slate-200 rounded-12 p-4">
                     <div className="flex items-center justify-between mb-2">
-                        <span className="text-11px font-bold text-slate-500 uppercase">Total Tests</span>
+                        <span className="text-11px font-bold text-slate-500 uppercase">{t('lab.totalTests')}</span>
                         <FlaskConical size={18} className="text-slate-400" />
                     </div>
                     <p className="text-28px font-extrabold text-slate-900">{stats.total}</p>
                 </div>
                 <div className="bg-gradient-to-br from-warning/5 to-warning/10 border border-warning/20 rounded-12 p-4">
                     <div className="flex items-center justify-between mb-2">
-                        <span className="text-11px font-bold text-warning uppercase">Pending</span>
+                        <span className="text-11px font-bold text-warning uppercase">{t('lab.pending')}</span>
                         <AlertCircle size={18} className="text-warning" />
                     </div>
                     <p className="text-28px font-extrabold text-warning">{stats.pending}</p>
                 </div>
                 <div className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-12 p-4">
                     <div className="flex items-center justify-between mb-2">
-                        <span className="text-11px font-bold text-primary uppercase">In Progress</span>
+                        <span className="text-11px font-bold text-primary uppercase">{t('lab.inProgress')}</span>
                         <Clock size={18} className="text-primary" />
                     </div>
                     <p className="text-28px font-extrabold text-primary">{stats.inProgress}</p>
                 </div>
                 <div className="bg-gradient-to-br from-success/5 to-success/10 border border-success/20 rounded-12 p-4">
                     <div className="flex items-center justify-between mb-2">
-                        <span className="text-11px font-bold text-success uppercase">Completed</span>
+                        <span className="text-11px font-bold text-success uppercase">{t('lab.completed')}</span>
                         <CheckCircle size={18} className="text-success" />
                     </div>
                     <p className="text-28px font-extrabold text-success">{stats.completed}</p>
@@ -144,9 +147,12 @@ const LabPage = () => {
             </div>
 
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-24px font-semibold text-primary">Laboratory Tests</h1>
-                    <p className="text-12px text-text-tertiary">Manage laboratory test requests and results</p>
+                <div className="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 className="text-24px font-semibold text-primary mb-1">{t('lab.title')}</h1>
+                        <p className="text-12px text-text-tertiary">{t('lab.subtitle')}</p>
+                    </div>
+                    <LanguageSwitcher />
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3">
@@ -154,7 +160,7 @@ const LabPage = () => {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" size={18} />
                         <input
                             type="text"
-                            placeholder="Search by student, test, or code..."
+                            placeholder={locale === 'en' ? 'Search by student name, test name, or student code...' : 'Rechercher par nom d\'étudiant, nom du test ou code étudiant...'}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="bg-bg-card border border-border rounded-8 pl-10 pr-4 py-2 text-12px focus:ring-1 focus:ring-primary outline-none w-full sm:w-auto sm:min-w-[240px]"
@@ -168,11 +174,11 @@ const LabPage = () => {
                             onChange={(e) => setStatusFilter(e.target.value)}
                             className="bg-bg-card border border-border rounded-8 pl-10 pr-4 py-2 text-12px focus:ring-1 focus:ring-primary outline-none appearance-none cursor-pointer"
                         >
-                            <option value="ALL">All Status</option>
-                            <option value="PENDING">Pending</option>
-                            <option value="IN_PROGRESS">In Progress</option>
-                            <option value="COMPLETED">Completed</option>
-                            <option value="CANCELLED">Cancelled</option>
+                            <option value="ALL">{locale === 'en' ? 'All Status' : 'Tous les statuts'}</option>
+                            <option value="PENDING">{t('lab.status.pending')}</option>
+                            <option value="IN_PROGRESS">{t('lab.status.inProgress')}</option>
+                            <option value="COMPLETED">{t('lab.status.completed')}</option>
+                            <option value="CANCELLED">{t('lab.status.cancelled')}</option>
                         </select>
                     </div>
 
@@ -196,7 +202,7 @@ const LabPage = () => {
                         onClick={() => router.push('/lab/new')}
                     >
                         <Plus size={18} />
-                        <span className="text-14px font-medium">New Lab Request</span>
+                        <span className="text-14px font-medium">{t('lab.newLabRequest')}</span>
                     </button>
                 </div>
             </div>
@@ -209,7 +215,7 @@ const LabPage = () => {
                             <div key={record.id} className="bg-white border-2 border-slate-200 rounded-16 p-5 flex flex-col gap-4 hover:shadow-lg hover:border-primary/30 transition-all">
                                 <div className="flex justify-between items-start gap-3">
                                     <div className="flex-1">
-                                        <h3 className="text-16px font-bold text-slate-900 leading-tight mb-1">{record.student}</h3>
+                                        <h3 className="text-16px font-bold text-slate-900">{record.student}</h3>
                                         <p className="text-11px text-slate-500 font-medium">{record.studentCode}</p>
                                     </div>
                                     <div className="flex flex-col items-end gap-2">
@@ -223,7 +229,7 @@ const LabPage = () => {
                                     <div className="flex items-center gap-2 p-3 bg-primary/5 rounded-10 border border-primary/10">
                                         <FlaskConical size={18} className="text-primary flex-shrink-0" />
                                         <div className="flex-1">
-                                            <p className="text-9px text-primary/70 font-bold uppercase mb-0.5">Test Name</p>
+                                            <p className="text-9px text-primary/70 font-bold uppercase mb-0.5">{t('lab.testName')}</p>
                                             <p className="text-13px font-bold text-primary">{record.testName}</p>
                                             <p className="text-10px text-primary/60 font-medium mt-0.5">{record.testCategory}</p>
                                         </div>
@@ -231,12 +237,12 @@ const LabPage = () => {
                                     
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-9px text-slate-500 uppercase tracking-wider font-bold">Result</span>
+                                            <span className="text-9px text-slate-500 uppercase tracking-wider font-bold">{t('lab.result')}</span>
                                             <span className="text-13px font-bold text-slate-900">{record.result}</span>
                                             {record.unit && <span className="text-10px text-slate-500">{record.unit}</span>}
                                         </div>
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-9px text-slate-500 uppercase tracking-wider font-bold">Technician</span>
+                                            <span className="text-9px text-slate-500 uppercase tracking-wider font-bold">{t('lab.technician')}</span>
                                             <span className="text-13px font-semibold text-slate-700">{record.technician}</span>
                                         </div>
                                     </div>
