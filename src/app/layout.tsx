@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AcademicYearProvider } from "@/context/AcademicYearContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 export const metadata: Metadata = {
     title: "RCA Health System",

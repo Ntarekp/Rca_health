@@ -1,15 +1,20 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Bell, ShieldCheck, Globe, Clock, Save, RotateCcw, Smartphone, Mail, AlertTriangle, AppWindow } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Bell, ShieldCheck, Globe, Clock, Save, RotateCcw, Smartphone, Mail, AlertTriangle, AppWindow, Calendar, ChevronRight } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const SettingsPage = () => {
+    const { t, locale } = useLanguage();
+    const router = useRouter();
+    const [activeTab, setActiveTab] = useState('general');
     const [settings, setSettings] = useState({
         notifications: true,
         emailAlerts: true,
         lowStockAlert: true,
         autoReorder: false,
-        language: 'en',
         timezone: 'Africa/Kigali'
     });
 
@@ -18,10 +23,13 @@ const SettingsPage = () => {
     };
 
     return (
-        <div className="max-w-[1000px] mx-auto pb-20">
-            <div className="mb-10">
-                <h1 className="text-28px font-bold text-primary mb-2">System Configuration</h1>
-                <p className="text-13px text-text-tertiary font-medium">Manage your application parameters, security preferences and accessibility</p>
+        <div className="max-w-[1200px] mx-auto pb-20">
+            <div className="flex justify-between items-center mb-10">
+                <div>
+                    <h1 className="text-28px font-bold text-primary mb-2">{t('settings.title')}</h1>
+                    <p className="text-13px text-text-tertiary font-medium">{t('settings.preferences')}</p>
+                </div>
+                <LanguageSwitcher />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-10">
@@ -29,21 +37,37 @@ const SettingsPage = () => {
                 <div className="space-y-4">
                     <div className="bg-bg-card border border-border rounded-12 p-3 shadow-sm sticky top-24">
                         <nav className="flex flex-col gap-1">
-                            <button className="flex items-center gap-3 px-4 py-3 bg-primary/5 text-primary rounded-8 text-14px font-bold text-left border border-primary/10">
+                            <button 
+                                onClick={() => setActiveTab('general')}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-8 text-14px font-bold text-left transition-colors ${
+                                    activeTab === 'general' 
+                                        ? 'bg-primary/5 text-primary border border-primary/10' 
+                                        : 'text-text-secondary hover:bg-bg-primary'
+                                }`}
+                            >
                                 <Bell size={18} />
-                                <span>General & Notifications</span>
+                                <span>{t('settings.notifications')}</span>
                             </button>
-                            <button className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:bg-bg-primary rounded-8 text-14px font-semibold text-left transition-colors">
-                                <ShieldCheck size={18} />
-                                <span>Security & Privacy</span>
+                            <button 
+                                onClick={() => router.push('/settings/terms')}
+                                className="flex items-center justify-between gap-3 px-4 py-3 text-text-secondary hover:bg-bg-primary rounded-8 text-14px font-semibold text-left transition-colors group"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <Calendar size={18} />
+                                    <span>{t('settings.termConfiguration')}</span>
+                                </div>
+                                <ChevronRight size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                             </button>
-                            <button className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:bg-bg-primary rounded-8 text-14px font-semibold text-left transition-colors">
+                            <button 
+                                onClick={() => setActiveTab('localization')}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-8 text-14px font-semibold text-left transition-colors ${
+                                    activeTab === 'localization' 
+                                        ? 'bg-primary/5 text-primary border border-primary/10' 
+                                        : 'text-text-secondary hover:bg-bg-primary'
+                                }`}
+                            >
                                 <Globe size={18} />
-                                <span>Localization</span>
-                            </button>
-                            <button className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:bg-bg-primary rounded-8 text-14px font-semibold text-left transition-colors">
-                                <AppWindow size={18} />
-                                <span>System Logs</span>
+                                <span>{t('settings.language')}</span>
                             </button>
                         </nav>
 
@@ -52,11 +76,11 @@ const SettingsPage = () => {
                                 <h4 className="text-12px font-bold mb-2">System Status</h4>
                                 <div className="flex items-center gap-2 mb-4">
                                     <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-                                    <span className="text-13px font-bold">All services online</span>
+                                    <span className="text-13px font-bold">{t('common.appName')}</span>
                                 </div>
-                                <button className="w-full py-1.5 bg-white/20 hover:bg-white/30 rounded-6 text-11px font-bold transition-colors">
-                                    Check for Updates
-                                </button>
+                                <div className="text-10px opacity-80 mt-2">
+                                    {t('common.language')}: {locale === 'en' ? 'English' : 'Français'}
+                                </div>
                             </div>
                             <div className="absolute top-[-20px] right-[-20px] w-20 h-20 bg-white/10 rounded-full blur-xl" />
                         </div>
@@ -65,6 +89,8 @@ const SettingsPage = () => {
 
                 {/* Right side: Detailed Settings */}
                 <div className="space-y-8">
+                    {activeTab === 'general' && (
+                    <>
                     {/* Notifications Section */}
                     <div className="bg-bg-card border border-border rounded-12 p-8 shadow-sm">
                         <div className="flex items-center gap-3 mb-8 border-b border-border-light pb-4">
@@ -72,8 +98,8 @@ const SettingsPage = () => {
                                 <Bell size={20} />
                             </div>
                             <div>
-                                <h3 className="text-18px font-bold text-text-primary">Communication Settings</h3>
-                                <p className="text-11px text-text-tertiary font-bold uppercase tracking-wider">Configure how the system reaches you</p>
+                                <h3 className="text-18px font-bold text-text-primary">{t('settings.notifications')}</h3>
+                                <p className="text-11px text-text-tertiary font-bold uppercase tracking-wider">Configure notification preferences</p>
                             </div>
                         </div>
 
@@ -82,9 +108,9 @@ const SettingsPage = () => {
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
                                         <Smartphone size={16} className="text-text-tertiary" />
-                                        <h4 className="text-14px font-bold text-text-primary">In-App Notifications</h4>
+                                        <h4 className="text-14px font-bold text-text-primary">{locale === 'en' ? 'In-App Notifications' : 'Notifications dans l\'application'}</h4>
                                     </div>
-                                    <p className="text-12px text-text-secondary">Push alerts for real-time medical updates and lab results</p>
+                                    <p className="text-12px text-text-secondary">{locale === 'en' ? 'Push alerts for real-time medical updates and lab results' : 'Alertes push pour les mises à jour médicales et résultats de laboratoire en temps réel'}</p>
                                 </div>
                                 <label className="relative inline-flex items-center cursor-pointer">
                                     <input
@@ -101,9 +127,9 @@ const SettingsPage = () => {
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
                                         <Mail size={16} className="text-text-tertiary" />
-                                        <h4 className="text-14px font-bold text-text-primary">Email Medical Alerts</h4>
+                                        <h4 className="text-14px font-bold text-text-primary">{locale === 'en' ? 'Email Medical Alerts' : 'Alertes médicales par e-mail'}</h4>
                                     </div>
-                                    <p className="text-12px text-text-secondary">Official health summaries and parent communication emails</p>
+                                    <p className="text-12px text-text-secondary">{locale === 'en' ? 'Official health summaries and parent communication emails' : 'Résumés de santé officiels et e-mails de communication aux parents'}</p>
                                 </div>
                                 <label className="relative inline-flex items-center cursor-pointer">
                                     <input
@@ -120,9 +146,9 @@ const SettingsPage = () => {
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
                                         <AlertTriangle size={16} className="text-text-tertiary" />
-                                        <h4 className="text-14px font-bold text-text-primary">Inventory Critical Alerts</h4>
+                                        <h4 className="text-14px font-bold text-text-primary">{locale === 'en' ? 'Inventory Critical Alerts' : 'Alertes critiques d\'inventaire'}</h4>
                                     </div>
-                                    <p className="text-12px text-text-secondary">Get notified instantly when essential medical supplies are low</p>
+                                    <p className="text-12px text-text-secondary">{locale === 'en' ? 'Get notified instantly when essential medical supplies are low' : 'Soyez averti instantanément lorsque les fournitures médicales essentielles sont faibles'}</p>
                                 </div>
                                 <label className="relative inline-flex items-center cursor-pointer">
                                     <input
@@ -136,7 +162,11 @@ const SettingsPage = () => {
                             </div>
                         </div>
                     </div>
+                    </>
+                    )}
 
+                    {activeTab === 'localization' && (
+                    <>
                     {/* Regional Section */}
                     <div className="bg-bg-card border border-border rounded-12 p-8 shadow-sm">
                         <div className="flex items-center gap-3 mb-8 border-b border-border-light pb-4">
@@ -144,29 +174,24 @@ const SettingsPage = () => {
                                 <Globe size={20} />
                             </div>
                             <div>
-                                <h3 className="text-18px font-bold text-text-primary">Language & Region</h3>
-                                <p className="text-11px text-text-tertiary font-bold uppercase tracking-wider">Tailor the interface to your location</p>
+                                <h3 className="text-18px font-bold text-text-primary">{t('settings.language')}</h3>
+                                <p className="text-11px text-text-tertiary font-bold uppercase tracking-wider">{locale === 'en' ? 'Tailor the interface to your location' : 'Adaptez l\'interface à votre emplacement'}</p>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-3">
                                 <label className="text-13px font-bold text-text-secondary flex items-center gap-2">
-                                    <Globe size={14} /> Interface Language
+                                    <Globe size={14} /> {t('settings.selectLanguage')}
                                 </label>
-                                <select
-                                    className="w-full px-4 py-2 bg-bg-secondary border border-border rounded-8 text-14px font-bold text-text-primary outline-none focus:border-primary transition-all appearance-none cursor-pointer"
-                                    value={settings.language}
-                                    onChange={(e) => handleSettingChange('language', e.target.value)}
-                                >
-                                    <option value="en">English (Official)</option>
-                                    <option value="rw">Kinyarwanda</option>
-                                    <option value="fr">Français</option>
-                                </select>
+                                <div className="p-4 bg-slate-50 border-2 border-slate-200 rounded-12">
+                                    <p className="text-12px text-slate-600 mb-3 font-medium">{locale === 'en' ? 'Use the language switcher in the top navigation to change the interface language.' : 'Utilisez le sélecteur de langue dans la navigation supérieure pour changer la langue de l\'interface.'}</p>
+                                    <LanguageSwitcher />
+                                </div>
                             </div>
                             <div className="space-y-3">
                                 <label className="text-13px font-bold text-text-secondary flex items-center gap-2">
-                                    <Clock size={14} /> System Timezone
+                                    <Clock size={14} /> {locale === 'en' ? 'System Timezone' : 'Fuseau horaire du système'}
                                 </label>
                                 <select
                                     className="w-full px-4 py-2 bg-bg-secondary border border-border rounded-8 text-14px font-bold text-text-primary outline-none focus:border-primary transition-all appearance-none cursor-pointer"
@@ -179,16 +204,18 @@ const SettingsPage = () => {
                             </div>
                         </div>
                     </div>
+                    </>
+                    )}
 
                     {/* Footer Actions */}
                     <div className="flex justify-end gap-3 pt-4">
                         <button className="flex items-center gap-2 px-6 py-2.5 border border-border bg-white text-text-secondary rounded-10 text-14px font-bold hover:bg-bg-primary transition-all group">
                             <RotateCcw size={18} className="group-hover:rotate-[-45deg] transition-transform" />
-                            <span>Discard Changes</span>
+                            <span>{t('common.cancel')}</span>
                         </button>
                         <button className="flex items-center gap-2 px-8 py-2.5 bg-primary text-white rounded-10 text-14px font-bold hover:bg-primary-dark transition-all shadow-lg shadow-primary/20">
                             <Save size={18} />
-                            <span>Sync Configuration</span>
+                            <span>{t('common.save')}</span>
                         </button>
                     </div>
                 </div>
