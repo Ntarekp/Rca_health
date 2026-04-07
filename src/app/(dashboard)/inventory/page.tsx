@@ -19,7 +19,7 @@ import {
     X,
     ChevronDown
 } from 'lucide-react';
-
+import { useLanguage } from '@/contexts/LanguageContext';
 import { authenticatedFetch } from '@/utils/api';
 const COMMON_UNITS = [
     'grams',
@@ -37,14 +37,15 @@ const COMMON_UNITS = [
     'ampoules'
 ];
 
-const getStockStatus = (stock: number) => {
-    if (stock <= 0) return 'Out of Stock';
-    if (stock <= 5) return 'Low Stock';
-    if (stock <= 15) return 'Watch';
-    return 'In Stock';
+const getStockStatus = (stock: number, t: any) => {
+    if (stock <= 0) return t('inventory.outOfStock');
+    if (stock <= 5) return t('inventory.lowStock');
+    if (stock <= 15) return t('inventory.watch');
+    return t('inventory.inStock');
 };
 
 const InventoryPage = () => {
+    const { t, locale } = useLanguage();
     const [searchQuery, setSearchQuery] = useState('');
     const [inventoryItems, setInventoryItems] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -85,7 +86,7 @@ const InventoryPage = () => {
                     category: item.category,
                     stock,
                     unit: (item.unit || '').trim(),
-                    status: getStockStatus(stock),
+                    status: getStockStatus(stock, t),
                     lastRestocked: item.lastRestocked || new Date().toISOString().split('T')[0]
                 }});
                 setInventoryItems(mappedData);
@@ -283,20 +284,20 @@ const InventoryPage = () => {
             {/* Header section */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-32px font-extrabold text-slate-900 tracking-tight">Inventory Management</h1>
-                    <p className="text-slate-500 text-15px mt-1.5 font-medium">Track and manage medical materials & supplies</p>
+                    <h1 className="text-32px font-extrabold text-slate-900 tracking-tight">{t('inventory.title')}</h1>
+                    <p className="text-slate-500 text-15px mt-1.5 font-medium">{t('inventory.subtitle')}</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-border rounded-12 text-14px font-bold text-text-secondary hover:bg-slate-50 transition-all shadow-sm">
                         <FileDown size={18} />
-                        Export
+                        {t('inventory.export')}
                     </button>
                     <button 
                         onClick={() => handleOpenModal('create')}
                         className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-12 text-14px font-bold hover:bg-primary-dark transition-all shadow-md shadow-primary/20"
                     >
                         <Plus size={18} />
-                        New Item
+                        {t('inventory.newItem')}
                     </button>
                 </div>
             </div>
@@ -304,10 +305,10 @@ const InventoryPage = () => {
             {/* Quick Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
                 {[
-                    { label: 'Total Items', value: inventoryItems.length.toString(), icon: Package, color: 'primary', trend: '+0%', up: true },
-                    { label: 'Low Stock', value: inventoryItems.filter(i => i.status === 'Low Stock').length.toString(), icon: AlertTriangle, color: 'warning', trend: '0', up: false },
-                    { label: 'Out of Stock', value: inventoryItems.filter(i => i.status === 'Out of Stock').length.toString(), icon: XCircle, color: 'danger', trend: 'Stable', up: null },
-                    { label: 'Watch Level', value: inventoryItems.filter(i => i.status === 'Watch').length.toString(), icon: History, color: 'success', trend: '6-15', up: true },
+                    { label: t('inventory.totalItems'), value: inventoryItems.length.toString(), icon: Package, color: 'primary', trend: '+0%', up: true },
+                    { label: t('inventory.lowStock'), value: inventoryItems.filter(i => i.status === t('inventory.lowStock')).length.toString(), icon: AlertTriangle, color: 'warning', trend: '0', up: false },
+                    { label: t('inventory.outOfStock'), value: inventoryItems.filter(i => i.status === t('inventory.outOfStock')).length.toString(), icon: XCircle, color: 'danger', trend: 'Stable', up: null },
+                    { label: t('inventory.watchLevel'), value: inventoryItems.filter(i => i.status === t('inventory.watch')).length.toString(), icon: History, color: 'success', trend: '6-15', up: true },
                 ].map((stat, i) => (
                     <div key={i} className="bg-white p-6 rounded-20 border border-slate-200/80 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
                         <div className="flex items-center justify-between relative z-10">
@@ -335,22 +336,22 @@ const InventoryPage = () => {
                 {/* Internal Header/Filters */}
                 <div className="px-5 py-5 sm:px-6 sm:py-6 border-b border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" size={18} />
+                        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input
                             type="text"
-                            placeholder="Search materials, medicines..."
-                            className="w-full pl-12 pr-4 py-2.5 bg-white border border-border rounded-12 text-14px outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                            placeholder={t('inventory.searchPlaceholder')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-12 pr-4 py-3 bg-white border border-border rounded-12 text-14px font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"
                         />
                     </div>
                     <div className="flex items-center gap-3">
                         <div className="flex items-center gap-2 px-4 py-2 bg-white border border-border rounded-12 text-14px font-semibold text-text-secondary cursor-pointer hover:bg-slate-50 transition-all">
                             <Filter size={16} />
-                            All Categories
+                            {t('inventory.allCategories')}
                         </div>
                         <div className="flex items-center gap-2 px-4 py-2 bg-white border border-border rounded-12 text-14px font-semibold text-text-secondary cursor-pointer hover:bg-slate-50 transition-all">
-                            Status: All
+                            {t('inventory.statusAll')}
                         </div>
                     </div>
                 </div>
@@ -363,12 +364,12 @@ const InventoryPage = () => {
                         <table className="w-full text-left">
                             <thead>
                                 <tr className="bg-slate-50/50 text-text-tertiary text-13px font-bold uppercase tracking-wider border-b border-border">
-                                    <th className="px-8 py-4">Item Details</th>
-                                    <th className="px-6 py-4">Category</th>
-                                    <th className="px-6 py-4">Current Stock</th>
-                                    <th className="px-6 py-4">Status</th>
-                                    <th className="px-6 py-4">Last Restock</th>
-                                    <th className="px-8 py-4 text-right">Actions</th>
+                                    <th className="px-6 py-4 text-left text-12px font-bold text-slate-600 uppercase tracking-wider">{t('inventory.itemDetails')}</th>
+                                    <th className="px-6 py-4 text-left text-12px font-bold text-slate-600 uppercase tracking-wider">{t('inventory.category')}</th>
+                                    <th className="px-6 py-4 text-left text-12px font-bold text-slate-600 uppercase tracking-wider">{t('inventory.currentStock')}</th>
+                                    <th className="px-6 py-4 text-left text-12px font-bold text-slate-600 uppercase tracking-wider">{t('inventory.status')}</th>
+                                    <th className="px-6 py-4 text-left text-12px font-bold text-slate-600 uppercase tracking-wider">{t('inventory.lastRestock')}</th>
+                                    <th className="px-6 py-4 text-left text-12px font-bold text-slate-600 uppercase tracking-wider">{t('inventory.actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border/50">
@@ -417,14 +418,14 @@ const InventoryPage = () => {
                                                         className="px-3.5 py-2 text-12px font-bold rounded-10 bg-success/10 text-success hover:bg-success/15 transition-colors"
                                                         title="Stock In"
                                                     >
-                                                        + In
+                                                        {t('inventory.stockIn')}
                                                     </button>
                                                     <button
                                                         onClick={() => openStockModal(item, 'out')}
                                                         className="px-3.5 py-2 text-12px font-bold rounded-10 bg-warning/10 text-warning hover:bg-warning/20 transition-colors"
                                                         title="Stock Out"
                                                     >
-                                                        - Out
+                                                        {t('inventory.stockOut')}
                                                     </button>
                                                     <button 
                                                         onClick={() => handleOpenModal('edit', item)}
@@ -452,7 +453,9 @@ const InventoryPage = () => {
 
                 {/* Footer/Pagination Placeholder */}
                 <div className="p-6 border-t border-border flex items-center justify-between bg-slate-50/30">
-                    <p className="text-14px text-text-tertiary font-medium italic">Showing {filteredItems.length} items</p>
+                    <div className="text-center text-14px text-slate-500 font-medium mt-6">
+                        {t('inventory.showingItems', { count: filteredItems.length })}
+                    </div>
                     <div className="flex gap-2">
                         <button className="px-4 py-2 border border-border rounded-10 text-13px font-bold text-text-secondary hover:bg-slate-100 transition-all disabled:opacity-50" disabled>Previous</button>
                         <button className="px-4 py-2 bg-primary text-white rounded-10 text-13px font-bold hover:bg-primary-dark transition-all shadow-md shadow-primary/20 disabled:opacity-50" disabled>Next</button>
@@ -466,7 +469,7 @@ const InventoryPage = () => {
                     <div className="bg-white rounded-24 w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-border/60">
                         <div className="flex items-center justify-between px-7 py-6 border-b border-border/70">
                             <h2 className="text-20px font-bold text-text-primary">
-                                {modalMode === 'create' ? 'New Inventory Item' : 'Edit Inventory Item'}
+                                {modalMode === 'create' ? t('inventory.modal.createTitle') : t('inventory.modal.editTitle')}
                             </h2>
                             <button 
                                 onClick={() => setIsModalOpen(false)}
@@ -478,7 +481,7 @@ const InventoryPage = () => {
                         
                         <form onSubmit={handleSubmit} className="px-7 py-6 space-y-5">
                             <div className="space-y-2">
-                                <label className="text-13px font-bold text-text-secondary ml-1">Item Name</label>
+                                <label className="text-13px font-bold text-text-secondary ml-1">{t('inventory.modal.itemName')}</label>
                                 <input
                                     type="text"
                                     name="name"
@@ -486,12 +489,12 @@ const InventoryPage = () => {
                                     onChange={handleChange}
                                     required
                                     className="w-full px-4 py-3.5 bg-slate-50/60 border border-border/80 rounded-14 text-14px focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                    placeholder="e.g. Paracetamol"
+                                    placeholder={t('inventory.modal.itemNamePlaceholder')}
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-13px font-bold text-text-secondary ml-1">Category</label>
+                                <label className="text-13px font-bold text-text-secondary ml-1">{t('inventory.modal.category')}</label>
                                 <select
                                     name="category"
                                     value={formData.category}
@@ -499,16 +502,16 @@ const InventoryPage = () => {
                                     required
                                     className="w-full px-4 py-3.5 bg-slate-50/60 border border-border/80 rounded-14 text-14px focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                 >
-                                    <option value="" disabled>Select category...</option>
-                                    <option value="Medicine">Medicine</option>
-                                    <option value="Equipment">Equipment</option>
-                                    <option value="Consumable">Consumable</option>
+                                    <option value="" disabled>{t('inventory.modal.selectCategory')}</option>
+                                    <option value="Medicine">{t('inventory.medicine')}</option>
+                                    <option value="Equipment">{t('inventory.equipment')}</option>
+                                    <option value="Consumable">{t('inventory.supplies')}</option>
                                 </select>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                 <div className="space-y-2">
-                                    <label className="text-13px font-bold text-text-secondary ml-1">Stock</label>
+                                    <label className="text-13px font-bold text-text-secondary ml-1">{t('inventory.modal.stock')}</label>
                                     <input
                                         type="number"
                                         name="stock"
@@ -521,7 +524,7 @@ const InventoryPage = () => {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-13px font-bold text-text-secondary ml-1">Unit</label>
+                                    <label className="text-13px font-bold text-text-secondary ml-1">{t('inventory.modal.unit')}</label>
                                     <div className="relative">
                                         <input
                                             type="text"
@@ -535,7 +538,7 @@ const InventoryPage = () => {
                                             }}
                                             required
                                             className="w-full pl-4 pr-10 py-3.5 bg-slate-50/60 border border-border/80 rounded-14 text-14px focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                            placeholder="e.g. grams, packets, tablets"
+                                            placeholder={t('inventory.modal.unitPlaceholder')}
                                         />
                                         <button
                                             type="button"
@@ -570,7 +573,7 @@ const InventoryPage = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-13px font-bold text-text-secondary ml-1">Last Restocked</label>
+                                <label className="text-13px font-bold text-text-secondary ml-1">{t('inventory.modal.lastRestocked')}</label>
                                 <input
                                     type="date"
                                     name="lastRestocked"
@@ -587,14 +590,14 @@ const InventoryPage = () => {
                                     onClick={() => setIsModalOpen(false)}
                                     className="px-5 py-3 rounded-12 text-14px font-bold text-text-secondary hover:bg-slate-100 transition-all font-medium"
                                 >
-                                    Cancel
+                                    {t('inventory.modal.cancel')}
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={actionLoading}
                                     className="px-6 py-3 bg-primary text-white rounded-12 text-14px font-bold hover:bg-primary-dark transition-all shadow-md shadow-primary/20 disabled:opacity-50"
                                 >
-                                    {actionLoading ? 'Saving...' : 'Save Item'}
+                                    {actionLoading ? t('inventory.modal.saving') : t('inventory.modal.saveItem')}
                                 </button>
                             </div>
                         </form>
@@ -607,22 +610,22 @@ const InventoryPage = () => {
                     <div className="bg-white rounded-24 w-full max-w-md shadow-2xl overflow-hidden border border-border/60">
                         <div className="p-6 border-b border-border/70">
                             <h2 className="text-20px font-bold text-text-primary">
-                                {stockMode === 'in' ? 'Stock In' : 'Stock Out'}
+                                {stockMode === 'in' ? t('inventory.stockModal.stockInTitle') : t('inventory.stockModal.stockOutTitle')}
                             </h2>
                             <p className="text-14px text-text-tertiary mt-2">
-                                Adjust stock for <span className="font-semibold text-text-secondary">{stockTarget.name}</span> ({stockTarget.unit}).
+                                {t('inventory.stockModal.adjustStock')} <span className="font-semibold text-text-secondary">{stockTarget.name}</span> ({stockTarget.unit}).
                             </p>
                             <p className="text-13px text-text-tertiary mt-1">
-                                Current stock: <span className="font-semibold text-text-secondary">{stockTarget.stock}</span>
+                                {t('inventory.stockModal.currentStock')} <span className="font-semibold text-text-secondary">{stockTarget.stock}</span>
                             </p>
                             <p className="text-13px text-text-tertiary mt-1">
-                                {stockMode === 'in'
-                                    ? `After update: ${Number(stockTarget.stock ?? 0) + Number(stockAmount || 0)}`
-                                    : `After update: ${Math.max(0, Number(stockTarget.stock ?? 0) - Number(stockAmount || 0))}`}
+                                {t('inventory.stockModal.afterUpdate')} {stockMode === 'in'
+                                    ? Number(stockTarget.stock ?? 0) + Number(stockAmount || 0)
+                                    : Math.max(0, Number(stockTarget.stock ?? 0) - Number(stockAmount || 0))}
                             </p>
                         </div>
                         <div className="p-6 space-y-3">
-                            <label className="text-13px font-bold text-text-secondary ml-1">Quantity</label>
+                            <label className="text-13px font-bold text-text-secondary ml-1">{t('inventory.stockModal.quantity')}</label>
                             <input
                                 type="number"
                                 min="1"
@@ -633,7 +636,7 @@ const InventoryPage = () => {
                                 className="w-full px-4 py-3.5 bg-slate-50/60 border border-border/80 rounded-14 text-14px focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                             />
                             {stockMode === 'out' && (
-                                <p className="text-12px text-text-tertiary">Maximum removable quantity: {Number(stockTarget.stock ?? 0)}</p>
+                                <p className="text-12px text-text-tertiary">{t('inventory.stockModal.maxRemovable')} {Number(stockTarget.stock ?? 0)}</p>
                             )}
                         </div>
                         <div className="p-6 pt-0 flex items-center justify-end gap-3">
@@ -642,7 +645,7 @@ const InventoryPage = () => {
                                 onClick={() => setStockTarget(null)}
                                 className="px-5 py-3 rounded-12 text-14px font-bold text-text-secondary hover:bg-slate-100 transition-all"
                             >
-                                Cancel
+                                {t('inventory.modal.cancel')}
                             </button>
                             <button
                                 type="button"
@@ -650,7 +653,7 @@ const InventoryPage = () => {
                                 disabled={stockLoading || stockAmount < 1}
                                 className={`px-6 py-3 text-white rounded-12 text-14px font-bold transition-all disabled:opacity-50 ${stockMode === 'in' ? 'bg-success hover:bg-success/90' : 'bg-warning hover:bg-warning/90'}`}
                             >
-                                {stockLoading ? 'Saving...' : stockMode === 'in' ? 'Confirm Stock In' : 'Confirm Stock Out'}
+                                {stockLoading ? t('inventory.modal.saving') : stockMode === 'in' ? t('inventory.stockModal.confirmStockIn') : t('inventory.stockModal.confirmStockOut')}
                             </button>
                         </div>
                     </div>
@@ -661,10 +664,10 @@ const InventoryPage = () => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-24 w-full max-w-md shadow-2xl overflow-hidden">
                         <div className="p-6 border-b border-border">
-                            <h2 className="text-20px font-bold text-text-primary">Delete Inventory Item</h2>
+                            <h2 className="text-20px font-bold text-text-primary">{t('inventory.deleteModal.title')}</h2>
                             <p className="text-14px text-text-tertiary mt-2">
-                                You are about to delete <span className="font-semibold text-text-secondary">{deleteTarget.name}</span>.
-                                This action cannot be undone.
+                                {t('inventory.deleteModal.message')} <span className="font-semibold text-text-secondary">{deleteTarget.name}</span>.
+                                {t('inventory.deleteModal.warning')}
                             </p>
                         </div>
                         <div className="p-6 flex items-center justify-end gap-3">
@@ -673,7 +676,7 @@ const InventoryPage = () => {
                                 onClick={() => setDeleteTarget(null)}
                                 className="px-5 py-2.5 rounded-12 text-14px font-bold text-text-secondary hover:bg-slate-100 transition-all"
                             >
-                                Cancel
+                                {t('inventory.deleteModal.cancel')}
                             </button>
                             <button
                                 type="button"
@@ -681,7 +684,7 @@ const InventoryPage = () => {
                                 disabled={deleteLoading}
                                 className="px-6 py-2.5 bg-danger text-white rounded-12 text-14px font-bold hover:bg-danger/90 transition-all disabled:opacity-50"
                             >
-                                {deleteLoading ? 'Deleting...' : 'Delete Item'}
+                                {deleteLoading ? t('inventory.deleteModal.deleting') : t('inventory.deleteModal.confirm')}
                             </button>
                         </div>
                     </div>

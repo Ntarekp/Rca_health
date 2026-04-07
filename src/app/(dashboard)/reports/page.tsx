@@ -2,12 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { FileText, Download, User, Activity, Users, TrendingUp, Search, Calendar, Printer, FileBarChart, Package, AlertTriangle, BarChart3 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { authenticatedFetch } from '@/utils/api';
 import './print.css';
 
 type ReportType = 'facility' | 'student' | 'disease' | 'class' | 'inventory';
 
 const ReportsPage = () => {
+    const { t, locale } = useLanguage();
     const [reportType, setReportType] = useState<ReportType>('facility');
     const today = new Date();
     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -79,7 +82,7 @@ const ReportsPage = () => {
                     break;
                 case 'student':
                     if (!studentId) {
-                        alert('Please select a student');
+                        alert(t('reports.selectStudent'));
                         setGenerating(false);
                         setLoading(false);
                         return;
@@ -88,7 +91,7 @@ const ReportsPage = () => {
                     break;
                 case 'disease':
                     if (!diagnosis.trim()) {
-                        alert('Please enter a diagnosis/disease name');
+                        alert(t('reports.enterDiagnosis'));
                         setGenerating(false);
                         setLoading(false);
                         return;
@@ -98,7 +101,7 @@ const ReportsPage = () => {
                     break;
                 case 'class':
                     if (!classId) {
-                        alert('Please select a class');
+                        alert(t('reports.selectClass'));
                         setGenerating(false);
                         setLoading(false);
                         return;
@@ -115,11 +118,11 @@ const ReportsPage = () => {
                 const data = await response.json();
                 setReportData(data);
             } else {
-                alert('Failed to generate report. Please try again.');
+                alert(t('reports.noData'));
             }
         } catch (error) {
             console.error('Error generating report:', error);
-            alert('An error occurred while generating the report.');
+            alert(t('reports.noData'));
         } finally {
             setLoading(false);
             setGenerating(false);
@@ -143,8 +146,8 @@ const ReportsPage = () => {
             <div className="no-print">
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
                     <div className="space-y-1.5">
-                        <h1 className="text-32px font-extrabold text-slate-900 tracking-tight">Medical Reports</h1>
-                        <p className="text-slate-500 text-15px font-medium">Generate comprehensive health reports with real data</p>
+                        <h1 className="text-32px font-extrabold text-slate-900 tracking-tight">{t('reports.title')}</h1>
+                        <p className="text-slate-500 text-15px font-medium">{t('reports.subtitle')}</p>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3">
@@ -156,7 +159,7 @@ const ReportsPage = () => {
                                 value={dateRange.start}
                                 onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
                             />
-                            <span className="text-slate-400 text-11px font-bold">TO</span>
+                            <span className="text-slate-400 text-11px font-bold">{t('reports.to')}</span>
                             <input
                                 type="date"
                                 className="px-2 py-1 text-13px font-semibold text-slate-700 border-none bg-transparent outline-none"
@@ -170,7 +173,7 @@ const ReportsPage = () => {
                             className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-12 text-14px font-bold hover:bg-primary-dark transition-all shadow-md shadow-primary/20 disabled:opacity-50"
                         >
                             <TrendingUp size={18} />
-                            <span>{generating ? 'Generating...' : 'Generate Report'}</span>
+                            <span>{generating ? t('reports.generating') : t('reports.generateReport')}</span>
                         </button>
                         {reportData && (
                             <button 
@@ -178,7 +181,7 @@ const ReportsPage = () => {
                                 className="flex items-center gap-2 px-5 py-2.5 border border-slate-200 bg-white text-slate-700 rounded-12 text-14px font-bold hover:bg-slate-50 transition-all"
                             >
                                 <Printer size={18} />
-                                <span>Print / PDF</span>
+                                <span>{t('reports.print')}</span>
                             </button>
                         )}
                     </div>
@@ -195,8 +198,8 @@ const ReportsPage = () => {
                         }`}
                     >
                         <Activity size={24} className={reportType === 'facility' ? 'text-primary' : 'text-slate-400'} />
-                        <h3 className="text-16px font-bold text-slate-900 mt-3">Facility Overview</h3>
-                        <p className="text-13px text-slate-600 mt-1">Overall health statistics and trends</p>
+                        <h3 className="text-16px font-bold text-slate-900 mt-3">{t('reports.types.facilityOverview.title')}</h3>
+                        <p className="text-13px text-slate-600 mt-1">{t('reports.types.facilityOverview.description')}</p>
                     </button>
 
                     <button
@@ -208,8 +211,8 @@ const ReportsPage = () => {
                         }`}
                     >
                         <User size={24} className={reportType === 'student' ? 'text-primary' : 'text-slate-400'} />
-                        <h3 className="text-16px font-bold text-slate-900 mt-3">Student Health History</h3>
-                        <p className="text-13px text-slate-600 mt-1">Individual student medical record</p>
+                        <h3 className="text-16px font-bold text-slate-900 mt-3">{t('reports.types.studentHealth.title')}</h3>
+                        <p className="text-13px text-slate-600 mt-1">{t('reports.types.studentHealth.description')}</p>
                     </button>
 
                     <button
@@ -221,8 +224,8 @@ const ReportsPage = () => {
                         }`}
                     >
                         <FileBarChart size={24} className={reportType === 'disease' ? 'text-primary' : 'text-slate-400'} />
-                        <h3 className="text-16px font-bold text-slate-900 mt-3">Disease Report</h3>
-                        <p className="text-13px text-slate-600 mt-1">Track specific diagnosis or condition</p>
+                        <h3 className="text-16px font-bold text-slate-900 mt-3">{t('reports.types.disease.title')}</h3>
+                        <p className="text-13px text-slate-600 mt-1">{t('reports.types.disease.description')}</p>
                     </button>
 
                     <button
@@ -234,8 +237,8 @@ const ReportsPage = () => {
                         }`}
                     >
                         <Users size={24} className={reportType === 'class' ? 'text-primary' : 'text-slate-400'} />
-                        <h3 className="text-16px font-bold text-slate-900 mt-3">Class Health Report</h3>
-                        <p className="text-13px text-slate-600 mt-1">Health overview by class</p>
+                        <h3 className="text-16px font-bold text-slate-900 mt-3">{t('reports.types.classHealth.title')}</h3>
+                        <p className="text-13px text-slate-600 mt-1">{t('reports.types.classHealth.description')}</p>
                     </button>
 
                     <button
@@ -247,24 +250,24 @@ const ReportsPage = () => {
                         }`}
                     >
                         <Package size={24} className={reportType === 'inventory' ? 'text-primary' : 'text-slate-400'} />
-                        <h3 className="text-16px font-bold text-slate-900 mt-3">Inventory Report</h3>
-                        <p className="text-13px text-slate-600 mt-1">Stock levels and alerts</p>
+                        <h3 className="text-16px font-bold text-slate-900 mt-3">{t('reports.types.inventory.title')}</h3>
+                        <p className="text-13px text-slate-600 mt-1">{t('reports.types.inventory.description')}</p>
                     </button>
                 </div>
 
                 {/* Report Parameters */}
                 <div className="mt-6 bg-white border border-slate-200 rounded-16 p-6">
-                    <h3 className="text-16px font-bold text-slate-900 mb-4">Report Parameters</h3>
+                    <h3 className="text-16px font-bold text-slate-900 mb-4">{t('reports.reportParameters')}</h3>
                     
                     {reportType === 'student' && (
                         <div className="space-y-2">
-                            <label className="text-13px font-bold text-slate-700">Select Student</label>
+                            <label className="text-13px font-bold text-slate-700">{t('reports.selectStudent')}</label>
                             <select
                                 value={studentId}
                                 onChange={(e) => setStudentId(e.target.value)}
                                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-12 text-14px font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                             >
-                                <option value="">-- Choose a student --</option>
+                                <option value="">{t('reports.selectStudent')}</option>
                                 {students.map((student) => (
                                     <option key={student.studentId} value={student.studentId}>
                                         {student.firstName} {student.lastName} - {student.schoolId}
@@ -276,12 +279,12 @@ const ReportsPage = () => {
 
                     {reportType === 'disease' && (
                         <div className="space-y-2">
-                            <label className="text-13px font-bold text-slate-700">Diagnosis / Disease Name</label>
+                            <label className="text-13px font-bold text-slate-700">{t('reports.diagnosisLabel')}</label>
                             <input
                                 type="text"
                                 value={diagnosis}
                                 onChange={(e) => setDiagnosis(e.target.value)}
-                                placeholder="e.g., Malaria, Flu, Headache, etc."
+                                placeholder={t('reports.diagnosisPlaceholder')}
                                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-12 text-14px font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                             />
                         </div>
@@ -289,13 +292,13 @@ const ReportsPage = () => {
 
                     {reportType === 'class' && (
                         <div className="space-y-2">
-                            <label className="text-13px font-bold text-slate-700">Select Class</label>
+                            <label className="text-13px font-bold text-slate-700">{t('reports.selectClass')}</label>
                             <select
                                 value={classId}
                                 onChange={(e) => setClassId(e.target.value)}
                                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-12 text-14px font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                             >
-                                <option value="">-- Choose a class --</option>
+                                <option value="">{t('reports.selectClass')}</option>
                                 {classes.map((cls) => (
                                     <option key={cls.classId} value={cls.classId}>
                                         {cls.name} ({cls.yearName})
@@ -307,7 +310,7 @@ const ReportsPage = () => {
 
                     {reportType === 'facility' && (
                         <p className="text-14px text-slate-600">
-                            This report will show overall facility statistics including consultations, diagnoses, trends, and inventory status for the selected date range.
+                            {t('reports.reportParametersDesc')}
                         </p>
                     )}
 

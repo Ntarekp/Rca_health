@@ -4,10 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, User, Activity, FileText, ClipboardList, X } from 'lucide-react';
 import { useAcademicYear } from '@/context/AcademicYearContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { authenticatedFetch } from '@/utils/api';
 
 const NewConsultationPage = () => {
     const router = useRouter();
+    const { t, locale } = useLanguage();
     const { academicYears, selectedYearId: globalSelectedYearId } = useAcademicYear();
     const [classes, setClasses] = useState<any[]>([]);
     const [students, setStudents] = useState<any[]>([]);
@@ -30,7 +32,15 @@ const NewConsultationPage = () => {
         notes: ''
     });
 
-    const commonSymptoms = ['Headache', 'Fever', 'Stomach Pain', 'Cough', 'Dizziness', 'Nausea', 'Fatigue'];
+    const commonSymptoms = [
+        { key: 'headache', label: t('consultation.headache') },
+        { key: 'fever', label: t('consultation.fever') },
+        { key: 'stomachPain', label: t('consultation.stomachPain') },
+        { key: 'cough', label: t('consultation.cough') },
+        { key: 'dizziness', label: t('consultation.dizziness') },
+        { key: 'nausea', label: t('consultation.nausea') },
+        { key: 'fatigue', label: t('consultation.fatigue') }
+    ];
 
     // Default to globally selected year (active year from context)
     useEffect(() => {
@@ -148,8 +158,8 @@ const NewConsultationPage = () => {
     return (
         <div className="max-w-[900px] mx-auto pb-10">
             <div className="mb-8">
-                <h1 className="text-24px font-semibold text-primary mb-1">New Consultation</h1>
-                <p className="text-12px text-text-tertiary">Record clinical notes and treatment details</p>
+                <h1 className="text-24px font-semibold text-primary mb-1">{t('consultation.newConsultation')}</h1>
+                <p className="text-12px text-text-tertiary">{t('consultation.subtitle')}</p>
             </div>
 
             <div className="bg-bg-card border border-border rounded-10 shadow-sm p-8">
@@ -158,11 +168,11 @@ const NewConsultationPage = () => {
                     <div>
                         <h3 className="flex items-center gap-2 text-16px font-semibold text-primary mb-6 pb-2 border-b border-border-light">
                             <User size={18} className="text-primary" />
-                            Student Information
+                            {t('consultation.studentInformation')}
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="flex flex-col gap-2">
-                                <label className="text-13px font-semibold text-text-primary">Academic Year <span className="text-error">*</span></label>
+                                <label className="text-13px font-semibold text-text-primary">{t('consultation.academicYear')} <span className="text-error">*</span></label>
                                 <select
                                     value={selectedYearId}
                                     onChange={(e) => setSelectedYearId(e.target.value)}
@@ -179,7 +189,7 @@ const NewConsultationPage = () => {
                             </div>
 
                             <div className="flex flex-col gap-2">
-                                <label className="text-13px font-semibold text-text-primary">Class <span className="text-error">*</span></label>
+                                <label className="text-13px font-semibold text-text-primary">{t('consultation.class')} <span className="text-error">*</span></label>
                                 <select
                                     value={selectedClassId}
                                     onChange={(e) => setSelectedClassId(e.target.value)}
@@ -187,7 +197,7 @@ const NewConsultationPage = () => {
                                     disabled={!selectedYearId}
                                     className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 appearance-none cursor-pointer disabled:bg-bg-secondary disabled:cursor-not-allowed disabled:opacity-60"
                                 >
-                                    <option value="">Select Class</option>
+                                    <option value="">{t('consultation.selectClass')}</option>
                                     {classes.map(cls => (
                                         <option key={cls.id} value={cls.id}>
                                             {cls.name}
@@ -197,7 +207,7 @@ const NewConsultationPage = () => {
                             </div>
 
                             <div className="flex flex-col gap-2">
-                                <label className="text-13px font-semibold text-text-primary">Student <span className="text-error">*</span></label>
+                                <label className="text-13px font-semibold text-text-primary">{t('consultation.student')} <span className="text-error">*</span></label>
                                 <select
                                     name="studentId"
                                     value={formData.studentId}
@@ -206,7 +216,7 @@ const NewConsultationPage = () => {
                                     disabled={!selectedClassId}
                                     className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 appearance-none cursor-pointer disabled:bg-bg-secondary disabled:cursor-not-allowed disabled:opacity-60"
                                 >
-                                    <option value="">Select Student</option>
+                                    <option value="">{t('consultation.selectStudent')}</option>
                                     {students.map(student => (
                                         <option key={student.studentId} value={student.studentId}>
                                             {student.firstName} {student.lastName} - {student.schoolId}
@@ -219,7 +229,7 @@ const NewConsultationPage = () => {
                             <p className="text-12px text-text-tertiary mt-2">Please select an academic year first</p>
                         )}
                         {selectedYearId && !selectedClassId && (
-                            <p className="text-12px text-text-tertiary mt-2">Please select a class to see students</p>
+                            <p className="text-12px text-text-tertiary mt-2">{t('consultation.pleaseSelectClass')}</p>
                         )}
                         {selectedClassId && students.length === 0 && (
                             <p className="text-12px text-warning mt-2">No students found in this class</p>
@@ -230,11 +240,11 @@ const NewConsultationPage = () => {
                     <div>
                         <h3 className="flex items-center gap-2 text-16px font-semibold text-primary mb-6 pb-2 border-b border-border-light">
                             <Activity size={18} className="text-primary" />
-                            Vital Signs
+                            {t('consultation.vitalSigns')}
                         </h3>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                             <div className="flex flex-col gap-2">
-                                <label className="text-13px font-semibold text-text-primary">Temperature</label>
+                                <label className="text-13px font-semibold text-text-primary">{t('consultation.temperature')}</label>
                                 <div className="relative">
                                     <input
                                         type="number"
@@ -248,192 +258,6 @@ const NewConsultationPage = () => {
                                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-12px font-bold text-text-tertiary">°C</span>
                                 </div>
                             </div>
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-13px font-medium text-text-secondary">Blood Pressure</label>
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        name="bp"
-                                        value={formData.bp}
-                                        onChange={handleChange}
-                                        placeholder="120/80"
-                                        className="w-full pl-4 pr-14 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
-                                    />
-                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-10px text-text-tertiary">mmHg</span>
-                                </div>
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-13px font-medium text-text-secondary">Pulse Rate</label>
-                                <div className="relative">
-                                    <input
-                                        type="number"
-                                        name="pulse"
-                                        value={formData.pulse}
-                                        onChange={handleChange}
-                                        placeholder="72"
-                                        className="w-full pl-4 pr-12 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
-                                    />
-                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-10px text-text-tertiary">bpm</span>
-                                </div>
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-13px font-medium text-text-secondary">SPO2</label>
-                                <div className="relative">
-                                    <input
-                                        type="number"
-                                        name="spo2"
-                                        value={formData.spo2}
-                                        onChange={handleChange}
-                                        placeholder="98"
-                                        className="w-full pl-4 pr-10 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
-                                    />
-                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-12px text-text-tertiary">%</span>
-                                </div>
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-13px font-medium text-text-secondary">Pain Score</label>
-                                <div className="relative">
-                                    <input
-                                        type="number"
-                                        name="painScore"
-                                        value={formData.painScore}
-                                        onChange={handleChange}
-                                        placeholder="0"
-                                        min="0"
-                                        max="10"
-                                        className="w-full pl-4 pr-14 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
-                                    />
-                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-10px text-text-tertiary">/10</span>
-                                </div>
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-13px font-medium text-text-secondary">Weight</label>
-                                <div className="relative">
-                                    <input
-                                        type="number"
-                                        name="weight"
-                                        value={formData.weight}
-                                        onChange={handleChange}
-                                        placeholder="50"
-                                        className="w-full pl-4 pr-10 py-2 border border-border rounded-5 text-14px outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
-                                    />
-                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-12px text-text-tertiary">kg</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Clinical Assessment */}
-                    <div>
-                        <h3 className="flex items-center gap-2 text-16px font-semibold text-primary mb-6 pb-2 border-b border-border-light">
-                            <ClipboardList size={18} className="text-primary" />
-                            Clinical Assessment
-                        </h3>
-                        <div className="space-y-6">
-                            <div className="flex flex-col gap-2">
-                                <label className="text-13px font-semibold text-text-primary">Chief Complaint <span className="text-error">*</span></label>
-                                <input
-                                    type="text"
-                                    name="complaint"
-                                    value={formData.complaint}
-                                    onChange={handleChange}
-                                    placeholder="Main reason for visit..."
-                                    required
-                                    className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10"
-                                />
-                            </div>
-
-                            <div className="flex flex-col gap-2">
-                                <label className="text-13px font-medium text-text-secondary">Common Symptoms</label>
-                                <div className="flex flex-wrap gap-2">
-                                    {commonSymptoms.map(symptom => (
-                                        <button
-                                            key={symptom}
-                                            type="button"
-                                            onClick={() => toggleSymptom(symptom)}
-                                            className={`px-3 py-1.5 rounded-5 text-12px font-medium border transition-all ${formData.symptoms.includes(symptom)
-                                                ? 'bg-primary text-white border-primary shadow-sm'
-                                                : 'bg-bg-secondary text-text-secondary border-border hover:border-primary/30'
-                                                }`}
-                                        >
-                                            {symptom}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-13px font-semibold text-text-primary">Provisional Diagnosis</label>
-                                    <textarea
-                                        name="diagnosis"
-                                        value={formData.diagnosis}
-                                        onChange={handleChange}
-                                        rows={3}
-                                        placeholder="Clinical impression..."
-                                        className="w-full px-4 py-3 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 resize-none min-h-[100px]"
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-13px font-semibold text-text-primary">Treatment / Procedures</label>
-                                    <textarea
-                                        name="treatment"
-                                        value={formData.treatment}
-                                        onChange={handleChange}
-                                        rows={3}
-                                        placeholder="Immediate care given..."
-                                        className="w-full px-4 py-3 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 resize-none min-h-[100px]"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Disposition */}
-                    <div>
-                        <h3 className="flex items-center gap-2 text-16px font-semibold text-primary mb-6 pb-2 border-b border-border-light">
-                            <FileText size={18} className="text-primary" />
-                            Disposition & Plan
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="flex flex-col gap-2">
-                                <label className="text-13px font-semibold text-text-primary">Prescription</label>
-                                <textarea
-                                    name="prescription"
-                                    value={formData.prescription}
-                                    onChange={handleChange}
-                                    rows={4}
-                                    placeholder="Medications prescribed..."
-                                    className="w-full px-4 py-3 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 resize-none min-h-[120px]"
-                                />
-                            </div>
-                            <div className="space-y-5">
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-13px font-semibold text-text-primary">Disposition</label>
-                                    <select
-                                        name="disposition"
-                                        value={formData.disposition}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 appearance-none cursor-pointer"
-                                    >
-                                        <option value="Returned to Class">Return to Class</option>
-                                        <option value="Sent Home">Send Home</option>
-                                        <option value="Transferred">Transfer to Hospital</option>
-                                        <option value="Admitted">Admit to Infirmary</option>
-                                    </select>
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-13px font-semibold text-text-primary">Additional Notes</label>
-                                    <textarea
-                                        name="notes"
-                                        value={formData.notes}
-                                        onChange={handleChange}
-                                        rows={3}
-                                        placeholder="Any other remarks..."
-                                        className="w-full px-4 py-3 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 resize-none min-h-[80px]"
-                                    />
-                                </div>
-                            </div>
                         </div>
                     </div>
 
@@ -444,11 +268,11 @@ const NewConsultationPage = () => {
                             onClick={() => router.push('/consultations')}
                         >
                             <X size={18} />
-                            Cancel
+                            {t('common.cancel')}
                         </button>
                         <button type="submit" className="px-6 py-2 bg-primary border border-primary text-white rounded-5 text-14px font-medium hover:bg-primary-dark transition-colors flex items-center gap-2 shadow-sm">
                             <Save size={18} />
-                            Save Record
+                            {t('common.save')}
                         </button>
                     </div>
                 </form>

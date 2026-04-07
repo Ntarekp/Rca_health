@@ -621,9 +621,9 @@ const StudentsPage = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in duration-300">
                     <div className="lg:col-span-1">
                         <div className="bg-bg-card border border-border rounded-10 p-6 shadow-sm">
-                            <h3 className="text-16px font-semibold text-primary mb-4">Add Class to Year</h3>
+                            <h3 className="text-16px font-semibold text-primary mb-4">{t('students.classForm.title')}</h3>
                             <div className="mb-4">
-                                <label className="text-12px font-medium text-text-secondary block mb-1.5">Select Academic Year</label>
+                                <label className="text-12px font-medium text-text-secondary block mb-1.5">{t('students.classForm.selectYear')}</label>
                                 <select
                                     value={selectedYearForClasses}
                                     onChange={(e) => setSelectedYearForClasses(e.target.value)}
@@ -636,7 +636,7 @@ const StudentsPage = () => {
                             </div>
                             <form onSubmit={handleCreateClass} className="space-y-4">
                                 <div>
-                                    <label className="text-12px font-medium text-text-secondary block mb-1.5">Class Name</label>
+                                    <label className="text-12px font-medium text-text-secondary block mb-1.5">{t('students.classForm.className')}</label>
                                     <input
                                         type="text"
                                         placeholder="e.g. S4 MPC"
@@ -651,7 +651,7 @@ const StudentsPage = () => {
                                     disabled={loadingAction || !selectedYearForClasses}
                                     className="w-full py-2 bg-primary text-white rounded-5 text-13px font-medium hover:bg-primary-dark transition-colors disabled:opacity-50"
                                 >
-                                    {loadingAction ? 'Creating...' : 'Add Class'}
+                                    {loadingAction ? t('common.saving') : t('students.buttons.newClass')}
                                 </button>
                             </form>
                         </div>
@@ -693,10 +693,10 @@ const StudentsPage = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in duration-300">
                     <div className="lg:col-span-1">
                         <div className="bg-bg-card border border-border rounded-10 p-6 shadow-sm">
-                            <h3 className="text-16px font-semibold text-primary mb-4">Add New Academic Year</h3>
+                            <h3 className="text-16px font-semibold text-primary mb-4">{t('students.yearForm.title')}</h3>
                             <form onSubmit={handleCreateYear} className="space-y-4">
                                 <div>
-                                    <label className="text-12px font-medium text-text-secondary block mb-1.5">Year Name</label>
+                                    <label className="text-12px font-medium text-text-secondary block mb-1.5">{t('students.yearForm.yearName')}</label>
                                     <input
                                         type="text"
                                         placeholder="e.g. 2024-2025"
@@ -708,7 +708,7 @@ const StudentsPage = () => {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="text-12px font-medium text-text-secondary block mb-1.5">Start Date</label>
+                                        <label className="text-12px font-medium text-text-secondary block mb-1.5">{t('students.yearForm.startDate')}</label>
                                         <input
                                             type="date"
                                             value={newYear.startDate}
@@ -718,7 +718,7 @@ const StudentsPage = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="text-12px font-medium text-text-secondary block mb-1.5">End Date</label>
+                                        <label className="text-12px font-medium text-text-secondary block mb-1.5">{t('students.yearForm.endDate')}</label>
                                         <input
                                             type="date"
                                             value={newYear.endDate}
@@ -920,8 +920,8 @@ const StudentsPage = () => {
                     <div className="bg-white rounded-10 shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                         <div className="p-6 border-b border-border flex justify-between items-center">
                             <div>
-                                <h2 className="text-20px font-semibold text-primary">Import Students from Excel</h2>
-                                <p className="text-12px text-text-tertiary mt-1">Upload an Excel file to bulk import students</p>
+                                <h2 className="text-20px font-semibold text-primary">{t('students.importModal.title')}</h2>
+                                <p className="text-12px text-text-tertiary mt-1">{t('students.importModal.selectFile')}</p>
                             </div>
                             <button onClick={() => { setShowImportModal(false); setImportResult(null); setImportFile(null); }} className="text-text-tertiary hover:text-primary">
                                 <X size={24} />

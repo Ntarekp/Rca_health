@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Search, Bell, Settings, User, Menu } from 'lucide-react';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 type HeaderProps = {
     onMenuClick?: () => void;
@@ -38,6 +39,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
 
             {/* Actions */}
             <div className="flex items-center gap-3">
+                <LanguageSwitcher />
                 <button className="w-10 h-10 flex items-center justify-center rounded-10 text-text-tertiary hover:bg-bg-secondary hover:text-text-primary transition-all relative">
                     <Bell size={20} />
                     <span className="absolute top-3 right-3 w-2 h-2 bg-error rounded-full border-2 border-white" />

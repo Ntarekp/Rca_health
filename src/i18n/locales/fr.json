@@ -49,6 +49,79 @@
     "recentActivity": "Activité récente"
   },
   "students": {
+    "tabs": {
+      "students": "Étudiants",
+      "classes": "Classes",
+      "academicYears": "Années académiques"
+    },
+    "buttons": {
+      "registerStudent": "Inscrire un étudiant",
+      "importExcel": "Importer Excel",
+      "newClass": "Nouvelle classe",
+      "newAcademicYear": "Nouvelle année académique",
+      "bulkDelete": "Supprimer la sélection",
+      "downloadTemplate": "Télécharger le modèle"
+    },
+    "filters": {
+      "allClasses": "Toutes les classes",
+      "searchPlaceholder": "Rechercher des étudiants..."
+    },
+    "registerForm": {
+      "title": "Inscrire un nouvel étudiant",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "schoolId": "ID scolaire",
+      "dateOfBirth": "Date de naissance",
+      "gender": "Genre",
+      "male": "Masculin",
+      "female": "Féminin",
+      "email": "Email",
+      "phone": "Téléphone",
+      "address": "Adresse",
+      "guardianName": "Nom du tuteur",
+      "guardianPhone": "Téléphone du tuteur",
+      "insuranceProvider": "Assureur",
+      "insuranceNumber": "Numéro d'assurance",
+      "bloodType": "Groupe sanguin",
+      "allergies": "Allergies",
+      "chronicConditions": "Maladies chroniques",
+      "selectClass": "Sélectionner une classe",
+      "required": "Requis"
+    },
+    "importModal": {
+      "title": "Importer des étudiants depuis Excel",
+      "selectFile": "Sélectionner un fichier Excel",
+      "selectClass": "Sélectionner une classe pour l'importation",
+      "chooseFile": "Choisir un fichier",
+      "noFileSelected": "Aucun fichier sélectionné",
+      "importing": "Importation...",
+      "importButton": "Importer les étudiants",
+      "successMessage": "{{count}} étudiants importés avec succès",
+      "errorMessage": "Échec de l'importation des étudiants",
+      "downloadTemplate": "Télécharger le modèle Excel"
+    },
+    "classForm": {
+      "title": "Créer une nouvelle classe",
+      "editTitle": "Modifier la classe",
+      "className": "Nom de la classe",
+      "selectYear": "Sélectionner l'année académique",
+      "capacity": "Capacité"
+    },
+    "yearForm": {
+      "title": "Créer une nouvelle année académique",
+      "editTitle": "Modifier l'année académique",
+      "yearName": "Nom de l'année",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "setAsActive": "Définir comme année active"
+    },
+    "deleteConfirm": {
+      "title": "Confirmer la suppression",
+      "studentMessage": "Êtes-vous sûr de vouloir supprimer cet étudiant ?",
+      "bulkMessage": "Êtes-vous sûr de vouloir supprimer {{count}} étudiants sélectionnés ?",
+      "classMessage": "Êtes-vous sûr de vouloir supprimer la classe {{name}} ?",
+      "yearMessage": "Êtes-vous sûr de vouloir supprimer l'année académique {{name}} ?"
+    },
     "title": "Étudiants",
     "subtitle": "Gérer les dossiers des étudiants et l'historique médical",
     "newStudent": "Nouvel étudiant",
@@ -210,7 +283,42 @@
     "showingItems": "Affichage de {{count}} articles",
     "medicine": "Médicament",
     "equipment": "Équipement",
-    "supplies": "Fournitures"
+    "supplies": "Fournitures",
+    "modal": {
+      "createTitle": "Nouvel article d'inventaire",
+      "editTitle": "Modifier l'article d'inventaire",
+      "itemName": "Nom de l'article",
+      "itemNamePlaceholder": "ex. Paracétamol",
+      "category": "Catégorie",
+      "selectCategory": "Sélectionner une catégorie...",
+      "stock": "Stock",
+      "unit": "Unité",
+      "unitPlaceholder": "ex. grammes, paquets, comprimés",
+      "lastRestocked": "Dernier réapprovisionnement",
+      "cancel": "Annuler",
+      "saveItem": "Enregistrer l'article",
+      "saving": "Enregistrement...",
+      "noMatchingUnit": "Aucune unité correspondante. Continuez à taper pour utiliser une unité personnalisée."
+    },
+    "deleteModal": {
+      "title": "Supprimer l'article d'inventaire",
+      "message": "Vous êtes sur le point de supprimer",
+      "warning": "Cette action ne peut pas être annulée.",
+      "cancel": "Annuler",
+      "confirm": "Supprimer l'article",
+      "deleting": "Suppression..."
+    },
+    "stockModal": {
+      "stockInTitle": "Entrée de stock",
+      "stockOutTitle": "Sortie de stock",
+      "adjustStock": "Ajuster le stock pour",
+      "currentStock": "Stock actuel :",
+      "afterUpdate": "Après mise à jour :",
+      "quantity": "Quantité",
+      "maxRemovable": "Quantité maximale retirable :",
+      "confirmStockIn": "Confirmer l'entrée",
+      "confirmStockOut": "Confirmer la sortie"
+    }
   },
   "consultation": {
     "newConsultation": "Nouvelle consultation",
@@ -273,19 +381,71 @@
     "clinicalNotesPlaceholder": "Raison de la demande de test, antécédents médicaux pertinents ou suspicion clinique..."
   },
   "reports": {
-    "title": "Rapports",
-    "subtitle": "Générer des rapports médicaux complets",
+    "title": "Rapports médicaux",
+    "subtitle": "Générer des rapports de santé complets avec des données réelles",
     "generateReport": "Générer un rapport",
+    "generating": "Génération du rapport...",
+    "print": "Imprimer le rapport",
+    "download": "Télécharger PDF",
     "reportType": "Type de rapport",
     "selectReportType": "Sélectionner le type de rapport",
     "period": "Période",
     "selectPeriod": "Sélectionner la période de rapport",
+    "dateRange": "Plage de dates",
+    "from": "De",
+    "to": "À",
+    "selectStudent": "Sélectionner un étudiant",
+    "selectClass": "Sélectionner une classe",
+    "enterDiagnosis": "Entrer le diagnostic/maladie",
+    "diagnosisLabel": "Nom du diagnostic/maladie",
+    "diagnosisPlaceholder": "ex. Paludisme, Mal de tête",
+    "reportParameters": "Paramètres du rapport",
+    "reportParametersDesc": "Ce rapport affichera les statistiques globales de l'établissement, y compris les consultations, les diagnostics, les tendances et l'état des stocks pour la période sélectionnée.",
+    "facilityReport": {
+      "title": "Rapport d'ensemble de l'établissement",
+      "totalVisits": "Total des visites",
+      "uniqueStudents": "Étudiants uniques",
+      "commonDiagnoses": "Diagnostics courants",
+      "topDiagnoses": "Principaux diagnostics",
+      "visitTrends": "Tendances des visites",
+      "inventoryStatus": "État des stocks"
+    },
+    "studentReport": {
+      "title": "Rapport de santé de l'étudiant",
+      "studentInfo": "Informations sur l'étudiant",
+      "visitHistory": "Historique des visites",
+      "labResults": "Résultats de laboratoire",
+      "allergies": "Allergies",
+      "chronicConditions": "Maladies chroniques"
+    },
+    "diseaseReport": {
+      "title": "Rapport de maladie",
+      "totalCases": "Total des cas",
+      "affectedStudents": "Étudiants affectés",
+      "casesByMonth": "Cas par mois",
+      "casesByClass": "Cas par classe"
+    },
+    "classReport": {
+      "title": "Rapport de santé de classe",
+      "classInfo": "Informations sur la classe",
+      "totalStudents": "Total des étudiants",
+      "visitsSummary": "Résumé des visites",
+      "healthIssues": "Problèmes de santé courants"
+    },
+    "inventoryReport": {
+      "title": "Rapport d'inventaire",
+      "totalItems": "Total des articles",
+      "lowStockItems": "Articles en stock faible",
+      "outOfStockItems": "Articles en rupture de stock",
+      "stockValue": "Valeur du stock"
+    },
     "periods": {
       "monthly": "Mensuel",
       "term": "Par trimestre",
       "yearly": "Annuel",
       "custom": "Plage personnalisée"
     },
+    "to": "À",
     "month": "Mois",
     "selectMonth": "Sélectionner le mois",
     "term": "Trimestre",
@@ -294,44 +454,30 @@
     "selectYear": "Sélectionner l'année",
     "startDate": "Date de début",
     "endDate": "Date de fin",
+    "noData": "Aucune donnée disponible pour les critères sélectionnés",
+    "selectCriteria": "Veuillez sélectionner tous les critères requis pour générer le rapport",
     "types": {
-      "studentHealth": "Rapport de santé de l'étudiant",
-      "diseaseReport": "Rapport de maladie",
-      "classHealth": "Rapport de santé de classe",
-      "inventory": "Rapport d'inventaire",
-      "labSummary": "Résumé de laboratoire",
-      "visitStatistics": "Statistiques des consultations"
-    },
-  },
-      "description": "Suivre la prévalence et les tendances des maladies",
-      "selectDisease": "Sélectionner une maladie",
-      "totalCases": "Total des cas",
-      "newCases": "Nouveaux cas",
-      "activeCases": "Cas actifs",
-      "resolved": "Résolus",
-      "trend": "Tendance"
-    },
-    "classHealthReport": {
-      "title": "Rapport de santé de classe",
-      "description": "Aperçu de la santé pour une classe spécifique",
-      "selectClass": "Sélectionner une classe",
-      "totalStudents": "Total des étudiants",
-      "healthyStudents": "Étudiants en bonne santé",
-      "chronicConditions": "Avec maladies chroniques",
-      "recentVisits": "Consultations récentes"
-    },
-    "inventoryReport": {
-      "title": "Rapport d'inventaire",
-      "description": "Fournitures médicales et état des stocks",
-      "totalItems": "Total des articles",
-      "lowStock": "Stock faible",
-      "outOfStock": "Rupture de stock",
-      "expiringItems": "Expire bientôt",
-      "stockValue": "Valeur du stock"
-    },
-    "noDataAvailable": "Aucune donnée disponible pour la période sélectionnée",
-    "generatingReport": "Génération du rapport...",
-    "reportGenerated": "Rapport généré avec succès"
+      "facilityOverview": {
+        "title": "Vue d'ensemble de l'établissement",
+        "description": "Statistiques globales de santé et tendances"
+      },
+      "studentHealth": {
+        "title": "Historique de santé de l'étudiant",
+        "description": "Dossier médical individuel de l'étudiant"
+      },
+      "disease": {
+        "title": "Rapport de maladie",
+        "description": "Suivre un diagnostic ou une condition spécifique"
+      },
+      "classHealth": {
+        "title": "Rapport de santé de classe",
+        "description": "Vue d'ensemble de la santé par classe"
+      },
+      "inventory": {
+        "title": "Rapport d'inventaire",
+        "description": "Niveaux de stock et alertes"
+      }
+    }
   },
   "settings": {
     "title": "Paramètres",
