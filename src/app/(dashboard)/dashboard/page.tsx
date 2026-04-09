@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { Plus, Users, Calendar, AlertTriangle, Activity, UserPlus, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
 import StatsCard from '@/features/dashboard/StatsCard';
 import ChartsSection from '@/features/dashboard/ChartsSection';
 import AppointmentsTable from '@/features/dashboard/AppointmentsTable';
@@ -72,7 +71,6 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-3">
-                    <LanguageSwitcher />
                     <button
                         onClick={() => router.push('/consultations/new')}
                         className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-5 hover:bg-primary-dark transition-colors"

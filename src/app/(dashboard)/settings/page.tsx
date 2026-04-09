@@ -63,7 +63,6 @@ const SettingsPage = () => {
                     <h1 className="text-28px font-bold text-primary mb-2">{t('settings.title')}</h1>
                     <p className="text-13px text-text-tertiary font-medium">{t('settings.preferences')}</p>
                 </div>
-                <LanguageSwitcher />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-10">

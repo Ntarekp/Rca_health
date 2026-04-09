@@ -1,7 +1,6 @@
 "use client";
 
 import { useLanguage } from '@/contexts/LanguageContext';
-import LanguageSwitcher from './LanguageSwitcher';
 
 interface PageHeaderProps {
   title: string;
@@ -25,10 +24,11 @@ export default function PageHeader({ title, subtitle, greeting, actions }: PageH
         )}
       </div>
       
-      <div className="flex items-center gap-3">
-        {actions}
-        <LanguageSwitcher />
-      </div>
+      {actions && (
+        <div className="flex items-center gap-3">
+          {actions}
+        </div>
+      )}
     </div>
   );
 }

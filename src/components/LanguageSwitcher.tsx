@@ -14,11 +14,11 @@ export default function LanguageSwitcher() {
         <select
           value={locale}
           onChange={(e) => setLocale(e.target.value as Locale)}
-          className="text-14px font-medium text-slate-700 bg-transparent outline-none cursor-pointer pr-2"
+          className="text-14px font-bold text-slate-700 bg-transparent outline-none cursor-pointer appearance-none uppercase"
         >
           {Object.entries(localeNames).map(([code, name]) => (
             <option key={code} value={code}>
-              {name}
+              {code.toUpperCase()}
             </option>
           ))}
         </select>

@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { LayoutGrid, List as ListIcon, Plus, Eye, Edit2, Trash2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { authenticatedFetch } from '@/utils/api';
 
 const ConsultationsPage = () => {
@@ -79,7 +78,6 @@ const ConsultationsPage = () => {
                         <h1 className="text-24px font-semibold text-primary mb-1">{t('visits.title')}</h1>
                         <p className="text-12px text-text-tertiary">{t('visits.subtitle')}</p>
                     </div>
-                    <LanguageSwitcher />
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">

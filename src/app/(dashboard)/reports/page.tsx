@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Download, User, Activity, Users, TrendingUp, Search, Calendar, Printer, FileBarChart, Package, AlertTriangle, BarChart3 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { authenticatedFetch } from '@/utils/api';
 import './print.css';
 

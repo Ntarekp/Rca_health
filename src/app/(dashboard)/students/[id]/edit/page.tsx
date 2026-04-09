@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Save, X, ArrowLeft } from 'lucide-react';
 import { authenticatedFetch } from '@/utils/api';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const EditStudentPage = () => {
     const router = useRouter();
     const params = useParams();
+    const { t } = useLanguage();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState({
@@ -130,21 +132,21 @@ const EditStudentPage = () => {
                 className="flex items-center gap-2 text-text-secondary hover:text-primary mb-6 transition-colors"
             >
                 <ArrowLeft size={18} />
-                <span>Back to Student Profile</span>
+                <span>{t('students.profile.backToProfile')}</span>
             </button>
 
             <div className="mb-8">
-                <h1 className="text-24px font-semibold text-primary mb-1">Edit Student Profile</h1>
-                <p className="text-12px text-text-tertiary">Update student information and medical details</p>
+                <h1 className="text-24px font-semibold text-primary mb-1">{t('students.profile.editStudentProfile')}</h1>
+                <p className="text-12px text-text-tertiary">{t('students.profile.updateInfo')}</p>
             </div>
 
             <div className="bg-bg-card border border-border rounded-10 shadow-sm p-8">
                 <form onSubmit={handleSubmit} className="space-y-8">
                     <div>
-                        <h3 className="text-16px font-semibold text-primary mb-5 pb-2 border-b border-border-light">Personal Information</h3>
+                        <h3 className="text-16px font-semibold text-primary mb-5 pb-2 border-b border-border-light">{t('students.profile.personalInformation')}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="firstName" className="text-13px font-semibold text-text-primary">First Name</label>
+                                <label htmlFor="firstName" className="text-13px font-semibold text-text-primary">{t('students.firstName')}</label>
                                 <input
                                     type="text"
                                     id="firstName"
@@ -156,7 +158,7 @@ const EditStudentPage = () => {
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="lastName" className="text-13px font-semibold text-text-primary">Last Name</label>
+                                <label htmlFor="lastName" className="text-13px font-semibold text-text-primary">{t('students.lastName')}</label>
                                 <input
                                     type="text"
                                     id="lastName"
@@ -168,7 +170,7 @@ const EditStudentPage = () => {
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="gender" className="text-13px font-semibold text-text-primary">Gender</label>
+                                <label htmlFor="gender" className="text-13px font-semibold text-text-primary">{t('students.gender')}</label>
                                 <select
                                     id="gender"
                                     name="gender"
@@ -177,13 +179,13 @@ const EditStudentPage = () => {
                                     required
                                     className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 appearance-none cursor-pointer"
                                 >
-                                    <option value="">Select Gender</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
+                                    <option value="">{t('students.profile.selectGender')}</option>
+                                    <option value="Male">{t('students.male')}</option>
+                                    <option value="Female">{t('students.female')}</option>
                                 </select>
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="dateOfBirth" className="text-13px font-semibold text-text-primary">Date of Birth</label>
+                                <label htmlFor="dateOfBirth" className="text-13px font-semibold text-text-primary">{t('students.dateOfBirth')}</label>
                                 <input
                                     type="date"
                                     id="dateOfBirth"
@@ -195,14 +197,14 @@ const EditStudentPage = () => {
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="email" className="text-13px font-semibold text-text-primary">Email</label>
+                                <label htmlFor="email" className="text-13px font-semibold text-text-primary">{t('students.registerForm.email')}</label>
                                 <input
                                     type="email"
                                     id="email"
                                     name="email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    placeholder="student@example.com"
+                                    placeholder={t('students.new.emailPlaceholder')}
                                     className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10"
                                 />
                             </div>
@@ -210,10 +212,10 @@ const EditStudentPage = () => {
                     </div>
 
                     <div>
-                        <h3 className="text-16px font-semibold text-primary mb-5 pb-2 border-b border-border-light">Medical Information</h3>
+                        <h3 className="text-16px font-semibold text-primary mb-5 pb-2 border-b border-border-light">{t('students.profile.medicalInformation')}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="insuranceProvider" className="text-13px font-semibold text-text-primary">Insurance Provider</label>
+                                <label htmlFor="insuranceProvider" className="text-13px font-semibold text-text-primary">{t('students.profile.insuranceProvider')}</label>
                                 <select
                                     id="insuranceProvider"
                                     name="insuranceProvider"
@@ -221,7 +223,7 @@ const EditStudentPage = () => {
                                     onChange={handleChange}
                                     className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 appearance-none cursor-pointer"
                                 >
-                                    <option value="">Select Provider</option>
+                                    <option value="">{t('students.profile.selectProvider')}</option>
                                     <option value="RAMA">RAMA</option>
                                     <option value="MMI">MMI</option>
                                     <option value="RSSB">RSSB</option>
@@ -230,7 +232,7 @@ const EditStudentPage = () => {
                                 </select>
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="insuranceNumber" className="text-13px font-semibold text-text-primary">Insurance Number</label>
+                                <label htmlFor="insuranceNumber" className="text-13px font-semibold text-text-primary">{t('students.profile.insuranceNumber')}</label>
                                 <input
                                     type="text"
                                     id="insuranceNumber"
@@ -241,7 +243,7 @@ const EditStudentPage = () => {
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="bloodGroup" className="text-13px font-semibold text-text-primary">Blood Group</label>
+                                <label htmlFor="bloodGroup" className="text-13px font-semibold text-text-primary">{t('students.bloodGroup')}</label>
                                 <select
                                     id="bloodGroup"
                                     name="bloodGroup"
@@ -249,7 +251,7 @@ const EditStudentPage = () => {
                                     onChange={handleChange}
                                     className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10 appearance-none cursor-pointer"
                                 >
-                                    <option value="">Select Blood Group</option>
+                                    <option value="">{t('students.profile.selectBloodGroup')}</option>
                                     <option value="A+">A+</option>
                                     <option value="A-">A-</option>
                                     <option value="B+">B+</option>
@@ -261,14 +263,14 @@ const EditStudentPage = () => {
                                 </select>
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="allergies" className="text-13px font-semibold text-text-primary">Allergies</label>
+                                <label htmlFor="allergies" className="text-13px font-semibold text-text-primary">{t('students.allergies')}</label>
                                 <input
                                     type="text"
                                     id="allergies"
                                     name="allergies"
                                     value={formData.allergies}
                                     onChange={handleChange}
-                                    placeholder="e.g., Penicillin, Peanuts"
+                                    placeholder={t('students.profile.allergiesPlaceholder')}
                                     className="w-full px-4 py-2.5 bg-white border-2 border-border rounded-10 text-14px font-medium outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/10"
                                 />
                             </div>
@@ -276,10 +278,10 @@ const EditStudentPage = () => {
                     </div>
 
                     <div>
-                        <h3 className="text-16px font-semibold text-primary mb-5 pb-2 border-b border-border-light">Physical Measurements</h3>
+                        <h3 className="text-16px font-semibold text-primary mb-5 pb-2 border-b border-border-light">{t('students.profile.physicalMeasurements')}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="height" className="text-13px font-semibold text-text-primary">Height (cm)</label>
+                                <label htmlFor="height" className="text-13px font-semibold text-text-primary">{t('students.profile.heightCm')}</label>
                                 <input
                                     type="number"
                                     id="height"
@@ -291,7 +293,7 @@ const EditStudentPage = () => {
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="weight" className="text-13px font-semibold text-text-primary">Weight (kg)</label>
+                                <label htmlFor="weight" className="text-13px font-semibold text-text-primary">{t('students.profile.weightKg')}</label>
                                 <input
                                     type="number"
                                     id="weight"
@@ -303,7 +305,7 @@ const EditStudentPage = () => {
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="bmi" className="text-13px font-semibold text-text-primary">BMI</label>
+                                <label htmlFor="bmi" className="text-13px font-semibold text-text-primary">{t('students.bmi')}</label>
                                 <input
                                     type="number"
                                     id="bmi"
@@ -319,10 +321,10 @@ const EditStudentPage = () => {
                     </div>
 
                     <div>
-                        <h3 className="text-16px font-semibold text-primary mb-5 pb-2 border-b border-border-light">Contact Information</h3>
+                        <h3 className="text-16px font-semibold text-primary mb-5 pb-2 border-b border-border-light">{t('students.profile.contactInfo')}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="parentName" className="text-13px font-semibold text-text-primary">Parent/Guardian Name</label>
+                                <label htmlFor="parentName" className="text-13px font-semibold text-text-primary">{t('students.profile.parentGuardianName')}</label>
                                 <input
                                     type="text"
                                     id="parentName"
@@ -334,7 +336,7 @@ const EditStudentPage = () => {
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="parentPhone" className="text-13px font-semibold text-text-primary">Parent/Guardian Phone</label>
+                                <label htmlFor="parentPhone" className="text-13px font-semibold text-text-primary">{t('students.profile.parentGuardianPhone')}</label>
                                 <input
                                     type="tel"
                                     id="parentPhone"
@@ -355,7 +357,7 @@ const EditStudentPage = () => {
                             className="px-6 py-2 border border-border rounded-5 text-14px font-medium text-text-secondary hover:bg-bg-primary transition-colors flex items-center gap-2"
                         >
                             <X size={18} />
-                            Cancel
+                            {t('common.cancel')}
                         </button>
                         <button 
                             type="submit" 
@@ -363,7 +365,7 @@ const EditStudentPage = () => {
                             className="px-6 py-2 bg-primary border border-primary text-white rounded-5 text-14px font-medium hover:bg-primary-dark transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <Save size={18} />
-                            {saving ? 'Saving...' : 'Save Changes'}
+                            {saving ? t('students.profile.saving') : t('students.profile.saveChanges')}
                         </button>
                     </div>
                 </form>

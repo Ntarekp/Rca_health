@@ -1,25 +1,20 @@
 "use client";
 
 import React from 'react';
-import { Search, Bell, Settings, User, Menu } from 'lucide-react';
+import { Search, Bell, Settings, User } from 'lucide-react';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
-type HeaderProps = {
-    onMenuClick?: () => void;
-};
-
-const Header = ({ onMenuClick }: HeaderProps) => {
+const Header = () => {
     return (
-        <header className="fixed top-0 right-0 left-0 h-header bg-white/80 backdrop-blur-md border-b border-border z-40 flex items-center justify-between px-4 sm:px-6 lg:px-8 lg:pl-[245px]">
-            <div className="flex items-center gap-3 min-w-0">
-                <button
-                    type="button"
-                    onClick={onMenuClick}
-                    className="lg:hidden w-10 h-10 flex items-center justify-center rounded-10 text-text-tertiary hover:bg-bg-secondary hover:text-text-primary transition-all"
-                    aria-label="Open menu"
-                >
-                    <Menu size={20} />
-                </button>
+        <header className="fixed top-0 right-0 left-0 h-header bg-white/80 backdrop-blur-md border-b border-border z-40 flex items-center justify-between px-4 sm:px-6 lg:px-8 md:ml-20 lg:ml-sidebar">
+            {/* Logo - Mobile Only */}
+            <div className="md:hidden flex items-center mr-3">
+                <img
+                    src="/assets/logo.png"
+                    alt="RCA Logo"
+                    className="w-8 h-8 object-contain"
+                />
+            </div>
 
             {/* Global Search */}
             <div className="flex-1 max-w-xl min-w-0">
@@ -34,7 +29,6 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                         className="w-full h-11 pl-10 pr-4 bg-bg-secondary/40 border border-transparent rounded-12 text-14px text-text-primary outline-none focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all"
                     />
                 </div>
-            </div>
             </div>
 
             {/* Actions */}

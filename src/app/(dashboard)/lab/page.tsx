@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { LayoutGrid, List as ListIcon, Search, Plus, Filter, FlaskConical, AlertCircle, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { authenticatedFetch } from '@/utils/api';
 
 const LabPage = () => {
@@ -152,7 +151,6 @@ const LabPage = () => {
                         <h1 className="text-24px font-semibold text-primary mb-1">{t('lab.title')}</h1>
                         <p className="text-12px text-text-tertiary">{t('lab.subtitle')}</p>
                     </div>
-                    <LanguageSwitcher />
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3">

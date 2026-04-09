@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { FileText, Download, User, Activity, Users, TrendingUp, Search, Calendar, Printer, FileBarChart, Package, AlertTriangle, BarChart3 } from 'lucide-react';
 import { authenticatedFetch } from '@/utils/api';
 import { useLanguage } from '@/contexts/LanguageContext';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 type ReportType = 'facility' | 'student' | 'disease' | 'class' | 'inventory';
 type PeriodType = 'monthly' | 'term' | 'yearly' | 'custom';
@@ -204,7 +203,6 @@ const ReportsPage = () => {
                     <h1 className="text-28px font-extrabold text-slate-900">{t('reports.title')}</h1>
                     <p className="text-14px text-slate-600 mt-1">{t('reports.subtitle')}</p>
                 </div>
-                <LanguageSwitcher />
             </div>
 
             <div className="no-print grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">

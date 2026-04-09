@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { User, Calendar, Phone, Edit, ArrowLeft, Activity, FileText } from 'lucide-react';
 import { apiUrl, authenticatedFetch } from '@/utils/api';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const StudentProfilePage = () => {
     const router = useRouter();
     const params = useParams();
+    const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState('overview');
 
     const [student, setStudent] = useState<any>(null);
@@ -22,8 +24,8 @@ const StudentProfilePage = () => {
                 if (response.ok) {
                     const data = await response.json();
                     // Parse medical history
-                    let allergies = ['None listed'];
-                    let chronicConditions = ['None listed'];
+                    let allergies = [t('common.none')];
+                    let chronicConditions = [t('common.none')];
                     if (data.medicalHistory) {
                         if (data.medicalHistory.allergies && data.medicalHistory.allergies.trim()) {
                             allergies = [data.medicalHistory.allergies];
@@ -35,23 +37,23 @@ const StudentProfilePage = () => {
 
                     setStudent({
                         id: data.studentId?.toString(),
-                        name: `${data.firstName || ''} ${data.lastName || ''}`.trim() || 'Unknown',
-                        code: data.schoolId || 'N/A',
-                        class: data.schoolClass?.name || 'N/A',
-                        age: data.dateOfBirth ? new Date().getFullYear() - new Date(data.dateOfBirth).getFullYear() : 'N/A',
-                        gender: data.gender || 'N/A',
-                        dob: data.dateOfBirth || 'N/A',
-                        insurance: data.insuranceProvider || 'N/A',
-                        insuranceNumber: data.insuranceNumber || 'N/A',
-                        parentName: data.parentName || 'N/A',
-                        parentPhone: data.parentPhone || 'N/A',
-                        bloodGroup: data.medicalHistory?.bloodGroup || 'Unknown',
+                        name: `${data.firstName || ''} ${data.lastName || ''}`.trim() || t('common.unknown'),
+                        code: data.schoolId || t('common.na'),
+                        class: data.schoolClass?.name || t('common.na'),
+                        age: data.dateOfBirth ? new Date().getFullYear() - new Date(data.dateOfBirth).getFullYear() : t('common.na'),
+                        gender: data.gender || t('common.na'),
+                        dob: data.dateOfBirth || t('common.na'),
+                        insurance: data.insuranceProvider || t('common.na'),
+                        insuranceNumber: data.insuranceNumber || t('common.na'),
+                        parentName: data.parentName || t('common.na'),
+                        parentPhone: data.parentPhone || t('common.na'),
+                        bloodGroup: data.medicalHistory?.bloodGroup || t('common.unknown'),
                         allergies: allergies,
                         chronicConditions: chronicConditions,
                         vitals: { 
-                            height: data.medicalHistory?.height || 'N/A', 
-                            weight: data.medicalHistory?.weight || 'N/A', 
-                            bmi: data.medicalHistory?.bmi || 'N/A' 
+                            height: data.medicalHistory?.height || t('common.na'), 
+                            weight: data.medicalHistory?.weight || t('common.na'), 
+                            bmi: data.medicalHistory?.bmi || t('common.na') 
                         }
                     });
 
@@ -94,12 +96,12 @@ const StudentProfilePage = () => {
     if (!student) {
         return (
             <div className="max-w-[1200px] mx-auto pb-10 flex flex-col items-center justify-center py-20">
-                <h3 className="text-18px font-semibold mb-2">Student Not Found</h3>
+                <h3 className="text-18px font-semibold mb-2">{t('students.profile.notFound')}</h3>
                 <button
                     onClick={() => router.push('/students')}
                     className="text-primary hover:underline text-14px flex items-center gap-2 mt-4"
                 >
-                    <ArrowLeft size={16} /> Return to Students
+                    <ArrowLeft size={16} /> {t('students.profile.returnToStudents')}
                 </button>
             </div>
         );
@@ -112,7 +114,7 @@ const StudentProfilePage = () => {
                 className="flex items-center gap-2 text-text-secondary hover:text-primary mb-6 transition-colors"
             >
                 <ArrowLeft size={18} />
-                <span>Back to Students</span>
+                <span>{t('students.profile.backToStudents')}</span>
             </button>
 
             {/* Header Card */}
@@ -125,7 +127,7 @@ const StudentProfilePage = () => {
                         <h1 className="text-24px font-semibold text-text-primary">{student.name}</h1>
                         <div className="flex flex-wrap gap-4 mt-2 text-14px text-text-secondary">
                             <span className="flex items-center gap-1.5"><User size={16} /> {student.code}</span>
-                            <span className="flex items-center gap-1.5"><Calendar size={16} /> {student.age} Years</span>
+                            <span className="flex items-center gap-1.5"><Calendar size={16} /> {student.age} {t('students.profile.years')}</span>
                             <span className="flex items-center gap-1.5 capitalize"><User size={16} /> {student.gender}</span>
                             <span className="bg-bg-secondary px-3 py-0.5 rounded-full text-12px">{student.class}</span>
                         </div>
@@ -137,14 +139,14 @@ const StudentProfilePage = () => {
                         className="flex items-center gap-2 px-4 py-2 border border-border rounded-5 text-14px font-medium text-text-secondary hover:bg-gray-50 transition-colors"
                     >
                         <Edit size={16} />
-                        <span>Edit Profile</span>
+                        <span>{t('students.profile.editProfile')}</span>
                     </button>
                     <button
                         onClick={() => router.push('/consultations/new')}
                         className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-5 text-14px font-medium hover:bg-primary-dark transition-colors shadow-sm"
                     >
                         <Activity size={16} />
-                        <span>New Consultation</span>
+                        <span>{t('students.profile.newConsultation')}</span>
                     </button>
                 </div>
             </div>
@@ -153,14 +155,14 @@ const StudentProfilePage = () => {
                 {/* Left Sidebar */}
                 <div className="flex flex-col gap-6">
                     <div className="bg-bg-card border border-border rounded-10 p-5 shadow-sm">
-                        <h3 className="text-16px font-semibold text-text-primary mb-4 pb-3 border-b border-border-light">Contact Information</h3>
+                        <h3 className="text-16px font-semibold text-text-primary mb-4 pb-3 border-b border-border-light">{t('students.profile.contactInformation')}</h3>
                         <div className="space-y-4">
                             <div className="flex justify-between items-center text-14px">
-                                <span className="text-text-secondary">Parent</span>
+                                <span className="text-text-secondary">{t('students.profile.parent')}</span>
                                 <span className="font-medium text-text-primary">{student.parentName}</span>
                             </div>
                             <div className="flex justify-between items-center text-14px">
-                                <span className="text-text-secondary">Phone</span>
+                                <span className="text-text-secondary">{t('students.profile.phone')}</span>
                                 <span className="font-medium text-text-primary flex items-center gap-1.5">
                                     <Phone size={14} className="text-text-tertiary" />
                                     {student.parentPhone}
@@ -170,18 +172,18 @@ const StudentProfilePage = () => {
                     </div>
 
                     <div className="bg-bg-card border border-border rounded-10 p-5 shadow-sm">
-                        <h3 className="text-16px font-semibold text-text-primary mb-4 pb-3 border-b border-border-light">Medical Details</h3>
+                        <h3 className="text-16px font-semibold text-text-primary mb-4 pb-3 border-b border-border-light">{t('students.profile.medicalDetails')}</h3>
                         <div className="space-y-4">
                             <div className="flex justify-between items-center text-14px">
-                                <span className="text-text-secondary">Insurance</span>
+                                <span className="text-text-secondary">{t('students.profile.insurance')}</span>
                                 <span className="font-medium text-text-primary">{student.insurance}</span>
                             </div>
                             <div className="flex justify-between items-center text-14px">
-                                <span className="text-text-secondary">Blood Group</span>
+                                <span className="text-text-secondary">{t('students.profile.bloodGroup')}</span>
                                 <span className="font-medium text-text-primary px-2 py-0.5 bg-error/10 text-error rounded-5">{student.bloodGroup}</span>
                             </div>
                             <div className="pt-2">
-                                <p className="text-10px text-text-tertiary uppercase tracking-wider mb-2">Allergies</p>
+                                <p className="text-10px text-text-tertiary uppercase tracking-wider mb-2">{t('students.profile.allergies')}</p>
                                 <div className="flex flex-wrap gap-2">
                                     {student.allergies.map(alg => (
                                         <span key={alg} className="bg-error-bg text-error px-2 py-1 rounded-5 text-10px font-medium border border-error/10">
@@ -227,15 +229,15 @@ const StudentProfilePage = () => {
                         <div className="animate-in fade-in duration-500">
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
                                 <div className="bg-primary/5 p-4 rounded-lg border border-primary/10 text-center">
-                                    <span className="block text-12px text-primary opacity-70 mb-1 font-medium">Height</span>
+                                    <span className="block text-12px text-primary opacity-70 mb-1 font-medium">{t('students.profile.height')}</span>
                                     <span className="text-20px font-bold text-primary">{student.vitals.height}</span>
                                 </div>
                                 <div className="bg-success/5 p-4 rounded-lg border border-success/10 text-center">
-                                    <span className="block text-12px text-success opacity-70 mb-1 font-medium">Weight</span>
+                                    <span className="block text-12px text-success opacity-70 mb-1 font-medium">{t('students.profile.weight')}</span>
                                     <span className="text-20px font-bold text-success-dark">{student.vitals.weight}</span>
                                 </div>
                                 <div className="bg-warning/5 p-4 rounded-lg border border-warning/10 text-center">
-                                    <span className="block text-12px text-warning opacity-70 mb-1 font-medium">BMI</span>
+                                    <span className="block text-12px text-warning opacity-70 mb-1 font-medium">{t('students.profile.bmi')}</span>
                                     <span className="text-20px font-bold text-warning-dark">{student.vitals.bmi}</span>
                                 </div>
                             </div>

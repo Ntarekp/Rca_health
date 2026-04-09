@@ -860,9 +860,9 @@ const StudentsPage = () => {
                         <div className="flex items-center justify-center w-12 h-12 bg-error/10 text-error rounded-full mb-4">
                             <Trash2 size={24} />
                         </div>
-                        <h3 className="text-18px font-semibold text-text-primary mb-2">Delete Class</h3>
+                        <h3 className="text-18px font-semibold text-text-primary mb-2">{t('students.deleteConfirm.deleteClass')}</h3>
                         <p className="text-14px text-text-secondary mb-6">
-                            Are you sure you want to delete class <span className="font-semibold text-text-primary">"{classToDelete.name}"</span>? This action cannot be undone.
+                            {t('students.deleteConfirm.classMessage', { name: classToDelete.name })} {t('students.deleteConfirm.cannotBeUndone')}
                         </p>
                         <div className="flex gap-3 justify-end">
                             <button
@@ -870,14 +870,14 @@ const StudentsPage = () => {
                                 disabled={loadingAction}
                                 className="px-4 py-2 text-14px font-medium text-text-secondary hover:bg-gray-100 rounded-5 transition-colors"
                             >
-                                Cancel
+                                {t('common.cancel')}
                             </button>
                             <button
                                 onClick={confirmDeleteClass}
                                 disabled={loadingAction}
                                 className="px-4 py-2 bg-error text-white text-14px font-medium rounded-5 hover:bg-red-700 transition-colors flex items-center gap-2"
                             >
-                                {loadingAction ? 'Deleting...' : 'Delete Class'}
+                                {loadingAction ? t('common.loading') : t('students.deleteConfirm.deleteClass')}
                             </button>
                         </div>
                     </div>
@@ -890,9 +890,9 @@ const StudentsPage = () => {
                         <div className="flex items-center justify-center w-12 h-12 bg-error/10 text-error rounded-full mb-4">
                             <Trash2 size={24} />
                         </div>
-                        <h3 className="text-18px font-semibold text-text-primary mb-2">Delete Academic Year</h3>
+                        <h3 className="text-18px font-semibold text-text-primary mb-2">{t('students.deleteConfirm.deleteYear')}</h3>
                         <p className="text-14px text-text-secondary mb-6">
-                            Are you sure you want to delete academic year <span className="font-semibold text-text-primary">"{yearToDelete.name}"</span>? This action cannot be undone.
+                            {t('students.deleteConfirm.yearMessage', { name: yearToDelete.name })} {t('students.deleteConfirm.cannotBeUndone')}
                         </p>
                         <div className="flex gap-3 justify-end">
                             <button
