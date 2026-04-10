@@ -18,7 +18,12 @@ import {
 import { useAcademicYear } from '@/context/AcademicYearContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-const Sidebar = () => {
+type SidebarProps = {
+    isOpen?: boolean;
+    onClose?: () => void;
+};
+
+const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
     const pathname = usePathname();
     const { academicYears, selectedYearId, setSelectedYearId } = useAcademicYear();
     const { t, locale } = useLanguage();

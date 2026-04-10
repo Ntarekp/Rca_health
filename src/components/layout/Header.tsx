@@ -1,19 +1,31 @@
 "use client";
 
 import React from 'react';
-import { Search, Bell, Settings, User } from 'lucide-react';
+import { Search, Bell, Settings, User, Menu } from 'lucide-react';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
-const Header = () => {
+type HeaderProps = {
+    onMenuClick?: () => void;
+};
+
+const Header = ({ onMenuClick }: HeaderProps) => {
     return (
         <header className="fixed top-0 right-0 left-0 h-header bg-white/80 backdrop-blur-md border-b border-border z-40 flex items-center justify-between px-4 sm:px-6 lg:px-8 md:ml-20 lg:ml-sidebar">
-            {/* Logo - Mobile Only */}
-            <div className="md:hidden flex items-center mr-3">
+            {/* Logo + Hamburger - Mobile Only */}
+            <div className="md:hidden flex items-center gap-2 mr-3">
                 <img
                     src="/assets/logo.png"
                     alt="RCA Logo"
                     className="w-8 h-8 object-contain"
                 />
+                <button
+                    type="button"
+                    onClick={onMenuClick}
+                    className="w-9 h-9 flex items-center justify-center rounded-10 text-text-tertiary hover:bg-bg-secondary hover:text-text-primary transition-all"
+                    aria-label="Open menu"
+                >
+                    <Menu size={20} />
+                </button>
             </div>
 
             {/* Global Search */}

@@ -5,7 +5,7 @@ import Header from "@/components/layout/Header";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import { AcademicYearProvider } from "@/context/AcademicYearContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function DashboardLayout({
     children,
